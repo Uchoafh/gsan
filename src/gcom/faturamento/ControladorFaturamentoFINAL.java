@@ -30127,217 +30127,108 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				.iniciarUnidadeProcessamentoBatch(idFuncionalidadeIniciada,
 						UnidadeProcessamento.FUNCIONALIDADE, 0);
 		try {
-			// Recupera os parâmetros do sistema
-			SistemaParametro sistemaParametro = getControladorUtil()
-					.pesquisarParametrosDoSistema();
+			SistemaParametro sistemaParametro = getControladorUtil().pesquisarParametrosDoSistema();
 
-			// Recupera o ano/mês de faturamento corrente
-			Integer anoMesFaturamentoCorrente = sistemaParametro
-					.getAnoMesFaturamento();
-
-			// Alterado por Sávio Luiz Data:12/11/2007 Analista:Aryed Lins
-			// Se o mês de faturamento for igual a 11 e o indicador
-			// faturamento
-			// antecipado for igual a 1, então seta o mes de faturamento
-			// igual a
-			// 12 em conta impressão,e imprime as contas no mes 12 também.
+			Integer anoMesFaturamentoCorrente = sistemaParametro.getAnoMesFaturamento();
 
 			Integer anoMesFaturamentoAntecipado = null;
 			if (Util.obterMes(anoMesFaturamentoCorrente) == 11) {
-				if (sistemaParametro.getIndicadorFaturamentoAntecipado()
-						.equals(ConstantesSistema.SIM)) {
-					anoMesFaturamentoAntecipado = Util
-							.somarData(anoMesFaturamentoCorrente);
+				if (sistemaParametro.getIndicadorFaturamentoAntecipado().equals(ConstantesSistema.SIM)) {
+					anoMesFaturamentoAntecipado = Util.somarData(anoMesFaturamentoCorrente);
 				}
 			}
 
-			// Cria a variável que vai armazenar a coleção de faturas
 			Collection<Fatura> colecaoFatura = new ArrayList();
 			Collection<Fatura> colecaoFaturaDez = new ArrayList();
 			Collection colecaoFaturaItem = new ArrayList();
+			Collection<Integer> colecaoClientesResponsaveis = null;
 
-			/**
-			 * Variáveis da paginação
-			 */
 			boolean flagTerminou = false;
 			boolean flagPrimeiraVez = true;
 			final int quantidadeRegistros = 500;
 			int numeroIndice = 0;
-			Collection<Integer> colecaoClientesResponsaveis = null;
 
-			// REMOVER ISSO DEPOIS
 			int quantidadeFatura = 0;
 
 			while (!flagTerminou) {
 
-				// Pesquisa na base de dados os clientes responsáveis pelos
-				// imóveis
-				// pesquisa os grupos de faturamentos
-				Collection<FaturamentoGrupo> colecaoFaturamentoGrupoNaoFaturados = this.repositorioFaturamento
-						.pesquisarGrupoFaturamentoNaoFaturados(anoMesFaturamentoCorrente);
+				Collection<FaturamentoGrupo> colecaoFaturamentoGrupoNaoFaturados = this.repositorioFaturamento.pesquisarGrupoFaturamentoNaoFaturados(anoMesFaturamentoCorrente);
 
-				if (colecaoFaturamentoGrupoNaoFaturados != null
-						&& !colecaoFaturamentoGrupoNaoFaturados.isEmpty()) {
-					colecaoClientesResponsaveis = repositorioFaturamento
-							.pesquisarClientesResponsaveisFaturamentoAntecipado(
-									sistemaParametro, numeroIndice,
-									quantidadeRegistros);
+				if (colecaoFaturamentoGrupoNaoFaturados != null && !colecaoFaturamentoGrupoNaoFaturados.isEmpty()) {
+					colecaoClientesResponsaveis = repositorioFaturamento.pesquisarClientesResponsaveisFaturamentoAntecipado(
+									sistemaParametro, numeroIndice, quantidadeRegistros);
 				} else {
-					colecaoClientesResponsaveis = repositorioFaturamento
-							.pesquisarClientesResponsaveis(sistemaParametro,
-									numeroIndice, quantidadeRegistros);
+					colecaoClientesResponsaveis = repositorioFaturamento.pesquisarClientesResponsaveis(sistemaParametro,numeroIndice, quantidadeRegistros);
 				}
 
+				logger.info("Quantidade de clientes responsavel: " + colecaoClientesResponsaveis.size());
+				
 				if (flagPrimeiraVez) {
 					flagPrimeiraVez = false;
 
-					// [FS0001] Verificar Existência de Cliente Responsável
-					if (colecaoClientesResponsaveis == null
-							|| colecaoClientesResponsaveis.isEmpty()) {
-						throw new ControladorException(
-								"atencao.nao.existe.cliente.responsavel");
+					if (colecaoClientesResponsaveis == null || colecaoClientesResponsaveis.isEmpty()) {
+						throw new ControladorException("atencao.nao.existe.cliente.responsavel");
 					}
 				}
 
-				// Caso exista clientes responsáveis cadastrados gera as faturas
-				// das
-				// contas dos imóveis para cada cliente
-				// Caso contrário levanta uma exeção para o usuário informando
-				// que
-				// não existe clientes responsáveis
-				if (colecaoClientesResponsaveis != null
-						&& !colecaoClientesResponsaveis.isEmpty()) {
+				if (colecaoClientesResponsaveis != null && !colecaoClientesResponsaveis.isEmpty()) {
 
-					// Laço para gerar as faturas das contas de cada cliente
-					// retornado
 					for (Integer idCliente : colecaoClientesResponsaveis) {
+
+						logger.info("INÍCIO - Cliente  de clientes responsavel: " + idCliente);
 
 						Cliente cliente = new Cliente();
 						cliente.setId(idCliente);
 
-						/**
-						 * Deleta as faturas existentes do cliente reponsável
-						 * por ano/mês de referência do faturamento e seus items
-						 * de fatura.
-						 */
-						// this.repositorioFaturamento
-						// .deletarFaturaClienteResponsavel(idCliente,
-						// anoMesFaturamentoCorrente,anoMesFaturamentoAntecipado);
+						Collection<Integer> colecaoIdsImoveisPorClienteResponsavel = repositorioFaturamento.pesquisarClienteImovelPorClienteResponsavel(idCliente);
 
-						// Pesquisa os imóveis de responsabilidade do cliente
-						Collection<Integer> colecaoIdsImoveisPorClienteResponsavel = repositorioFaturamento
-								.pesquisarClienteImovelPorClienteResponsavel(idCliente);
 
-						// Caso exista imóvel sobre a responsabilidade do
-						// cliente
-						if (colecaoIdsImoveisPorClienteResponsavel != null
-								&& !colecaoIdsImoveisPorClienteResponsavel
-										.isEmpty()) {
+						if (colecaoIdsImoveisPorClienteResponsavel != null && !colecaoIdsImoveisPorClienteResponsavel.isEmpty()) {
 
-							// Alterado por Sávio Luiz Data:19/11/2007
-							// Analista:Aryed Lins
-							// O do...while foi feito para rodar os 2
-							// meses(11,12) no caso de o mês de
-							// referencia for 11.
+							logger.info("	Qtd imóveis do cliente " + idCliente +  ": " + colecaoIdsImoveisPorClienteResponsavel.size());
+
 							int quantidadeMeses = 1;
 							do {
 								Object[] resumoContas = null;
 								Collection<Conta> colecaoContas = null;
-								// caso o mes corrente seja 11, então roda
-								// também o mês 12.
 								if (quantidadeMeses == 2) {
-									// Pesquisa o resumo das contas dos imóveis
-									// do
-									// cliente
-									// o metódo retorna um array de object
-									// contendo
-									// na
-									// primeira posição a soma do valor total
-									// das
-									// contas,
-									// na segunda posição contém a maior data de
-									// vencimento
-									// e na terceira posição a maior data de
-									// validade
-									resumoContas = (Object[]) repositorioFaturamento
-											.pesquisarResumoContasClienteResponsavel(
-													colecaoIdsImoveisPorClienteResponsavel,
-													anoMesFaturamentoAntecipado);
+									resumoContas = (Object[]) repositorioFaturamento.pesquisarResumoContasClienteResponsavel(
+													colecaoIdsImoveisPorClienteResponsavel,	anoMesFaturamentoAntecipado);
 
-									// Recupera todas as contas dos imóveis
-									// sobre
-									// responsabilidade do cliente
-									colecaoContas = repositorioFaturamento
-											.pesquisarContaImovelResponsabilidadeCliente(
-													colecaoIdsImoveisPorClienteResponsavel,
-													anoMesFaturamentoAntecipado);
+									colecaoContas = repositorioFaturamento.pesquisarContaImovelResponsabilidadeCliente(
+													colecaoIdsImoveisPorClienteResponsavel, anoMesFaturamentoAntecipado);
 
 								} else {
-									// Pesquisa o resumo das contas dos imóveis
-									// do
-									// cliente
-									// o metódo retorna um array de object
-									// contendo
-									// na
-									// primeira posição a soma do valor total
-									// das
-									// contas,
-									// na segunda posição contém a maior data de
-									// vencimento
-									// e na terceira posição a maior data de
-									// validade
-									resumoContas = (Object[]) repositorioFaturamento
-											.pesquisarResumoContasClienteResponsavel(
-													colecaoIdsImoveisPorClienteResponsavel,
-													anoMesFaturamentoCorrente);
+									resumoContas = (Object[]) repositorioFaturamento.pesquisarResumoContasClienteResponsavel(
+													colecaoIdsImoveisPorClienteResponsavel, anoMesFaturamentoCorrente);
 
-									// Recupera todas as contas dos imóveis
-									// sobre
-									// responsabilidade do cliente
-									colecaoContas = repositorioFaturamento
-											.pesquisarContaImovelResponsabilidadeCliente(
-													colecaoIdsImoveisPorClienteResponsavel,
-													anoMesFaturamentoCorrente);
+									colecaoContas = repositorioFaturamento.pesquisarContaImovelResponsabilidadeCliente(
+													colecaoIdsImoveisPorClienteResponsavel, anoMesFaturamentoCorrente);
 								}
 
-								// Caso exista contas para os imóveis sobre
-								// responsabilidade do cliente
-								// Gera a fatura e os items de fatura para cada
-								// conta
-								if (colecaoContas != null
-										&& !colecaoContas.isEmpty()) {
+								if (colecaoContas != null && !colecaoContas.isEmpty()) {
 
-									// Recupera as informações sobre o resumo
-									// das
-									// contas
-									// dos imóveis
+									logger.info("		Qtd contas do cliente " + idCliente +  ": " + colecaoContas.size());
+
 									BigDecimal valorDebito = (BigDecimal) resumoContas[0];
 
-									// Caso o valor do débito seja nulo atribuir
-									// o
-									// valor
-									// zero
 									if (valorDebito == null) {
 										valorDebito = new BigDecimal("0.00");
 									}
 
-									// Recupera as maiores datas de vencimento e
-									// resumo
-									// do array retornado
+									logger.info("		Valor debito: " + valorDebito);
+
 									Date dataVencimento = (Date) resumoContas[1];
 									Date dataValidade = (Date) resumoContas[2];
 
-									// Gera a fatura para o resumo das contas
-									// dos
-									// imóveis sobre responsabilidade do cliente
 									Fatura fatura = new Fatura();
-									// caso o mes corrente seja 11, então roda
-									// também o mês 12.
+
 									if (quantidadeMeses == 2) {
 										fatura.setAnoMesReferencia(anoMesFaturamentoAntecipado);
 									} else {
 										fatura.setAnoMesReferencia(anoMesFaturamentoCorrente);
 									}
+									
 									fatura.setSequencial(0);
 									fatura.setEmissao(new Date());
 									fatura.setVencimento(dataVencimento);
@@ -30347,152 +30238,58 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 									fatura.setCliente(cliente);
 									fatura.setUltimaAlteracao(new Date());
 
-									// Caso o valor do débito da fatura seja
-									// menor
-									// que
-									// um centavo
-									// não gera a fatura
-									if (fatura.getDebito().compareTo(
-											new BigDecimal("0.01")) != -1) {
+									if (fatura.getDebito().compareTo(new BigDecimal("0.01")) != -1) {
 
-										// Inseri a fatura na base e recupera o
-										// código
-										// gerado
-										Integer idFatura = (Integer) getControladorUtil()
-												.inserir(fatura);
 
-										// Incrementa a quantidade de faturas
-										// geradas
+										Integer idFatura = (Integer) getControladorUtil().inserir(fatura);
+										logger.info("		Fatura: " + idFatura);
+
 										quantidadeFatura++;
 
-										// Atualiza o código da fatura e o
-										// sequêncial
-										// setndo o códigoda fatura gerada
 										fatura.setId(idFatura);
 										fatura.setSequencial(idFatura);
 										getControladorUtil().atualizar(fatura);
 
-										// caso o mes corrente seja 11, então
-										// roda também o mês 12.
-										// e adiciona em outra coleção para
-										// emitir separado
 										if (quantidadeMeses == 2) {
-											// Adiciona a fatura a coleção
 											colecaoFaturaDez.add(fatura);
 										} else {
-											// Adiciona a fatura a coleção
 											colecaoFatura.add(fatura);
 										}
 
-										// Gera os items da fatura para cada
-										// conta
-										// Cria a variável que vai armazenar o
-										// sequêncial do
-										// item da fatura
 										Integer itemSequencial = 1;
 
-										// Laço para gerar os items da fatura
-										// para
-										// cada
-										// conta
 										for (Conta conta : colecaoContas) {
 
-											Short ligacaoAguaSituacaoIndicadorFaturamento = conta
-													.getLigacaoAguaSituacao()
-													.getIndicadorFaturamentoSituacao();
+											Short ligacaoAguaSituacaoIndicadorFaturamento = conta.getLigacaoAguaSituacao().getIndicadorFaturamentoSituacao();
 
-											// Cria a varável que vai armazenar
-											// o
-											// número
-											// de
-											// consumo
 											Integer numeroConsumo = 0;
 
-											// Caso a situação da ligação de
-											// água
-											// seja
-											// igual
-											// a ligado ou cortado o nº de
-											// consumo
-											// vai
-											// ser o
-											// nº
-											// de consumo da água
-											// Caso contrário e caso a situação
-											// da
-											// ligação
-											// de esgoto for igual a ligado
-											// o nº de consumo vai receber o nº
-											// de
-											// consumo
-											// de esgoto
-
-											/*
-											 * alterado por pedro alexandre dia
-											 * 12/12/2007 para ser feito agora
-											 * pelo indicador de faturamento.
-											 * Alteração solicitada por leonardo
-											 * vieira.
-											 */
-											/*
-											 * if
-											 * (conta.getLigacaoAguaSituacao()
-											 * .getId().intValue() ==
-											 * LigacaoAguaSituacao.LIGADO
-											 * .intValue() || conta
-											 * .getLigacaoAguaSituacao()
-											 * .getId().intValue() ==
-											 * LigacaoAguaSituacao.CORTADO
-											 * .intValue()) {
-											 */
-											if (ligacaoAguaSituacaoIndicadorFaturamento
-													.equals(LigacaoAguaSituacao.FATURAMENTO_ATIVO)) {
-												numeroConsumo = conta
-														.getConsumoAgua();
-											} else if (conta
-													.getLigacaoEsgotoSituacao()
-													.getId().intValue() == LigacaoEsgotoSituacao.LIGADO
-													.intValue()) {
-												numeroConsumo = conta
-														.getConsumoEsgoto();
+											if (ligacaoAguaSituacaoIndicadorFaturamento.equals(LigacaoAguaSituacao.FATURAMENTO_ATIVO)) {
+												numeroConsumo = conta.getConsumoAgua();
+											} else if (conta.getLigacaoEsgotoSituacao().getId().intValue() == LigacaoEsgotoSituacao.LIGADO.intValue()) {
+												numeroConsumo = conta.getConsumoEsgoto();
 											}
 
-											// Cria o item da fatura
-											FaturaItem faturaItem = new FaturaItem();
-											faturaItem.setFatura(fatura);
-											faturaItem
-													.setItemSequencia(itemSequencial);
-											faturaItem.setImovel(conta
-													.getImovel());
 											ContaGeral contaGeral = new ContaGeral();
 											contaGeral.setId(conta.getId());
-											faturaItem
-													.setContaGeral(contaGeral);
-											faturaItem.setValorConta(conta
-													.getValorTotal());
 
-											// Alterado por Sávio Luiz
-											// Data:19/11/2007 Analista:Rosana
-											faturaItem.setValorImposto(conta
-													.getValorImposto());
+											FaturaItem faturaItem = new FaturaItem();
+											faturaItem.setFatura(fatura);
+											faturaItem.setItemSequencia(itemSequencial);
+											faturaItem.setImovel(conta.getImovel());
+											faturaItem.setContaGeral(contaGeral);
+											faturaItem.setValorConta(conta.getValorTotal());
+											faturaItem.setValorImposto(conta.getValorImposto());
+											faturaItem.setNumeroConsumo(numeroConsumo);
+											faturaItem.setUltimaAlteracao(new Date());
 
-											faturaItem
-													.setNumeroConsumo(numeroConsumo);
-											faturaItem
-													.setUltimaAlteracao(new Date());
-
-											// Gera o item da fatura
-											// getControladorUtil().inserir(faturaItem);
 											colecaoFaturaItem.add(faturaItem);
 
-											// Incrementa o sequêncial do item
 											itemSequencial++;
 										}
 									}
 								}
 
-								// caso n exista mes ano antecipado então não
-								// roda outra vez.
 								if (anoMesFaturamentoAntecipado == null) {
 									quantidadeMeses = 3;
 								} else {
@@ -30502,59 +30299,40 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 							} while (quantidadeMeses <= 2);
 
 						}
+						
+						logger.info("FIM  cliente responsavel: " + idCliente);
+
 					}
 				}
 
-				/**
-				 * Incrementa o nº do indice da páginação
-				 */
 				numeroIndice = numeroIndice + quantidadeRegistros;
 
-				/**
-				 * Caso a coleção de clientes responsáveis retornados for menor
-				 * que a quantidade de registros seta a flag indicando que a
-				 * paginação terminou.
-				 */
-				if (colecaoClientesResponsaveis != null
-						&& colecaoClientesResponsaveis.size() < quantidadeRegistros) {
+				if (colecaoClientesResponsaveis != null && colecaoClientesResponsaveis.size() < quantidadeRegistros) {
 					flagTerminou = true;
 				}
 				colecaoClientesResponsaveis = null;
 
-				/**
-				 * Inseri todos os itens de fatura criados.
-				 */
-				getControladorBatch().inserirColecaoObjetoParaBatch(
-						colecaoFaturaItem);
+				getControladorBatch().inserirColecaoObjetoParaBatch(colecaoFaturaItem);
+				
 				colecaoFaturaItem = null;
 				colecaoFaturaItem = new ArrayList();
 
-			}// while da paginação
+			}
 
-			// [UC0321] Emitir Fatura de Cliente Responsável
 			if (colecaoFatura != null && !colecaoFatura.isEmpty()) {
-				this.emitirFaturaClienteResponsavel(colecaoFatura,
-						anoMesFaturamentoCorrente);
+				this.emitirFaturaClienteResponsavel(colecaoFatura,anoMesFaturamentoCorrente);
 			}
-			// caso o mes corrente seja 11, então roda também o mês 12.
-			// Caso a coleção de dezembro tenha dados, então chama o emitir
-			// passando os dados de dezembro
+			
 			if (colecaoFaturaDez != null && !colecaoFaturaDez.isEmpty()) {
-				// [UC0321] Emitir Fatura de Cliente Responsável
-				this.emitirFaturaClienteResponsavel(colecaoFaturaDez,
-						anoMesFaturamentoAntecipado);
+				this.emitirFaturaClienteResponsavel(colecaoFaturaDez, anoMesFaturamentoAntecipado);
 			}
 
-			getControladorBatch().encerrarUnidadeProcessamentoBatch(null,
-					idUnidadeIniciada, false);
+			getControladorBatch().encerrarUnidadeProcessamentoBatch(null, idUnidadeIniciada, false);
 
-			// Erro no repositório
 		} catch (Exception ex) {
 
 			ex.printStackTrace();
-
-			getControladorBatch().encerrarUnidadeProcessamentoBatch(ex,
-					idUnidadeIniciada, true);
+			getControladorBatch().encerrarUnidadeProcessamentoBatch(ex,idUnidadeIniciada, true);
 
 			throw new ControladorException("erro.sistema", ex);
 		}
