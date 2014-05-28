@@ -51858,10 +51858,9 @@ public class Fachada {
 	 * @param tipoFinalizacao
 	 * @throws ErroRepositorioException
 	 */
-	public StringBuilder obterNomeArquivoRetorno(Localidade localidade, Integer codigoSetor,
-    		Integer codigoRota, Integer anoMesReferencia, Short tipoFinalizacao) {
+	public StringBuilder obterNomeArquivoRetorno(ArquivoTextoRetornoIS arquivoRetorno) {
 		
-		return getControladorFaturamento().obterNomeArquivoRetorno(localidade, codigoSetor, codigoRota, anoMesReferencia, tipoFinalizacao);
+		return getControladorFaturamento().obterNomeArquivoRetorno(arquivoRetorno);
 	}
 	
 	/**
@@ -52015,32 +52014,15 @@ public class Fachada {
 		}
 	}
 	
-	/**TODO:COSANPA
-	 * @author Adriana Muniz
-	 * @date 15/02/2013
-	 * 
-	 * @param leituraAnterior
-	 * @param leituraAtual
-	 * @param leituraSituacao
-	 * @param idImovel
-	 * @param anoMes
-	 * @param faturamentoGrupo
-	 * @param sistemaParametro
-	 * @param dataLeituraAtualInformada
-	 * @param idLeituraAnormalidade
-	 * @param alterouAnormalidade
-	 */
 	public void calcularLeituraConfirmada(Integer leituraAnterior,
 			Integer leituraAtual, LeituraSituacao leituraSituacao, Integer idImovel, Integer anoMes, 
 			FaturamentoGrupo faturamentoGrupo, SistemaParametro sistemaParametro, String dataLeituraAtualInformada, 
 			Integer idLeituraAnormalidade, boolean alterouAnormalidade) {
-		// TODO Auto-generated method stub
 		try {
 			this.getControladorMicromedicao().calcularLeituraConfirmada(leituraAnterior, leituraAtual, 
 					leituraSituacao, idImovel, anoMes, faturamentoGrupo, sistemaParametro, dataLeituraAtualInformada,
 					idLeituraAnormalidade, alterouAnormalidade);
 		} catch (ControladorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
 		}
@@ -52337,6 +52319,30 @@ public class Fachada {
 	public ImovelControleAtualizacaoCadastral pesquisarImovelControleAtualizacaoCadastral(Integer idImovel) {
 		try {
 			return this.getControladorImovel().pesquisarImovelControleAtualizacaoCadastral(idImovel);
+		} catch (ControladorException e) {
+			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
+		}
+	}
+	
+	public void fiscalizarImovel(Integer idImovel) {
+		try {
+			this.getControladorAtualizacaoCadastral().fiscalizarImovel(idImovel);
+		} catch (ControladorException e) {
+			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
+		}
+	}
+
+	public Collection pesquisarDadosFichaFiscalizacaoCadastral(List<Integer> listaIdImoveis) {
+		try {
+			return this.getControladorAtualizacaoCadastral().pesquisarDadosFichaFiscalizacaoCadastral(listaIdImoveis);
+		} catch (ControladorException e) {
+			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
+		}
+	}
+	
+	public ImovelControleAtualizacaoCadastral pesquisarImovelControleAtualizacao(Integer idImovel) {
+		try {
+			return this.getControladorAtualizacaoCadastral().pesquisarImovelControleAtualizacao(idImovel);
 		} catch (ControladorException e) {
 			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
 		}
