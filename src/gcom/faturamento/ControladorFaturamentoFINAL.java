@@ -17120,7 +17120,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 									lancamentoItem, null, new Short("200"), ZERO);
 							
 							resumoFaturamentoReceitaBruta = this.acumularValorResumoFaturamento(resumoFaturamentoReceitaBruta, resumoFaturamentoTemporario.getValorItemFaturamento());
-							resumoFaturamentoTotalCobradoNasContas = this.acumularValorResumoFaturamento(resumoFaturamentoReceitaBruta, resumoFaturamentoTemporario.getValorItemFaturamento());
+							resumoFaturamentoTotalCobradoNasContas = this.acumularValorResumoFaturamento(resumoFaturamentoTotalCobradoNasContas, resumoFaturamentoTemporario.getValorItemFaturamento());
 							
 							colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 						}
@@ -17172,7 +17172,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoTipo = new LancamentoTipo(LancamentoTipo.INCLUSOES_POR_REFATURAMENTO);
 						lancamentoItem = new LancamentoItem(LancamentoItem.GRUPO_CONTABIL);
 
-						ResumoFaturamento resumoFaturamentoDebitoACobrarLongoPrazo = buildResumoFaturamento(somaValorLongoPrazo, anoMesFaturamento, categoria, localidade, lancamentoTipo, 
+						resumoFaturamentoTemporario = buildResumoFaturamento(valorItemFaturamento, anoMesFaturamento, categoria, localidade, lancamentoTipo, 
 								lancamentoItem, lancamentoItemContabilTemp, new Short("510"), lancamentoItemContabilTemp.getSequenciaImpressao());
 						
 						Collection<Integer> colecaoFinanciamentoTipos = new ArrayList<Integer>();
@@ -19422,22 +19422,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 									.setId(idItemLancamentoContabil);
 
 							ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-							resumoFaturamento
-									.setAnoMesReferencia(anoMesFaturamento);
-							resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-							resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-							resumoFaturamentoTemporario.setLocalidade(localidade);
-							resumoFaturamentoTemporario.setCategoria(categoria);
-							resumoFaturamento
-									.setLancamentoItemContabil(lancamentoItemContabilTemp);
-							resumoFaturamento
-									.setSequenciaItemTipoLancamento(sequenciaImpressao);
+							resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+							resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+							resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+							resumoFaturamento.setLocalidade(localidade);
+							resumoFaturamento.setCategoria(categoria);
+							resumoFaturamento.setLancamentoItemContabil(lancamentoItemContabilTemp);
+							resumoFaturamento.setSequenciaItemTipoLancamento(sequenciaImpressao);
 							resumoFaturamento.setValorItemFaturamento(valor);
 							resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 							resumoFaturamento.setLancamentoItem(lancamentoItem);
-							resumoFaturamento
-									.setSequenciaTipoLancamento(new Short(
-											"1700"));
+							resumoFaturamento.setSequenciaTipoLancamento(new Short("1700"));
 							resumoFaturamento.setUltimaAlteracao(new Date());
 
 							// soma o sequência igual 1700 ao total cobrado nas
@@ -19487,22 +19482,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 									.setId(idItemLancamentoContabil);
 
 							ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-							resumoFaturamento
-									.setAnoMesReferencia(anoMesFaturamento);
-									resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-									resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-									resumoFaturamentoTemporario.setLocalidade(localidade);
-									resumoFaturamentoTemporario.setCategoria(categoria);
-							resumoFaturamento
-									.setLancamentoItemContabil(lancamentoItemContabilTemp);
-							resumoFaturamento
-									.setSequenciaItemTipoLancamento(sequenciaImpressao);
+							resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+							resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+							resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+							resumoFaturamento.setLocalidade(localidade);
+							resumoFaturamento.setCategoria(categoria);
+							resumoFaturamento.setLancamentoItemContabil(lancamentoItemContabilTemp);
+							resumoFaturamento.setSequenciaItemTipoLancamento(sequenciaImpressao);
 							resumoFaturamento.setValorItemFaturamento(valor);
 							resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 							resumoFaturamento.setLancamentoItem(lancamentoItem);
-							resumoFaturamento
-									.setSequenciaTipoLancamento(new Short(
-											"1800"));
+							resumoFaturamento.setSequenciaTipoLancamento(new Short("1800"));
 							resumoFaturamento.setUltimaAlteracao(new Date());
 
 							colecaoResumoFaturamento.add(resumoFaturamento);
@@ -19552,22 +19542,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 									.setId(idItemLancamentoContabil);
 
 							ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-							resumoFaturamento
-									.setAnoMesReferencia(anoMesFaturamento);
+							resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
 							resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
 							resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
 							resumoFaturamento.setLocalidade(localidade);
 							resumoFaturamento.setCategoria(categoria);
-							resumoFaturamento
-									.setLancamentoItemContabil(lancamentoItemContabilTemp);
-							resumoFaturamento
-									.setSequenciaItemTipoLancamento(sequenciaImpressao);
+							resumoFaturamento.setLancamentoItemContabil(lancamentoItemContabilTemp);
+							resumoFaturamento.setSequenciaItemTipoLancamento(sequenciaImpressao);
 							resumoFaturamento.setValorItemFaturamento(valor);
 							resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 							resumoFaturamento.setLancamentoItem(lancamentoItem);
-							resumoFaturamento
-									.setSequenciaTipoLancamento(new Short(
-											"1900"));
+							resumoFaturamento.setSequenciaTipoLancamento(new Short("1900"));
 							resumoFaturamento.setUltimaAlteracao(new Date());
 
 							// soma o sequência igual 1900 ao total cobrado nas
@@ -19619,22 +19604,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 									.setId(idItemLancamentoContabil);
 
 							ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-							resumoFaturamento
-									.setAnoMesReferencia(anoMesFaturamento);
-							resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-							resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-							resumoFaturamentoTemporario.setLocalidade(localidade);
-							resumoFaturamentoTemporario.setCategoria(categoria);
-							resumoFaturamento
-									.setLancamentoItemContabil(lancamentoItemContabilTemp);
-							resumoFaturamento
-									.setSequenciaItemTipoLancamento(sequenciaImpressao);
+							resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+							resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+							resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+							resumoFaturamento.setLocalidade(localidade);
+							resumoFaturamento.setCategoria(categoria);
+							resumoFaturamento.setLancamentoItemContabil(lancamentoItemContabilTemp);
+							resumoFaturamento.setSequenciaItemTipoLancamento(sequenciaImpressao);
 							resumoFaturamento.setValorItemFaturamento(valor);
 							resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 							resumoFaturamento.setLancamentoItem(lancamentoItem);
-							resumoFaturamento
-									.setSequenciaTipoLancamento(new Short(
-											"2100"));
+							resumoFaturamento.setSequenciaTipoLancamento(new Short("2100"));
 							resumoFaturamento.setUltimaAlteracao(new Date());
 
 							// soma o sequência igual 2100 ao total cobrado nas
@@ -19962,21 +19942,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoItem.setId(LancamentoItem.IMPOSTO_RENDA);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
-						resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-						resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+						resumoFaturamento.setLocalidade(localidade);
+						resumoFaturamento.setCategoria(categoria);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2150"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("10"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2150"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("10"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// inseri o resumo de faturamento a coleção principal
@@ -20016,21 +19992,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoItem.setId(LancamentoItem.COFINS);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
-						resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-						resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+						resumoFaturamento.setLocalidade(localidade);
+						resumoFaturamento.setCategoria(categoria);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2150"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("20"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2150"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("20"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2150 ao total cobrado nas
@@ -20071,21 +20043,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoItem.setId(LancamentoItem.CSLL);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
-						resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-						resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+						resumoFaturamento.setLocalidade(localidade);
+						resumoFaturamento.setCategoria(categoria);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2150"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("30"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2150"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("30"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2150 ao total cobrado nas
@@ -20126,21 +20094,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoItem.setId(LancamentoItem.PIS_PASEP);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
-						resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-						resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+						resumoFaturamento.setLocalidade(localidade);
+						resumoFaturamento.setCategoria(categoria);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2150"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("40"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2150"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("40"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2150 ao total cobrado nas
@@ -20300,21 +20264,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setId(LancamentoItem.DESCONTOS_CONCEDIDOS);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
 						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
 						resumoFaturamento.setLocalidade(localidade);
 						resumoFaturamento.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2200"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("20"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2200"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("20"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2200 ao total cobrado nas
@@ -20367,21 +20327,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setId(LancamentoItem.DESCONTOS_CONDICIONAIS);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
 						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
 						resumoFaturamento.setLocalidade(localidade);
 						resumoFaturamento.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2200"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("30"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2200"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("30"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2200 ao total cobrado nas
@@ -20435,21 +20391,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setId(LancamentoItem.DESCONTOS_INCONDICIONAIS);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
 						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
 						resumoFaturamento.setLocalidade(localidade);
 						resumoFaturamento.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2200"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("40"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2200"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("40"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2200 ao total cobrado nas
@@ -20502,8 +20454,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setId(LancamentoItem.AJUSTES_PARA_ZERAR_CONTA);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
 						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
 						resumoFaturamento.setLocalidade(localidade);
@@ -20512,10 +20463,8 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2200"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("50"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2200"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("50"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2200 ao total cobrado nas
@@ -20567,21 +20516,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoItem.setId(LancamentoItem.AGUA);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
-						resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-						resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+						resumoFaturamento.setLocalidade(localidade);
+						resumoFaturamento.setCategoria(categoria);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2300"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("10"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2300"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("10"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2300 ao total cobrado nas
@@ -20633,21 +20578,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoItem.setId(LancamentoItem.ESGOTO);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
-						resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-						resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+						resumoFaturamento.setLocalidade(localidade);
+						resumoFaturamento.setCategoria(categoria);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2300"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(new Short("20"));
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2300"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(new Short("20"));
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2300 ao total cobrado nas
@@ -20713,22 +20654,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 							lancamentoItem.setId(LancamentoItem.GRUPO_CONTABIL);
 
 							ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-							resumoFaturamento
-									.setAnoMesReferencia(anoMesFaturamento);
-							resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-							resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-							resumoFaturamentoTemporario.setLocalidade(localidade);
-							resumoFaturamentoTemporario.setCategoria(categoria);
+							resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+							resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+							resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+							resumoFaturamento.setLocalidade(localidade);
+							resumoFaturamento.setCategoria(categoria);
 							resumoFaturamento.setValorItemFaturamento(valor);
 							resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 							resumoFaturamento.setLancamentoItem(lancamentoItem);
-							resumoFaturamento
-									.setSequenciaTipoLancamento(new Short(
-											"2300"));
-							resumoFaturamento
-									.setLancamentoItemContabil(lancamentoItemContabil);
-							resumoFaturamento
-									.setSequenciaItemTipoLancamento(sequenciaImpressao);
+							resumoFaturamento.setSequenciaTipoLancamento(new Short("2300"));
+							resumoFaturamento.setLancamentoItemContabil(lancamentoItemContabil);
+							resumoFaturamento.setSequenciaItemTipoLancamento(sequenciaImpressao);
 							resumoFaturamento.setUltimaAlteracao(new Date());
 
 							// subtrai o sequência igual 2300 ao total cobrado
@@ -20783,21 +20719,17 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						lancamentoItem.setId(LancamentoItem.JUROS);
 
 						ResumoFaturamento resumoFaturamento = new ResumoFaturamento();
-						resumoFaturamento
-								.setAnoMesReferencia(anoMesFaturamento);
-						resumoFaturamentoTemporario.setGerenciaRegional(localidade.getGerenciaRegional());
-						resumoFaturamentoTemporario.setUnidadeNegocio(localidade.getUnidadeNegocio());
-						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario.setCategoria(categoria);
-						resumoFaturamento
-								.setValorItemFaturamento(valorItemFaturamento);
+						resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
+						resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+						resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+						resumoFaturamento.setLocalidade(localidade);
+						resumoFaturamento.setCategoria(categoria);
+						resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 						resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 						resumoFaturamento.setLancamentoItem(lancamentoItem);
 						resumoFaturamento.setLancamentoItemContabil(null);
-						resumoFaturamento.setSequenciaTipoLancamento(new Short(
-								"2300"));
-						resumoFaturamento
-								.setSequenciaItemTipoLancamento(maxSequencialImpressaoMais10);
+						resumoFaturamento.setSequenciaTipoLancamento(new Short("2300"));
+						resumoFaturamento.setSequenciaItemTipoLancamento(maxSequencialImpressaoMais10);
 						resumoFaturamento.setUltimaAlteracao(new Date());
 
 						// subtrai o sequência igual 2300 ao total cobrado nas
@@ -20882,25 +20814,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2800"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("10"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2800"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("10"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 86
 					// System.out.println("Linha 90");
@@ -20937,25 +20860,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2900"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("10"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2900"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("10"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 90
 					// System.out.println("Linha 87");
@@ -21017,30 +20931,22 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						
 						lancamentoTipo = new LancamentoTipo();
 						lancamentoItem = new LancamentoItem();
-						lancamentoTipo
-								.setId(LancamentoTipo.IMPOSTOS_CANCELADOS_REFATURAMENTO);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
+						lancamentoTipo.setId(LancamentoTipo.IMPOSTOS_CANCELADOS_REFATURAMENTO);
 						lancamentoItem.setId(LancamentoItem.COFINS);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2800"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("20"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2800"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("20"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 87
 					// System.out.println("Linha 91");
@@ -21077,25 +20983,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2900"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("20"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2900"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("20"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 91
 					// System.out.println("Linha 88");
@@ -21162,25 +21059,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2800"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("30"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2800"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("30"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 88
 					// System.out.println("Linha 92");
@@ -21217,25 +21105,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2900"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("30"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2900"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("30"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 92
 					// System.out.println("Linha 89");
@@ -21303,25 +21182,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2800"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("40"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2800"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("40"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 89
 					// System.out.println("Linha 93");
@@ -21358,25 +21228,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("2900"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("40"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("2900"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("40"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 93
 					// System.out.println("Linha 94");
@@ -21442,25 +21303,16 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								.setAnoMesReferencia(anoMesFaturamento);
 						resumoFaturamentoTemporario.setCategoria(categoria);
 						resumoFaturamentoTemporario.setLocalidade(localidade);
-						resumoFaturamentoTemporario
-								.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoTemporario
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoTemporario
-								.setLancamentoTipo(lancamentoTipo);
-						resumoFaturamentoTemporario
-								.setLancamentoItem(lancamentoItem);
-						resumoFaturamentoTemporario
-								.setLancamentoItemContabil(null);
-						resumoFaturamentoTemporario
-								.setSequenciaTipoLancamento(new Short("3000"));
-						resumoFaturamentoTemporario
-								.setSequenciaItemTipoLancamento(new Short("10"));
-						resumoFaturamentoTemporario
-								.setUltimaAlteracao(new Date());
+						resumoFaturamentoTemporario.setUnidadeNegocio(unidadeNegocio);
+						resumoFaturamentoTemporario.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoTemporario.setLancamentoTipo(lancamentoTipo);
+						resumoFaturamentoTemporario.setLancamentoItem(lancamentoItem);
+						resumoFaturamentoTemporario.setLancamentoItemContabil(null);
+						resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("3000"));
+						resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("10"));
+						resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
 
-						colecaoResumoFaturamento
-								.add(resumoFaturamentoTemporario);
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					// fim Linha 94
 					// System.out.println("Linha 95");
@@ -24205,7 +24057,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					
-					//colecaoResumoFaturamento.addAll(this.contabilizarCreditosDaRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria));
+					colecaoResumoFaturamento.addAll(this.contabilizarCreditosDaRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria));
 				}
 
 				if (colecaoResumoFaturamento != null && !colecaoResumoFaturamento.isEmpty()) {
@@ -24450,15 +24302,18 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		resumoFaturamento.setValorItemFaturamento(valorItemFaturamento);
 		resumoFaturamento.setAnoMesReferencia(anoMesFaturamento);
 		resumoFaturamento.setCategoria(categoria);
-		resumoFaturamento.setLocalidade(localidade);
-		resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
-		resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
 		resumoFaturamento.setLancamentoTipo(lancamentoTipo);
 		resumoFaturamento.setLancamentoItem(lancamentoItem);
 		resumoFaturamento.setLancamentoItemContabil(lancamentoItemContabil);
 		resumoFaturamento.setSequenciaTipoLancamento(seqTipoLancamento);
 		resumoFaturamento.setSequenciaItemTipoLancamento(seqItemTipoLancamento);
 		resumoFaturamento.setUltimaAlteracao(new Date());
+		
+		if (localidade != null) {
+			resumoFaturamento.setLocalidade(localidade);
+			resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());
+			resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
+		}
 
 		return resumoFaturamento;
 	}
@@ -24721,31 +24576,21 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 					if (dadoReceitaLiquidaIndireta != null) {
 
-						LancamentoTipo lancamentoTipoAgua = new LancamentoTipo();
-						lancamentoTipoAgua
-								.setId(LancamentoTipo.RECEITA_LIQUIDA);
-						LancamentoItem lancamentoItemAgua = new LancamentoItem();
-						lancamentoItemAgua.setId(LancamentoItem.INDIRETA);
+						LancamentoTipo lancamentoTipoAgua = new LancamentoTipo(LancamentoTipo.RECEITA_LIQUIDA);
+						LancamentoItem lancamentoItemAgua = new LancamentoItem(LancamentoItem.INDIRETA);
 
 						ResumoFaturamento resumoFaturamentoAgua = new ResumoFaturamento();
-						resumoFaturamentoAgua
-								.setValorItemFaturamento(dadoReceitaLiquidaIndireta);
-						resumoFaturamentoAgua
-								.setAnoMesReferencia(anoMesFaturamentoSistemaParametro);
+						resumoFaturamentoAgua.setValorItemFaturamento(dadoReceitaLiquidaIndireta);
+						resumoFaturamentoAgua.setAnoMesReferencia(anoMesFaturamentoSistemaParametro);
 						resumoFaturamentoAgua.setCategoria(categoria);
 						resumoFaturamentoAgua.setLocalidade(localidade);
 						resumoFaturamentoAgua.setUnidadeNegocio(unidadeNegocio);
-						resumoFaturamentoAgua
-								.setGerenciaRegional(gerenciaRegional);
-						resumoFaturamentoAgua
-								.setLancamentoTipo(lancamentoTipoAgua);
-						resumoFaturamentoAgua
-								.setLancamentoItem(lancamentoItemAgua);
+						resumoFaturamentoAgua.setGerenciaRegional(gerenciaRegional);
+						resumoFaturamentoAgua.setLancamentoTipo(lancamentoTipoAgua);
+						resumoFaturamentoAgua.setLancamentoItem(lancamentoItemAgua);
 						resumoFaturamentoAgua.setLancamentoItemContabil(null);
-						resumoFaturamentoAgua
-								.setSequenciaTipoLancamento(new Short("1130"));
-						resumoFaturamentoAgua
-								.setSequenciaItemTipoLancamento(new Short("0"));
+						resumoFaturamentoAgua.setSequenciaTipoLancamento(new Short("1130"));
+						resumoFaturamentoAgua.setSequenciaItemTipoLancamento(new Short("0"));
 						resumoFaturamentoAgua.setUltimaAlteracao(new Date());
 
 						colecaoResumoFaturamento.add(resumoFaturamentoAgua);
