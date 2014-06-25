@@ -20788,7 +20788,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 		 * @author Wellington Rocha
 		 * @date 14/03/2012*/
 		try {
-			consulta = "SELECT pgmt.id,pgmt.valorPagamento, pgmt.dataPagamento " + "FROM Pagamento as pgmt "
+			consulta = "SELECT pgmt FROM Pagamento as pgmt "
 			+ "WHERE pgmt.contaGeral.id = :idConta ";
 
 			retorno = (Object[]) session.createQuery(consulta).setInteger(

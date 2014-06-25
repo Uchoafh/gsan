@@ -366,6 +366,10 @@ public class ContaHistorico implements IConta {
     public ContaHistorico() {
     }
 
+    public ContaHistorico(Integer id) {
+    	this.id = id;
+    }
+    
     /** minimal constructor */
     public ContaHistorico(Integer id, int anoMesReferenciaConta, Short lote, Short sublote, 
     		Integer setorComercial, Integer numeroQuadra, short verificadorConta, short indicadorCobrancaMulta, 

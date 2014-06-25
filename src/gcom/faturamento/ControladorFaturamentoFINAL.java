@@ -17925,7 +17925,6 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 					resumoFaturamentoTemporario.setSequenciaTipoLancamento(new Short("510"));
 					resumoFaturamentoTemporario.setSequenciaItemTipoLancamento(new Short("10"));
 					resumoFaturamentoTemporario.setUltimaAlteracao(new Date());
-
 					// Guarda todos os valores incluidos por retificacao que tb
 					// tiveram cancelamentos por retificacao
 					resumoFaturamentoTemporario
@@ -23985,7 +23984,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 					
 					
 					//LANCAMENTO TIPO: OUTROS_CREDITOS_A_REALIZAR_CANCELADOS - ITEM 1610
-					resumoFaturamentoTemporario = obterResumoValorCreditoARealizarPorOrigemCreditoSituacoesConta(anoMesFaturamento, localidade,  
+					resumoFaturamentoTemporario = obterResumoValorCreditoARealizarPorOrigemCreditoDuplicidade(anoMesFaturamento, localidade,  
 							categoria, CreditoOrigem.CONTAS_PAGAS_EM_DUPLICIDADE_EXCESSO, DebitoCreditoSituacao.NORMAL, DebitoCreditoSituacao.NORMAL, 
 							LancamentoTipo.OUTROS_CREDITOS_A_REALIZAR_INCLUIDOS,
 							LancamentoItem.CONTAS_PAGA_EM_DUPLICIDADE_EXCESSO, new Short("1610"), new Short("10"));
@@ -24265,6 +24264,23 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			Integer idLancamentoTipo, Integer idLancamentoItem, Short seqTipoLancamento, Short seqItemTipoLancamento) throws ErroRepositorioException {
 		
 		BigDecimal valorItemFaturamento = repositorioFaturamento.acumularValorCreditoARealizarPorOrigemCredito(
+						anoMesFaturamento, localidade.getId(), categoria.getId(), idCreditoOrigem, idSituacaoAtualConta, idSituacaoAnteriorConta);
+
+		if (valorItemFaturamento.compareTo(BigDecimal.ZERO) != 0) {
+			ResumoFaturamento resumoFaturamento = buildResumoFaturamento(valorItemFaturamento, anoMesFaturamento, categoria, localidade, 
+					new LancamentoTipo(idLancamentoTipo), new LancamentoItem(idLancamentoItem), null, seqTipoLancamento, seqItemTipoLancamento);
+
+			return resumoFaturamento;
+		} else {
+			return null;
+		}
+	}
+	
+	private ResumoFaturamento obterResumoValorCreditoARealizarPorOrigemCreditoDuplicidade(int anoMesFaturamento, Localidade localidade, 
+			Categoria categoria, Integer idCreditoOrigem, Integer idSituacaoAtualConta, Integer idSituacaoAnteriorConta,
+			Integer idLancamentoTipo, Integer idLancamentoItem, Short seqTipoLancamento, Short seqItemTipoLancamento) throws ErroRepositorioException {
+		
+		BigDecimal valorItemFaturamento = repositorioFaturamento.acumularValorCreditoARealizarPorOrigemCreditoDuplicidade(
 						anoMesFaturamento, localidade.getId(), categoria.getId(), idCreditoOrigem, idSituacaoAtualConta, idSituacaoAnteriorConta);
 
 		if (valorItemFaturamento.compareTo(BigDecimal.ZERO) != 0) {

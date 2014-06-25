@@ -40289,8 +40289,7 @@ public class ControladorArrecadacao implements SessionBean {
 
 		try {
 
-			pagamentoDaConta = repositorioArrecadacao
-					.pesquisarPagamentoDeConta(idConta);
+			pagamentoDaConta = repositorioArrecadacao.pesquisarPagamentoDeConta(idConta);
 		} catch (ErroRepositorioException ex) {
 			sessionContext.setRollbackOnly();
 			throw new ControladorException("erro.sistema", ex);
@@ -56465,10 +56464,6 @@ public class ControladorArrecadacao implements SessionBean {
 	}
 	
 	/**
-	 * TODO : COSANPA
-	 * @author Pamela Gatinho
-	 * @date 17/05/2013
-	 * 
 	 * Nova regra para classificar pagamentos em DUPLICIDADE, CANCELADO POR PARCELAMENTO
 	 * @param pagamentoSituacao
 	 * @param dataInicial
@@ -56476,16 +56471,15 @@ public class ControladorArrecadacao implements SessionBean {
 	 * @return
 	 * @throws ControladorException 
 	 */
-	public void classificarPagamentosResolvidos(Collection<Pagamento> pagamentos, Usuario usuarioLogado,
-			CreditoTipo creditoTipo, CreditoOrigem creditoOrigem, boolean indicadorIncluirCredito) 
-		throws ControladorException {
+	public void recuperarCredito(Collection<Pagamento> pagamentos, Usuario usuarioLogado, CreditoTipo creditoTipo, CreditoOrigem creditoOrigem, 
+			boolean indicadorIncluirCredito) throws ControladorException {
 		
 		try {
 			
 			if (indicadorIncluirCredito) {
 				incluirCreditoPagamentosResolvidos(pagamentos, usuarioLogado, creditoTipo, creditoOrigem);
 			} else {
-				refaturarContaParaClassificarPagamentos(pagamentos, new Date());
+				refaturarContaParaClassificarPagamentos(pagamentos);
 			}
 			
 			repositorioArrecadacao.atualizarSituacaoEValorExcedentePagamento(pagamentos, PagamentoSituacao.PAGAMENTO_CLASSIFICADO);
@@ -56508,9 +56502,7 @@ public class ControladorArrecadacao implements SessionBean {
 		try{
 			Map<Integer, Conta> mapContasNovas = getControladorFaturamento().incluirContasParaRefaturarPagamentos(pagamentos, dataArrecadacao);
 			
-			Collection<Integer> idsContas = getControladorFaturamento().getListaIdContas(pagamentos);
-
-			Collection<ContaHistorico> listaContaHistoricoOrigem = getControladorFaturamento().pesquisarContaOuContaHistorico(idsContas, ContaHistorico.class.toString());
+			Collection<ContaHistorico> listaContaHistoricoOrigem = getControladorFaturamento().pesquisarContaOuContaHistorico(pagamentos);
 			
 			Set<Integer> listaIdsContaHistorico = mapContasNovas.keySet();
 			

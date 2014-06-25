@@ -1,5 +1,6 @@
 package gcom.faturamento.conta;
 
+import gcom.cadastro.imovel.Categoria;
 import gcom.interceptor.ControleAlteracao;
 import gcom.interceptor.ObjetoTransacao;
 import gcom.util.filtro.Filtro;
@@ -13,50 +14,31 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-/** @author Hibernate CodeGenerator */
 @ControleAlteracao()
-public class ContaCategoria extends ObjetoTransacao {
+public class ContaCategoria extends ObjetoTransacao implements IContaCategoria {
 	private static final long serialVersionUID = 1L;
-    /** identifier field */
-    private gcom.faturamento.conta.ContaCategoriaPK comp_id;
 
-    /** persistent field */
+	private ContaCategoriaPK comp_id;
+
     @ControleAlteracao(funcionalidade=Conta.ATRIBUTOS_RETIFICAR_CONTA)
     private short quantidadeEconomia;
 
-    /** nullable persistent field */
     private Date ultimaAlteracao;
-
-    /** nullable persistent field */
     private BigDecimal valorAgua;
-
-    /** nullable persistent field */
     private Integer consumoAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorEsgoto;
-
-    /** nullable persistent field */
     private Integer consumoEsgoto;
-
-    /** nullable persistent field */
     private BigDecimal valorTarifaMinimaAgua;
-
-    /** nullable persistent field */
     private Integer consumoMinimoAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorTarifaMinimaEsgoto;
-
-    /** nullable persistent field */
     private Integer consumoMinimoEsgoto;
-
-    /** persistent field */
-    private Set contaCategoriaConsumoFaixas;
+    @SuppressWarnings("rawtypes")
+	private Set contaCategoriaConsumoFaixas;
         
-    /** full constructor */
-    public ContaCategoria(gcom.faturamento.conta.ContaCategoriaPK comp_id, short quantidadeEconomia, Date ultimaAlteracao, BigDecimal valorAgua, Integer consumoAgua, BigDecimal valorEsgoto, Integer consumoEsgoto, BigDecimal valorTarifaMinimaAgua, Integer consumoMinimoAgua, BigDecimal valorTarifaMinimaEsgoto, Integer consumoMinimoEsgoto, Set contaCategoriaConsumoFaixas) {
+    @SuppressWarnings("rawtypes")
+	public ContaCategoria(ContaCategoriaPK comp_id, short quantidadeEconomia, Date ultimaAlteracao, BigDecimal valorAgua, Integer consumoAgua, 
+			BigDecimal valorEsgoto, Integer consumoEsgoto, BigDecimal valorTarifaMinimaAgua, Integer consumoMinimoAgua, BigDecimal valorTarifaMinimaEsgoto, 
+			Integer consumoMinimoEsgoto, Set contaCategoriaConsumoFaixas) {
         this.comp_id = comp_id;
         this.quantidadeEconomia = quantidadeEconomia;
         this.ultimaAlteracao = ultimaAlteracao;
@@ -71,22 +53,26 @@ public class ContaCategoria extends ObjetoTransacao {
         this.contaCategoriaConsumoFaixas = contaCategoriaConsumoFaixas;
     }
 
-    /** default constructor */
     public ContaCategoria() {
+    	this.comp_id = new ContaCategoriaPK();
     }
 
-    /** minimal constructor */
-    public ContaCategoria(gcom.faturamento.conta.ContaCategoriaPK comp_id, short quantidadeEconomia, Set contaCategoriaConsumoFaixas) {
+    public ContaCategoria(Conta conta, Categoria categoria) {
+    	this.comp_id = new ContaCategoriaPK(conta, categoria);
+    }
+
+    @SuppressWarnings("rawtypes")
+	public ContaCategoria(ContaCategoriaPK comp_id, short quantidadeEconomia, Set contaCategoriaConsumoFaixas) {
         this.comp_id = comp_id;
         this.quantidadeEconomia = quantidadeEconomia;
         this.contaCategoriaConsumoFaixas = contaCategoriaConsumoFaixas;
     }
 
-    public gcom.faturamento.conta.ContaCategoriaPK getComp_id() {
+    public ContaCategoriaPK getComp_id() {
         return this.comp_id;
     }
 
-    public void setComp_id(gcom.faturamento.conta.ContaCategoriaPK comp_id) {
+    public void setComp_id(ContaCategoriaPK comp_id) {
         this.comp_id = comp_id;
     }
 
@@ -232,5 +218,8 @@ public class ContaCategoria extends ObjetoTransacao {
 	@Override
 	public String getDescricaoParaRegistroTransacao() {
 		return this.getDescricao();
+	}
+
+	public void setComp_id(IContaCategoriaPK comp_id) {
 	}
 }

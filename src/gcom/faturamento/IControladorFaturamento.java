@@ -5669,7 +5669,7 @@ public interface IControladorFaturamento {
 	@SuppressWarnings("unchecked")
 	public Collection<Integer> getListaIdContas(Collection<Pagamento> pagamentos);
 		
-	public Collection pesquisarContaOuContaHistorico(Collection<Integer> idsPagamentos, String className) throws ControladorException;
+	public Collection<ContaHistorico> pesquisarContaOuContaHistorico(Collection<Pagamento> pagamentos) throws ControladorException;
 
 	public void atualizarVecimentoFaturaClienteResponsavel(Date dataVencimento, String anoMesReferencia) throws ControladorException;
 	

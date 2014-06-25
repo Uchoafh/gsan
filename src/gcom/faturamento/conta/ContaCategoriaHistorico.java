@@ -12,7 +12,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** @author Hibernate CodeGenerator */
-public class ContaCategoriaHistorico implements Serializable {
+public class ContaCategoriaHistorico implements Serializable, IContaCategoria {
 	private static final long serialVersionUID = 1L;
     /** identifier field */
     private ContaCategoriaHistoricoPK comp_id;
@@ -194,4 +194,19 @@ public class ContaCategoriaHistorico implements Serializable {
             .append(getComp_id())
             .toHashCode();
     }
+
+	public void setComp_id(IContaCategoriaPK comp_id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public Set getContaCategoriaConsumoFaixas() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setContaCategoriaConsumoFaixas(Set contaCategoriaConsumoFaixas) {
+		// TODO Auto-generated method stub
+		
+	}
 }

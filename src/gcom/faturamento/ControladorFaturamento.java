@@ -65,6 +65,9 @@ import gcom.faturamento.consumotarifa.FiltroConsumoTarifaCategoria;
 import gcom.faturamento.conta.Conta;
 import gcom.faturamento.conta.ContaCategoria;
 import gcom.faturamento.conta.ContaCategoriaConsumoFaixa;
+import gcom.faturamento.conta.ContaCategoriaHistorico;
+import gcom.faturamento.conta.ContaCategoriaHistoricoPK;
+import gcom.faturamento.conta.ContaCategoriaPK;
 import gcom.faturamento.conta.ContaGeral;
 import gcom.faturamento.conta.ContaHistorico;
 import gcom.faturamento.conta.ContaImpostosDeduzidos;
@@ -165,6 +168,7 @@ import gcom.util.ConstantesSistema;
 import gcom.util.ControladorException;
 import gcom.util.ErroRepositorioException;
 import gcom.util.IoUtil;
+import gcom.util.MergeProperties;
 import gcom.util.Util;
 import gcom.util.ZipUtil;
 import gcom.util.email.ServicosEmail;
@@ -201,11 +205,10 @@ import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.jboss.logging.Logger;
-
 import javax.ejb.EJBException;
 
 import org.hibernate.LazyInitializationException;
+import org.jboss.logging.Logger;
 
 public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 
@@ -16738,42 +16741,16 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		}
 	}
 	
-public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos, Date dataArrecadacao) throws ControladorException, ErroRepositorioException {
+	public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos, Date dataArrecadacao) throws ControladorException, ErroRepositorioException {
 		
 		Map<Integer, Conta> mapNovasContas = new HashMap<Integer, Conta>();
 		
-		Collection<Integer> idsContas = getListaIdContas(pagamentos);
-		
-		Collection<ContaHistorico> listaContaHistoricoOrigem = this.pesquisarContaOuContaHistorico(idsContas, ContaHistorico.class.getName());
-		
-		if (listaContaHistoricoOrigem.size() != idsContas.size()) {
-			listaContaHistoricoOrigem.addAll(this.pesquisarContaOuContaHistorico(idsContas, Conta.class.getName()));
-		}
-		//Collection<Conta> listaContaOrigem = this.pesquisarContaOuContaHistorico(idsContas, Conta.class.getName());
+		Collection<ContaHistorico> listaContaHistoricoOrigem = this.pesquisarContaOuContaHistorico(pagamentos);
 		
 		for (ContaHistorico contaHistorico : listaContaHistoricoOrigem) {
-			
-			ContaGeral contaGeral = new ContaGeral();
-			
-			Short indicadorHistorico = 2;
-			contaGeral.setIndicadorHistorico(indicadorHistorico);
-			contaGeral.setUltimaAlteracao(new Date());
-
-			Integer idConta;
 				try {
-					idConta = (Integer) this.getControladorUtil().inserir(contaGeral);
-					contaGeral.setId(idConta);
 					
-					Conta novaConta = this.copiarContaHistoricoParaConta(contaHistorico);
-					
-					novaConta.setId(idConta);
-					novaConta.setContaGeral(contaGeral);
-					novaConta.setDataVencimentoConta(dataArrecadacao);
-					novaConta.setUltimaAlteracao(new Date());
-					DebitoCreditoSituacao debitoCreditoSituacao = new DebitoCreditoSituacao(DebitoCreditoSituacao.INCLUIDA);
-					novaConta.setDebitoCreditoSituacaoAtual(debitoCreditoSituacao);
-					
-					repositorioUtil.inserir(novaConta);
+					Conta novaConta = this.refaturarContaParaClassificar(contaHistorico);
 					
 					mapNovasContas.put(contaHistorico.getId(), novaConta);
 				} catch (ControladorException e) {
@@ -16784,9 +16761,67 @@ public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagam
 		return mapNovasContas;
 	}
 
-	private Conta copiarContaHistoricoParaConta(ContaHistorico contaHistorico) throws ControladorException {
-		Conta conta = new Conta();
+	
+	private Conta refaturarContaParaClassificar(ContaHistorico contaHistorico) throws ControladorException  {
+		try {
+			Conta novaConta = this.copiarContaHistoricoParaConta(contaHistorico);
+			
+			novaConta.setDataVencimentoConta(new Date());
+			novaConta.setUltimaAlteracao(new Date());
+			DebitoCreditoSituacao debitoCreditoSituacao = new DebitoCreditoSituacao(DebitoCreditoSituacao.INCLUIDA);
+			novaConta.setDebitoCreditoSituacaoAtual(debitoCreditoSituacao);
 		
+			repositorioUtil.inserir(novaConta);
+			
+			this.copiarContaCategoria(contaHistorico, novaConta);
+			return novaConta;
+		} catch (ErroRepositorioException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private void copiarContaCategoria(ContaHistorico contaAntiga, Conta contaNova) throws ControladorException {
+		try {
+			Collection<ContaCategoria> listaContaCategoriaOrigem = repositorioFaturamento.pesquisarContaCategoria(contaAntiga.getId());
+			Collection<ContaCategoriaHistorico> listaContaCategoriaHistoricoOrigem = repositorioFaturamento.pesquisarContaCategoriaHistorico(contaAntiga.getId());
+			
+			for (ContaCategoria contaCategoria : listaContaCategoriaOrigem) {
+				
+				ContaCategoria novaContaCategoria = (ContaCategoria) contaCategoria;
+				novaContaCategoria.setComp_id(new ContaCategoriaPK(contaNova.getId(), novaContaCategoria.getComp_id().getCategoria(), novaContaCategoria.getComp_id().getSubcategoria()));
+				
+				repositorioUtil.inserir(novaContaCategoria);
+			}
+			
+			for (ContaCategoriaHistorico contaCategoria : listaContaCategoriaHistoricoOrigem) {
+				
+				ContaCategoria novaContaCategoria = (ContaCategoria) MergeProperties.mergeInterfaceProperties(new ContaCategoria(), contaCategoria);
+				
+				novaContaCategoria.setComp_id(new ContaCategoriaPK(contaNova.getId(), contaCategoria.getComp_id().getCategoria(), contaCategoria.getComp_id().getSubcategoria()));
+				novaContaCategoria.setUltimaAlteracao(new Date());
+				
+				repositorioUtil.inserir(novaContaCategoria);
+			}
+			
+		} catch (ErroRepositorioException e) {
+			logger.error("Erro ao incluir conta categoria para recuperacao de credito." , e);
+		}
+	}
+	
+	
+	private Conta copiarContaHistoricoParaConta(ContaHistorico contaHistorico) throws ControladorException {
+		ContaGeral contaGeral = new ContaGeral();
+		
+		Short indicadorHistorico = 2;
+		contaGeral.setIndicadorHistorico(indicadorHistorico);
+		contaGeral.setUltimaAlteracao(new Date());
+		
+		contaGeral.setId((Integer) this.getControladorUtil().inserir(contaGeral));
+		
+		Conta conta = new Conta(contaGeral.getId());
+		
+		conta.setContaGeral(contaGeral);
 		conta.setReferencia(contaHistorico.getReferencia());
 		conta.setImovel(contaHistorico.getImovel());
 		conta.setLote(contaHistorico.getLote());
@@ -16846,28 +16881,28 @@ public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagam
 		
 		Rota rota = getControladorMicromedicao().buscarRotaDoImovel(conta.getImovel().getId());
 		Integer anoMesReferenciaContabil = this.retornaAnoMesFaturamentoGrupoDaRota(rota.getId());
-	
+		
 		conta.setRota(rota);
-		conta.setReferenciaContabil(anoMesReferenciaContabil);
+		conta.setReferenciaContabil(getControladorUtil().pesquisarParametrosDoSistema().getAnoMesArrecadacao());
 		
 		return conta;
 	}
 	
-	/**
-	 * TODO : COSANPA
-	 * Pamela Gatinho - 17/05/2013
-	 * @param pagamentos
-	 * 
-	 * Metodo que pesquisa os objetos ContaHistorico relacionados aos pagamentos
-	 * enviados como parâmetro.
-	 */
-	public Collection pesquisarContaOuContaHistorico(Collection<Integer> idsPagamentos, String className) throws ControladorException{
+	public Collection<ContaHistorico> pesquisarContaOuContaHistorico(Collection<Pagamento> pagamentos) throws ControladorException{
+		
 		try {
+			Collection<Integer> idsContas = getListaIdContas(pagamentos);
+		
+			Collection<ContaHistorico> listaContaOrigem = repositorioFaturamento.pesquisarContaOuContaHistorico(idsContas, ContaHistorico.class.getName());
 			
-			 return repositorioFaturamento.pesquisarContaOuContaHistorico(idsPagamentos, className);
-	
+			if (listaContaOrigem.size() != idsContas.size()) {
+				listaContaOrigem.addAll(repositorioFaturamento.pesquisarContaOuContaHistorico(idsContas, Conta.class.getName()));
+			}
+			
+			return listaContaOrigem;
+			
 		} catch (ErroRepositorioException ex) {
-			ex.printStackTrace();
+			logger.error("Erro ao pesquisar conta categoria para recuperacao de credito." , ex);
 			throw new ControladorException("erro.sistema", ex);
 		}
 	}

@@ -54,6 +54,7 @@ import gcom.faturamento.conta.ContaImpostosDeduzidos;
 import gcom.faturamento.conta.ContaMotivoRevisao;
 import gcom.faturamento.conta.Fatura;
 import gcom.faturamento.conta.FaturaItem;
+import gcom.faturamento.conta.IContaCategoria;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoOrigem;
 import gcom.faturamento.credito.CreditoRealizado;
@@ -23153,13 +23154,9 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 
 			consulta = "select contaCategoriaHist "
 					+ "from ContaCategoriaHistorico contaCategoriaHist "
-					+ "inner join contaCategoriaHist.comp_id.contaHistorico contaHist "
-					+ "inner join fetch contaCategoriaHist.comp_id.categoria categoria "
-					+ "where contaHist.id = :idConta ";
+					+ "where contaCategoriaHist.comp_id.contaHistorico.id = :idConta ";
 
-			retorno = new ArrayList(new CopyOnWriteArraySet(session
-					.createQuery(consulta).setInteger("idConta", idConta)
-					.list()));
+			retorno = new ArrayList(session.createQuery(consulta).setInteger("idConta", idConta).list());
 
 		} catch (HibernateException e) {
 			// levanta a exceção para a próxima camada
@@ -26015,7 +26012,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 
 		try {
 
-			consulta = "select contaCategoriaHist "
+			consulta = "select contaCategoriaHist.comp_id.categoria "
 					+ "from ContaCategoriaHistorico contaCategoriaHist "
 					+ "inner join contaCategoriaHist.comp_id.contaHistorico contaHist "
 					+ "inner join fetch contaCategoriaHist.comp_id.categoria categoria "
@@ -60727,10 +60724,6 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 	}
 	
 	  /**
-	   * TODO : COSANPA
-	   * @author Pamela Gatinho
-	   * @date 17/05/2013
-	   * 
 	   * Pesquisa uma lista de contas na tabela conta histórico.
 	   * 
 	   * @param contasIds

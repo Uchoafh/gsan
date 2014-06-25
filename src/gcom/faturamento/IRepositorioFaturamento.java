@@ -35,6 +35,7 @@ import gcom.faturamento.conta.ContaImpostosDeduzidos;
 import gcom.faturamento.conta.ContaMotivoRevisao;
 import gcom.faturamento.conta.Fatura;
 import gcom.faturamento.conta.FaturaItem;
+import gcom.faturamento.conta.IContaCategoria;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoRealizado;
 import gcom.faturamento.credito.CreditoRealizadoHistorico;
@@ -2961,4 +2962,5 @@ public interface IRepositorioFaturamento {
 	public Integer countFaturasClienteResponsaveis(String anoMesReferencia) throws ErroRepositorioException;
 	
 	public Date obterDataVencimentoContasFaturarGrupo(FaturamentoGrupo faturamentoGrupo) throws ErroRepositorioException;
+	
 }
