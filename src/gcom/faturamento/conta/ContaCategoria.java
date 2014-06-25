@@ -1,6 +1,7 @@
 package gcom.faturamento.conta;
 
 import gcom.cadastro.imovel.Categoria;
+import gcom.cadastro.imovel.Subcategoria;
 import gcom.interceptor.ControleAlteracao;
 import gcom.interceptor.ObjetoTransacao;
 import gcom.util.filtro.Filtro;
@@ -220,6 +221,31 @@ public class ContaCategoria extends ObjetoTransacao implements IContaCategoria {
 		return this.getDescricao();
 	}
 
-	public void setComp_id(IContaCategoriaPK comp_id) {
-	}
+    public void setConta(IConta conta){
+    	if (comp_id == null){
+    		comp_id = new ContaCategoriaPK();
+    	}
+    	comp_id.setConta(conta);
+    }
+    public void setCategoria(Categoria categoria){
+    	if (comp_id == null){
+    		comp_id = new ContaCategoriaPK();
+    	}
+    	comp_id.setCategoria(categoria);
+    }
+    public void setSubcategoria(Subcategoria subCategoria){
+    	if (comp_id == null){
+    		comp_id = new ContaCategoriaPK();
+    	}
+    	comp_id.setSubcategoria(subCategoria);
+    }
+    public IConta getConta(){
+    	return comp_id != null ? comp_id.getConta() : null; 
+    }
+    public Categoria getCategoria(){
+    	return comp_id != null ? comp_id.getCategoria() : null; 
+    }
+    public Subcategoria getSubcategoria(){
+    	return comp_id != null ? comp_id.getSubcategoria() : null; 
+    }
 }

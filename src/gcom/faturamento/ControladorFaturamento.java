@@ -66,7 +66,6 @@ import gcom.faturamento.conta.Conta;
 import gcom.faturamento.conta.ContaCategoria;
 import gcom.faturamento.conta.ContaCategoriaConsumoFaixa;
 import gcom.faturamento.conta.ContaCategoriaHistorico;
-import gcom.faturamento.conta.ContaCategoriaHistoricoPK;
 import gcom.faturamento.conta.ContaCategoriaPK;
 import gcom.faturamento.conta.ContaGeral;
 import gcom.faturamento.conta.ContaHistorico;
@@ -81,6 +80,8 @@ import gcom.faturamento.conta.FiltroContaHistorico;
 import gcom.faturamento.conta.FiltroContaImpostosDeduzidos;
 import gcom.faturamento.conta.FiltroContaImpressao;
 import gcom.faturamento.conta.GerarImpostosDeduzidosContaHelper;
+import gcom.faturamento.conta.IConta;
+import gcom.faturamento.conta.IContaCategoria;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoARealizarCategoria;
 import gcom.faturamento.credito.CreditoARealizarCategoriaPK;
@@ -16741,168 +16742,88 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		}
 	}
 	
-	public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos, Date dataArrecadacao) throws ControladorException, ErroRepositorioException {
-		
+	public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos) throws ControladorException, ErroRepositorioException {
 		Map<Integer, Conta> mapNovasContas = new HashMap<Integer, Conta>();
 		
-		Collection<ContaHistorico> listaContaHistoricoOrigem = this.pesquisarContaOuContaHistorico(pagamentos);
+		Collection<IConta> listaContaHistoricoOrigem = this.pesquisarContaOuContaHistorico(pagamentos);
 		
-		for (ContaHistorico contaHistorico : listaContaHistoricoOrigem) {
-				try {
-					
-					Conta novaConta = this.refaturarContaParaClassificar(contaHistorico);
-					
-					mapNovasContas.put(contaHistorico.getId(), novaConta);
-				} catch (ControladorException e) {
-					e.printStackTrace();
-				}
+		for (IConta contaHistorico : listaContaHistoricoOrigem) {
+			try {
+				Conta novaConta = this.refaturarContaParaClassificar(contaHistorico);
+				mapNovasContas.put(contaHistorico.getId(), novaConta);
+			} catch (ControladorException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return mapNovasContas;
 	}
 
 	
-	private Conta refaturarContaParaClassificar(ContaHistorico contaHistorico) throws ControladorException  {
-		try {
-			Conta novaConta = this.copiarContaHistoricoParaConta(contaHistorico);
-			
-			novaConta.setDataVencimentoConta(new Date());
-			novaConta.setUltimaAlteracao(new Date());
-			DebitoCreditoSituacao debitoCreditoSituacao = new DebitoCreditoSituacao(DebitoCreditoSituacao.INCLUIDA);
-			novaConta.setDebitoCreditoSituacaoAtual(debitoCreditoSituacao);
+	private Conta refaturarContaParaClassificar(IConta contaOrigem) throws Exception  {
+		Conta novaConta = this.criarContaParaRecuperacaoCredito(contaOrigem);
 		
-			repositorioUtil.inserir(novaConta);
-			
-			this.copiarContaCategoria(contaHistorico, novaConta);
-			return novaConta;
-		} catch (ErroRepositorioException e) {
-			e.printStackTrace();
-		}
-		return null;
+		repositorioUtil.inserir(novaConta);
+		
+		this.criarContaCategoriaParaRecuperacaoCredito(contaOrigem, novaConta);
+		
+		return novaConta;
 	}
 	
-	private void copiarContaCategoria(ContaHistorico contaAntiga, Conta contaNova) throws ControladorException {
-		try {
-			Collection<ContaCategoria> listaContaCategoriaOrigem = repositorioFaturamento.pesquisarContaCategoria(contaAntiga.getId());
-			Collection<ContaCategoriaHistorico> listaContaCategoriaHistoricoOrigem = repositorioFaturamento.pesquisarContaCategoriaHistorico(contaAntiga.getId());
+	private void criarContaCategoriaParaRecuperacaoCredito(IConta contaAntiga, Conta contaNova) throws Exception {
+		Collection<IContaCategoria> listaContaCategoriaOrigem = repositorioFaturamento.pesquisarContaCategoria(contaAntiga.getId());
+		listaContaCategoriaOrigem.addAll(repositorioFaturamento.pesquisarContaCategoriaHistorico(contaAntiga.getId()));
+				
+		for (IContaCategoria contaCategoria : listaContaCategoriaOrigem) {
+			IContaCategoria novaContaCategoria = (ContaCategoria) MergeProperties.mergeInterfaceProperties(new ContaCategoria(), contaCategoria);
+			novaContaCategoria.setUltimaAlteracao(new Date());
 			
-			for (ContaCategoria contaCategoria : listaContaCategoriaOrigem) {
-				
-				ContaCategoria novaContaCategoria = (ContaCategoria) contaCategoria;
-				novaContaCategoria.setComp_id(new ContaCategoriaPK(contaNova.getId(), novaContaCategoria.getComp_id().getCategoria(), novaContaCategoria.getComp_id().getSubcategoria()));
-				
-				repositorioUtil.inserir(novaContaCategoria);
-			}
-			
-			for (ContaCategoriaHistorico contaCategoria : listaContaCategoriaHistoricoOrigem) {
-				
-				ContaCategoria novaContaCategoria = (ContaCategoria) MergeProperties.mergeInterfaceProperties(new ContaCategoria(), contaCategoria);
-				
-				novaContaCategoria.setComp_id(new ContaCategoriaPK(contaNova.getId(), contaCategoria.getComp_id().getCategoria(), contaCategoria.getComp_id().getSubcategoria()));
-				novaContaCategoria.setUltimaAlteracao(new Date());
-				
-				repositorioUtil.inserir(novaContaCategoria);
-			}
-			
-		} catch (ErroRepositorioException e) {
-			logger.error("Erro ao incluir conta categoria para recuperacao de credito." , e);
+			repositorioUtil.inserir(novaContaCategoria);
 		}
 	}
 	
 	
-	private Conta copiarContaHistoricoParaConta(ContaHistorico contaHistorico) throws ControladorException {
+	private Conta criarContaParaRecuperacaoCredito(IConta contaOrigem) throws ControladorException {
 		ContaGeral contaGeral = new ContaGeral();
-		
-		Short indicadorHistorico = 2;
-		contaGeral.setIndicadorHistorico(indicadorHistorico);
+		contaGeral.setIndicadorHistorico((short) 2);
 		contaGeral.setUltimaAlteracao(new Date());
-		
 		contaGeral.setId((Integer) this.getControladorUtil().inserir(contaGeral));
 		
-		Conta conta = new Conta(contaGeral.getId());
+		Conta novaConta = new Conta();
+		MergeProperties.mergeProperties(novaConta, contaOrigem);
+		contaOrigem.buildConta(novaConta);
+		novaConta.setId(contaGeral.getId());
+		novaConta.setContaGeral(contaGeral);
+		novaConta.setUltimaAlteracao(new Date());
+		novaConta.setDataVencimentoConta(new Date());
 		
-		conta.setContaGeral(contaGeral);
-		conta.setReferencia(contaHistorico.getReferencia());
-		conta.setImovel(contaHistorico.getImovel());
-		conta.setLote(contaHistorico.getLote());
-		conta.setSubLote(contaHistorico.getSublote());
-		conta.setCodigoSetorComercial(contaHistorico.getSetorComercial());
-		conta.setQuadra(contaHistorico.getQuadra().getId());
-		conta.setDigitoVerificadorConta(contaHistorico.getVerificadorConta());
-		conta.setIndicadorCobrancaMulta(contaHistorico.getIndicadorCobrancaMulta());
-		conta.setIndicadorAlteracaoVencimento(contaHistorico.getIndicadorAlteracaoVencimento());
-		conta.setConsumoAgua(contaHistorico.getConsumoAgua());
-		conta.setConsumoEsgoto(contaHistorico.getConsumoEsgoto());
-		conta.setConsumoRateioAgua(contaHistorico.getConsumoRateioAgua());
-		conta.setConsumoRateioEsgoto(contaHistorico.getConsumoRateioEsgoto());
-		conta.setValorAgua(contaHistorico.getValorAgua());
-		conta.setValorEsgoto(contaHistorico.getValorEsgoto());
-		conta.setDebitos(contaHistorico.getValorDebitos());
-		conta.setValorCreditos(contaHistorico.getValorCreditos());
-		conta.setPercentualEsgoto(contaHistorico.getPercentualEsgoto());
-		conta.setDataVencimentoConta(contaHistorico.getDataVencimentoConta());
-		conta.setDataValidadeConta(contaHistorico.getDataValidadeConta());
-		conta.setDataInclusao(contaHistorico.getDataInclusao());
-		conta.setDataRevisao(contaHistorico.getDataRevisao());
-		conta.setDataRetificacao(contaHistorico.getDataRetificacao());
-		conta.setDataCancelamento(contaHistorico.getDataCancelamento());
-		conta.setDataEmissao(contaHistorico.getDataEmissao());
-		conta.setLigacaoEsgotoSituacao(contaHistorico.getLigacaoEsgotoSituacao());
-		conta.setLigacaoAguaSituacao(contaHistorico.getLigacaoAguaSituacao());
-		conta.setMotivoNaoEntregaDocumento(contaHistorico.getMotivoNaoEntregaDocumento());
-		conta.setLocalidade(contaHistorico.getLocalidade());
-		conta.setQuadra(contaHistorico.getNumeroQuadra());
-		conta.setContaMotivoInclusao(contaHistorico.getContaMotivoInclusao());
-		conta.setContaMotivoRevisao(contaHistorico.getContaMotivoRevisao());
-		conta.setContaMotivoRetificacao(contaHistorico.getContaMotivoRetificacao());
-		conta.setContaMotivoCancelamento(contaHistorico.getContaMotivoCancelamento());
-		conta.setFaturamentoTipo(contaHistorico.getFaturamentoTipo());
-		conta.setImovelPerfil(contaHistorico.getImovelPerfil());
-		conta.setRegistroAtendimento(contaHistorico.getRegistroAtendimento());
-		conta.setConsumoTarifa(contaHistorico.getConsumoTarifa());
-		conta.setIndicadorDebitoConta(contaHistorico.getIndicadorDebitoConta());
-		conta.setFuncionarioEntrega(contaHistorico.getFuncionarioEntrega());
-		conta.setFuncionarioLeitura(contaHistorico.getFuncionarioLeitura());
-		conta.setUltimaAlteracao(new Date());
-		conta.setDebitoCreditoSituacaoAtual(contaHistorico.getDebitoCreditoSituacaoAtual());
-		conta.setDebitoCreditoSituacaoAnterior(contaHistorico.getDebitoCreditoSituacaoAnterior());
-		conta.setDocumentoTipo(contaHistorico.getDocumentoTipo());
-		conta.setContaBancaria(contaHistorico.getContaBancaria());
-		conta.setDataVencimentoOriginal(contaHistorico.getDataVencimentoOriginal());
-		conta.setParcelamento(contaHistorico.getParcelamento());
-		conta.setValorImposto(contaHistorico.getValorImposto());
-		conta.setUsuario(contaHistorico.getUsuario());
-		conta.setNumeroRetificacoes(contaHistorico.getNumeroRetificacoes());
-		conta.setNumeroFatura(contaHistorico.getNumeroFatura());
-		conta.setFaturamentoGrupo(contaHistorico.getFaturamentoGrupo());
-		conta.setNumeroLeituraAnterior(contaHistorico.getNumeroLeituraAnterior());
-		conta.setNumeroLeituraAtual(contaHistorico.getNumeroLeituraAtual());
-		conta.setQuadraConta(contaHistorico.getQuadra());
+		Rota rota = getControladorMicromedicao().buscarRotaDoImovel(novaConta.getImovel().getId());
 		
-		Rota rota = getControladorMicromedicao().buscarRotaDoImovel(conta.getImovel().getId());
-		Integer anoMesReferenciaContabil = this.retornaAnoMesFaturamentoGrupoDaRota(rota.getId());
+		novaConta.setRota(rota);
+		novaConta.setReferenciaContabil(getControladorUtil().pesquisarParametrosDoSistema().getAnoMesArrecadacao());
+
+		DebitoCreditoSituacao debitoCreditoSituacao = new DebitoCreditoSituacao(DebitoCreditoSituacao.INCLUIDA);
+		novaConta.setDebitoCreditoSituacaoAtual(debitoCreditoSituacao);
 		
-		conta.setRota(rota);
-		conta.setReferenciaContabil(getControladorUtil().pesquisarParametrosDoSistema().getAnoMesArrecadacao());
 		
-		return conta;
+		return novaConta;
 	}
 	
-	public Collection<ContaHistorico> pesquisarContaOuContaHistorico(Collection<Pagamento> pagamentos) throws ControladorException{
+	public Collection<IConta> pesquisarContaOuContaHistorico(Collection<Pagamento> pagamentos) throws ControladorException{
 		
 		try {
 			Collection<Integer> idsContas = getListaIdContas(pagamentos);
 		
-			Collection<ContaHistorico> listaContaOrigem = repositorioFaturamento.pesquisarContaOuContaHistorico(idsContas, ContaHistorico.class.getName());
+			Collection<IConta> listaContaOrigem = repositorioFaturamento.pesquisarContaOuContaHistorico(idsContas, ContaHistorico.class.getName());
 			
-			if (listaContaOrigem.size() != idsContas.size()) {
+			if (listaContaOrigem.size() != pagamentos.size()) {
 				listaContaOrigem.addAll(repositorioFaturamento.pesquisarContaOuContaHistorico(idsContas, Conta.class.getName()));
 			}
 			
 			return listaContaOrigem;
 			
 		} catch (ErroRepositorioException ex) {
-			logger.error("Erro ao pesquisar conta categoria para recuperacao de credito." , ex);
+			logger.error("Erro ao pesquisar conta historico para recuperacao de credito." , ex);
 			throw new ControladorException("erro.sistema", ex);
 		}
 	}

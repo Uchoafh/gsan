@@ -10787,16 +10787,15 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 	 * @return
 	 * @throws ErroRepositorioException
 	 */
-	public Collection<ContaCategoria> pesquisarContaCategoria(Integer idConta)
+	public Collection<IContaCategoria> pesquisarContaCategoria(Integer idConta)
 			throws ErroRepositorioException {
 
-		Collection<ContaCategoria> retorno = new ArrayList();
+		Collection<IContaCategoria> retorno = new ArrayList();
 
 		Session session = HibernateUtil.getSession();
 		String consulta;
 
 		try {
-
 			consulta = "select contaCategoria "
 					+ "from ContaCategoria contaCategoria "
 					+ "inner join contaCategoria.comp_id.conta conta "

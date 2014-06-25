@@ -56490,37 +56490,21 @@ public class ControladorArrecadacao implements SessionBean {
 		
 	}
 	
-	/**
-	 * TODO : COSANPA
-	 * Pamela Gatinho - 26/06/2013
-	 * @param idsContas
-	 * @throws ErroRepositorioException 
-	 */
-	private void refaturarContaParaClassificarPagamentos(Collection<Pagamento> pagamentos, Date dataArrecadacao) 
-		throws ErroRepositorioException {
+	private void refaturarContaParaRecuperacaoCredito(Collection<Pagamento> pagamentos, Date dataArrecadacao) throws Exception {
+		Map<Integer, Conta> mapContasNovas = getControladorFaturamento().incluirContasParaRefaturarPagamentos(pagamentos, dataArrecadacao);
 		
-		try{
-			Map<Integer, Conta> mapContasNovas = getControladorFaturamento().incluirContasParaRefaturarPagamentos(pagamentos, dataArrecadacao);
+		Set<Integer> listaIdsContaHistorico = mapContasNovas.keySet();
+		
+		for (Integer idContaHistorico : listaIdsContaHistorico) {
+			Pagamento pagamento = this.pesquisarPagamentoDeConta(idContaHistorico);
 			
-			Collection<ContaHistorico> listaContaHistoricoOrigem = getControladorFaturamento().pesquisarContaOuContaHistorico(pagamentos);
-			
-			Set<Integer> listaIdsContaHistorico = mapContasNovas.keySet();
-			
-			for (Integer idContaHistorico : listaIdsContaHistorico) {
-				Pagamento pagamento = this.pesquisarPagamentoDeConta(idContaHistorico);
+			if (pagamento != null) {
+				Conta novaConta = mapContasNovas.get(idContaHistorico);
+				pagamento.setContaGeral(novaConta.getContaGeral());
 				
-				if (pagamento != null) {
-					Conta novaConta = mapContasNovas.get(idContaHistorico);
-					pagamento.setContaGeral(novaConta.getContaGeral());
-					
-					repositorioUtil.atualizar(pagamento);
-				}
-				
+				repositorioUtil.atualizar(pagamento);
 			}
-		} catch (Exception e) {
-			
 		}
-		
 	}
 	
 	/**

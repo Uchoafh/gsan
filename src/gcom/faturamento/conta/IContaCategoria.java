@@ -1,5 +1,8 @@
 package gcom.faturamento.conta;
 
+import gcom.cadastro.imovel.Categoria;
+import gcom.cadastro.imovel.Subcategoria;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
@@ -45,4 +48,11 @@ public interface IContaCategoria {
     @SuppressWarnings("rawtypes")
 	public void setContaCategoriaConsumoFaixas(Set contaCategoriaConsumoFaixas);
 
+    public void setConta(IConta conta);
+    public void setCategoria(Categoria categoria);
+    public void setSubcategoria(Subcategoria subCategoria);
+    
+    public IConta getConta();
+    public Categoria getCategoria();
+    public Subcategoria getSubcategoria();
 }

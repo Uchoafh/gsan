@@ -585,7 +585,7 @@ public interface IRepositorioFaturamento {
 
 	public Short obterQuantidadeEconomiasConta(Integer idConta) throws ErroRepositorioException;
 
-	public Collection<ContaCategoria> pesquisarContaCategoria(Integer idConta) throws ErroRepositorioException;
+	public Collection<IContaCategoria> pesquisarContaCategoria(Integer idConta) throws ErroRepositorioException;
 
 	@SuppressWarnings("rawtypes")
 	public Collection pesquisarContaCategoriaFaixas(Integer idConta, Integer idCategoria) throws ErroRepositorioException;
