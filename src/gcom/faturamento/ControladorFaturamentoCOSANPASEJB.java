@@ -28,9 +28,8 @@ import gcom.faturamento.consumotarifa.FiltroConsumoTarifa;
 import gcom.faturamento.conta.Conta;
 import gcom.faturamento.conta.ContaCategoria;
 import gcom.faturamento.conta.ContaCategoriaConsumoFaixa;
-import gcom.faturamento.conta.ContaGeral;
-import gcom.faturamento.conta.ContaHistorico;
 import gcom.faturamento.conta.ContaTipo;
+import gcom.faturamento.conta.IContaCategoria;
 import gcom.faturamento.debito.DebitoACobrar;
 import gcom.faturamento.debito.DebitoCreditoSituacao;
 import gcom.faturamento.debito.DebitoTipo;
@@ -593,7 +592,7 @@ public class ControladorFaturamentoCOSANPASEJB extends ControladorFaturamento
 								// Colocado por Rafael Correa em 14/11/2008
 								StringBuilder dadosContaCategoria = null;
 
-								Collection<ContaCategoria> cContaCategoria = repositorioFaturamento.pesquisarContaCategoria(emitirContaHelper.getIdConta());
+								Collection<IContaCategoria> cContaCategoria = repositorioFaturamento.pesquisarContaCategoria(emitirContaHelper.getIdConta());
 								
 								// Caso tenha mais de uma categoria (misto)
 								if (cContaCategoria.size() > 1) {
@@ -1652,25 +1651,21 @@ public class ControladorFaturamentoCOSANPASEJB extends ControladorFaturamento
 	 * @return
 	 * @throws ControladorException
 	 */
-	private StringBuilder obterDadosContaCategoriaMisto(
-			Collection<ContaCategoria> cContaCategoria) {
+	private StringBuilder obterDadosContaCategoriaMisto(Collection<IContaCategoria> cContaCategoria) {
 
 		StringBuilder retorno = new StringBuilder();
 
-		for (ContaCategoria contaCategoria : cContaCategoria) {
+		for (IContaCategoria contaCategoria : cContaCategoria) {
 
 			Integer consumoAgua = contaCategoria.getConsumoAgua();
 			BigDecimal valorAgua = contaCategoria.getValorAgua();
 
 			if (valorAgua != null && !valorAgua.equals(new BigDecimal("0.00"))) {
 
-				String subcategoriaFormatada = Util.completaString(
-						contaCategoria.getDescricao(), 15);
-				String quantidadeEconomias = contaCategoria
-						.getQuantidadeEconomia() + " UNIDADE(S)";
+				String subcategoriaFormatada = Util.completaString(contaCategoria.getDescricao(), 15);
+				String quantidadeEconomias = contaCategoria.getQuantidadeEconomia() + " UNIDADE(S)";
 
-				retorno.append(Util.completaString(subcategoriaFormatada + " "
-						+ quantidadeEconomias, 31));
+				retorno.append(Util.completaString(subcategoriaFormatada + " " + quantidadeEconomias, 31));
 
 				if (consumoAgua != null && consumoAgua != 0) {
 					retorno.append(Util.completaString(consumoAgua.toString(),
