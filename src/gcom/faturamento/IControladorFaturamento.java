@@ -5663,7 +5663,7 @@ public interface IControladorFaturamento {
 			Short numeroPrestacaoDebito, Short numeroPrestacaoCobradas, Integer anoMesReferenciaDebito, BigDecimal valorDebito, 
 			DebitoTipo debitoTipo, Usuario usuario) throws ControladorException;
 	
-	public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos, Date dataArrecadacao) throws ControladorException, ErroRepositorioException;
+	public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos) throws ControladorException, ErroRepositorioException;
 	
 	@SuppressWarnings("unchecked")
 	public Collection<Integer> getListaIdContas(Collection<Pagamento> pagamentos);

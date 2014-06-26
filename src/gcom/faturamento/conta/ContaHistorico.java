@@ -41,7 +41,7 @@ public class ContaHistorico implements IConta {
     private Short lote;
 
     /** persistent field */
-    private Short sublote;
+    private Short subLote;
 
     /** persistent field */
     private Integer setorComercial;
@@ -309,7 +309,7 @@ public class ContaHistorico implements IConta {
         this.anoMesReferenciaConta = anoMesReferenciaConta;
         this.contaHistorico = contaHistorico;
         this.lote = lote;
-        this.sublote = sublote;
+        this.subLote = sublote;
         this.setorComercial = setorComercial;
         this.numeroQuadra = numeroQuadra;
         this.verificadorConta = verificadorConta;
@@ -469,6 +469,10 @@ public class ContaHistorico implements IConta {
 	
 	public Integer getReferencia(){
 		return anoMesReferenciaConta;
+	}
+	
+	public void setReferencia(Integer ref){
+		anoMesReferenciaConta = ref;
 	}
 
 	/**
@@ -1015,15 +1019,15 @@ public class ContaHistorico implements IConta {
 	/**
 	 * @return Returns the numeroSublote.
 	 */
-	public Short getSublote() {
-		return sublote;
+	public Short getSubLote() {
+		return subLote;
 	}
 
 	/**
 	 * @param numeroSublote The numeroSublote to set.
 	 */
-	public void setSublote(Short sublote) {
-		this.sublote = sublote;
+	public void setSubLote(Short sublote) {
+		this.subLote = sublote;
 	}
 
 	/**
@@ -1392,6 +1396,10 @@ public class ContaHistorico implements IConta {
 		this.valorDebitos = debitos;
 	}
 
+	public Integer getReferenciaContabil() {
+		return this.anoMesReferenciaContabil;
+	}
+	
 	public void setReferenciaContabil(Integer referenciaContabil) {
 		this.anoMesReferenciaContabil = referenciaContabil;
 	}
@@ -1400,7 +1408,6 @@ public class ContaHistorico implements IConta {
 		conta.setCodigoSetorComercial(this.getSetorComercial());
 		conta.setQuadra(this.getQuadra().getId());
 		conta.setDigitoVerificadorConta(this.getVerificadorConta());
-		conta.setDebitos(this.getValorDebitos());
 		conta.setQuadra(this.getNumeroQuadra());
 		conta.setQuadraConta(this.getQuadra());
 		return conta;

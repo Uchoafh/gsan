@@ -196,6 +196,7 @@ import gcom.faturamento.conta.FiltroConta;
 import gcom.faturamento.conta.FiltroContaGeral;
 import gcom.faturamento.conta.FiltroContaMensagem;
 import gcom.faturamento.conta.GerarImpostosDeduzidosContaHelper;
+import gcom.faturamento.conta.IContaCategoria;
 import gcom.faturamento.conta.ImpostoDeduzidoHelper;
 import gcom.faturamento.conta.MotivoNaoEntregaDocumento;
 import gcom.faturamento.conta.UC0146ManterConta;
@@ -39305,7 +39306,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 					contaHistoricoTemp.setContaHistorico(new Date());
 					contaHistoricoTemp.setImovel(conta.getImovel());
 					contaHistoricoTemp.setLote(conta.getLote());
-					contaHistoricoTemp.setSublote(conta.getSubLote());
+					contaHistoricoTemp.setSubLote(conta.getSubLote());
 					contaHistoricoTemp.setSetorComercial(conta
 							.getCodigoSetorComercial());
 					contaHistoricoTemp.setNumeroQuadra(conta.getQuadra());
@@ -48068,35 +48069,22 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		try {
 
 			// Conta Categoria
-			Collection<ContaCategoria> colecaoContaCategoria = repositorioFaturamento
-					.pesquisarContaCategoria(idConta);
+			Collection<IContaCategoria> colecaoContaCategoria = repositorioFaturamento.pesquisarContaCategoria(idConta);
 			if (colecaoContaCategoria != null
 					&& !colecaoContaCategoria.isEmpty()) {
 
 				colecaoContaCategoriaRemover.addAll(colecaoContaCategoria);
 
-				for (ContaCategoria contaContaCategoria : colecaoContaCategoria) {
+				for (IContaCategoria contaContaCategoria : colecaoContaCategoria) {
 					contaCategoriaHistoricoTemp = new ContaCategoriaHistorico();
 					ContaCategoriaHistoricoPK contaCategoriaHistoricoPK = new ContaCategoriaHistoricoPK(
-							contaHistoricoTemp, contaContaCategoria
-									.getComp_id().getCategoria());
-					contaCategoriaHistoricoPK
-							.setSubcategoria(contaContaCategoria.getComp_id()
-									.getSubcategoria());
-					contaCategoriaHistoricoTemp
-							.setComp_id(contaCategoriaHistoricoPK);
-					contaCategoriaHistoricoTemp
-							.setConsumoAgua(contaContaCategoria
-									.getConsumoAgua());
-					contaCategoriaHistoricoTemp
-							.setConsumoEsgoto(contaContaCategoria
-									.getConsumoEsgoto());
-					contaCategoriaHistoricoTemp
-							.setConsumoMinimoAgua(contaContaCategoria
-									.getConsumoMinimoAgua());
-					contaCategoriaHistoricoTemp
-							.setConsumoMinimoEsgoto(contaContaCategoria
-									.getConsumoMinimoEsgoto());
+							contaHistoricoTemp, contaContaCategoria.getCategoria());
+					contaCategoriaHistoricoPK.setSubcategoria(contaContaCategoria.getSubcategoria());
+					contaCategoriaHistoricoTemp.setComp_id(contaCategoriaHistoricoPK);
+					contaCategoriaHistoricoTemp.setConsumoAgua(contaContaCategoria.getConsumoAgua());
+					contaCategoriaHistoricoTemp.setConsumoEsgoto(contaContaCategoria.getConsumoEsgoto());
+					contaCategoriaHistoricoTemp.setConsumoMinimoAgua(contaContaCategoria.getConsumoMinimoAgua());
+					contaCategoriaHistoricoTemp.setConsumoMinimoEsgoto(contaContaCategoria.getConsumoMinimoEsgoto());
 					contaCategoriaHistoricoTemp
 							.setQuantidadeEconomia(contaContaCategoria
 									.getQuantidadeEconomia());

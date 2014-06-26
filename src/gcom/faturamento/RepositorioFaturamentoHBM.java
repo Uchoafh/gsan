@@ -22650,7 +22650,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 					+ "cntHist.setorComercial, "
 					+ "cntHist.numeroQuadra, "
 					+ "cntHist.lote, "
-					+ "cntHist.sublote, "
+					+ "cntHist.subLote, "
 					+ "cntHist.consumoAgua, "
 					+ "cntHist.consumoEsgoto, "
 					+ "cntHist.valorAgua, "
@@ -22697,7 +22697,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 					+ "WHERE  cntHist.id = :idConta "
 					+ "AND crt.id = :usuario "
 					+ "ORDER BY cntHist.anoMesReferenciaConta,emp.id,loc.id,cntHist.setorComercial,"
-					+ "cntHist.numeroQuadra,cntHist.lote,cntHist.sublote";
+					+ "cntHist.numeroQuadra,cntHist.lote,cntHist.subLote";
 
 			retorno = session.createQuery(consulta).setInteger("idConta",
 					idConta.intValue()).setInteger("usuario",
@@ -25831,7 +25831,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 					+ "cntHist.setorComercial, "
 					+ "cntHist.numeroQuadra, "
 					+ "cntHist.lote, "
-					+ "cntHist.sublote, "
+					+ "cntHist.subLote, "
 					+ "cntHist.consumoAgua, "
 					+ "cntHist.consumoEsgoto, "
 					+ "cntHist.valorAgua, "
@@ -25880,7 +25880,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 					+ "LEFT JOIN cntHist.debitoCreditoSituacaoAtual debitoCreditoSituacaoAtual "
 					+ "WHERE  cntHist.id = :idConta  and cliCntHist.indicadorNomeConta = 1 "
 					+ "ORDER BY cntHist.anoMesReferenciaConta,emp.id,loc.id,cntHist.setorComercial,"
-					+ "cntHist.numeroQuadra,cntHist.lote,cntHist.sublote";
+					+ "cntHist.numeroQuadra,cntHist.lote,cntHist.subLote";
 
 			retorno = session.createQuery(consulta).setInteger("idConta",
 					idConta.intValue()).list();

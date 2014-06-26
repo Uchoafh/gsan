@@ -41,6 +41,10 @@ public class ContaCategoriaHistoricoPK implements Serializable {
         this.subcategoria = subcategoria;
     }
 
+	public String getDescricao(){
+		return this.categoria.getDescricao();
+	}
+
     public ContaCategoriaHistoricoPK() {
     }
 

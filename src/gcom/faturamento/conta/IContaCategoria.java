@@ -55,4 +55,6 @@ public interface IContaCategoria {
     public IConta getConta();
     public Categoria getCategoria();
     public Subcategoria getSubcategoria();
+    
+    public String getDescricao();
 }

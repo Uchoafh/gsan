@@ -204,6 +204,10 @@ public class ContaCategoriaHistorico implements Serializable, IContaCategoria {
 
 	public void setContaCategoriaConsumoFaixas(Set contaCategoriaConsumoFaixas) {
 	}
+
+	public String getDescricao(){
+		return this.getComp_id().getDescricao(); 	
+	}
 	
     public void setConta(IConta conta){
     	if (comp_id == null){

@@ -16751,8 +16751,8 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 			try {
 				Conta novaConta = this.refaturarContaParaClassificar(contaHistorico);
 				mapNovasContas.put(contaHistorico.getId(), novaConta);
-			} catch (ControladorException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				throw new ControladorException("Erro ao incluir contas para pagamentos", e);
 			}
 		}
 		

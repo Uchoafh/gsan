@@ -12132,7 +12132,6 @@ public void gerarResumoDevedoresDuvidosos(int anoMesReferenciaContabil, Integer 
                     imovel.setLote((Short) arrayDados[6]);
                 }
                 
-                //sublote
                 if (arrayDados[7] != null) {
                     imovel.setLote((Short) arrayDados[7]);
                 }

@@ -52283,11 +52283,9 @@ public class Fachada {
 			CreditoTipo creditoTipo, CreditoOrigem creditoOrigem, boolean indicadorIncluirCredito) 
 		throws ControladorException {
 		try {
-			this.getControladorArrecadacao().classificarPagamentosResolvidos(pagamentos, usuarioLogado, 
-					creditoTipo, creditoOrigem, indicadorIncluirCredito);
+			this.getControladorArrecadacao().recuperarCredito(pagamentos, usuarioLogado, creditoTipo, creditoOrigem, indicadorIncluirCredito);
 		} catch (ControladorException ex) {
-			throw new FachadaException(ex.getMessage(), ex, ex
-					.getParametroMensagem());
+			throw new FachadaException(ex.getMessage(), ex, ex.getParametroMensagem());
 		}
 	}
 

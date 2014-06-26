@@ -14946,7 +14946,7 @@ public class ControladorArrecadacao implements SessionBean {
 					conta.setId((Integer) dadosConta[0]);
 					conta.setValorAgua((BigDecimal) dadosConta[1]);
 					conta.setValorEsgoto((BigDecimal) dadosConta[2]);
-					conta.setDebitos((BigDecimal) dadosConta[3]);
+					conta.setValorDebitos((BigDecimal) dadosConta[3]);
 					conta.setValorCreditos((BigDecimal) dadosConta[4]);
 					conta.setValorImposto((BigDecimal) dadosConta[5]);
 					conta.setReferenciaContabil((Integer) dadosConta[6]);
@@ -44330,7 +44330,7 @@ public class ControladorArrecadacao implements SessionBean {
                     Pagamento pagamento = new Pagamento();
                     Integer anoMesPagamento = Util.recuperaAnoMesDaData(registroTipo7.getDataLiquidacaoFormatado());
                     
-                    pagamento.setAnoMesReferenciaPagamento(conta.getAnoMesReferenciaConta());
+                    pagamento.setAnoMesReferenciaPagamento(conta.getReferencia());
                     
                     if (anoMesPagamento > getSistemaParametro().getAnoMesArrecadacao()) {
                         pagamento.setAnoMesReferenciaArrecadacao(anoMesPagamento);
@@ -56479,19 +56479,18 @@ public class ControladorArrecadacao implements SessionBean {
 			if (indicadorIncluirCredito) {
 				incluirCreditoPagamentosResolvidos(pagamentos, usuarioLogado, creditoTipo, creditoOrigem);
 			} else {
-				refaturarContaParaClassificarPagamentos(pagamentos);
+				refaturarContaParaRecuperacaoCredito(pagamentos);
 			}
 			
 			repositorioArrecadacao.atualizarSituacaoEValorExcedentePagamento(pagamentos, PagamentoSituacao.PAGAMENTO_CLASSIFICADO);
 			
-		} catch(ErroRepositorioException e) {
-			e.printStackTrace();
+		} catch(Exception e) {
+			throw new ControladorException("Erro ao recuperar credito", e);
 		}
-		
 	}
 	
-	private void refaturarContaParaRecuperacaoCredito(Collection<Pagamento> pagamentos, Date dataArrecadacao) throws Exception {
-		Map<Integer, Conta> mapContasNovas = getControladorFaturamento().incluirContasParaRefaturarPagamentos(pagamentos, dataArrecadacao);
+	private void refaturarContaParaRecuperacaoCredito(Collection<Pagamento> pagamentos) throws Exception {
+		Map<Integer, Conta> mapContasNovas = getControladorFaturamento().incluirContasParaRefaturarPagamentos(pagamentos);
 		
 		Set<Integer> listaIdsContaHistorico = mapContasNovas.keySet();
 		

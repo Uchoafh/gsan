@@ -72,7 +72,8 @@ public interface IConta extends Serializable {
 	public void setFaturamentoGrupo(FaturamentoGrupo grupo);
 	public void setNumeroLeituraAnterior(Integer numeroLeituraAnterior);
 	public void setNumeroLeituraAtual(Integer numeroLeituraAtual);
-
+	public void setValorDebitos(BigDecimal valorDebitos);
+	public void setReferenciaContabil(Integer referenciaContabil);
 
 	public Integer getId();
 	public Integer getReferencia();
@@ -124,6 +125,8 @@ public interface IConta extends Serializable {
 	public FaturamentoGrupo getFaturamentoGrupo();
 	public Integer getNumeroLeituraAnterior();
 	public Integer getNumeroLeituraAtual();
+	public BigDecimal getValorDebitos();
+	public Integer getReferenciaContabil();
 	
 	public Conta buildConta(Conta conta);
 }

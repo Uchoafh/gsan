@@ -1152,6 +1152,14 @@ public class Conta extends ObjetoTransacao implements IConta {
 		this.valorRateioEsgoto = valorRateioEsgoto;
 	}
 	
+	public void setValorDebitos(BigDecimal valor){
+		debitos = valor;
+	}
+	
+	public BigDecimal getValorDebitos(){
+		return debitos;
+	}
+	
 	public Conta buildConta(Conta conta){
 		return conta;
 	}
