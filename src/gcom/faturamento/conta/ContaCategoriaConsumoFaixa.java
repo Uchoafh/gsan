@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** @author Hibernate CodeGenerator */
-public class ContaCategoriaConsumoFaixa implements Serializable {
+public class ContaCategoriaConsumoFaixa implements Serializable, IContaCategoriaConsumoFaixa {
 	private static final long serialVersionUID = 1L;
     /** identifier field */
     private Integer id;

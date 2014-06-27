@@ -748,6 +748,9 @@ public interface IRepositorioFaturamento {
 
 	@SuppressWarnings("rawtypes")
 	public Collection pesquisarContaCategoriaConsumoFaixa(Integer idConta) throws ErroRepositorioException;
+	
+	@SuppressWarnings("rawtypes")
+	public Collection pesquisarContaCategoriaConsumoFaixaHistorico(Integer idConta) throws ErroRepositorioException;
 
 	@SuppressWarnings("rawtypes")
 	public void atualizarIndicadorContaNoHistorico(Collection idsContas) throws ErroRepositorioException;
