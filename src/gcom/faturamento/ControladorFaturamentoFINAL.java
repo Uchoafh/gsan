@@ -218,6 +218,7 @@ import gcom.faturamento.credito.CreditoTipo;
 import gcom.faturamento.credito.FiltroCreditoARealizar;
 import gcom.faturamento.credito.FiltroCreditoARealizarGeral;
 import gcom.faturamento.credito.FiltroCreditoTipo;
+import gcom.faturamento.credito.ICreditoRealizado;
 import gcom.faturamento.debito.DebitoACobrar;
 import gcom.faturamento.debito.DebitoACobrarCategoria;
 import gcom.faturamento.debito.DebitoACobrarCategoriaHistorico;
@@ -239,6 +240,7 @@ import gcom.faturamento.debito.FiltroDebitoACobrarCategoria;
 import gcom.faturamento.debito.FiltroDebitoACobrarGeral;
 import gcom.faturamento.debito.FiltroDebitoTipo;
 import gcom.faturamento.debito.FiltroDebitoTipoVigencia;
+import gcom.faturamento.debito.IDebitoCobrado;
 import gcom.financeiro.ControladorFinanceiroLocal;
 import gcom.financeiro.ControladorFinanceiroLocalHome;
 import gcom.financeiro.FinanciamentoTipo;
@@ -47738,7 +47740,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		try {
 			// pesquisa os créditos realizados da conta cancelada
-			Collection<CreditoRealizado> creditosRealizados = repositorioFaturamento
+			Collection<ICreditoRealizado> creditosRealizados = repositorioFaturamento
 					.pesquisarCreditosRealizados(idConta);
 
 			// cria o crédito realizados histórico
@@ -47750,7 +47752,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 				// laço para inserir todos os históricos dos créditos
 				// realizados
-				for (CreditoRealizado creditoRealizado : creditosRealizados) {
+				for (ICreditoRealizado creditoRealizado : creditosRealizados) {
 					// cria o histórico do crédito realizado da conta
 					// cancelada
 					creditoRealizadoHistoricoTemp = new CreditoRealizadoHistorico();
@@ -47902,8 +47904,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		Collection colecaoDebitoCobradoCategoriaRemover = new ArrayList();
 
 		try {
-			Collection<DebitoCobrado> debitosCobrados = repositorioFaturamento
-					.pesquisarDebitosCobrados(idConta);
+			Collection<IDebitoCobrado> debitosCobrados = repositorioFaturamento.pesquisarDebitosCobrados(idConta);
 
 			// cria o objeto débito cobrado histórico
 			DebitoCobradoHistorico debitoCobradoHistoricoTemp = null;
@@ -47914,7 +47915,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 				// laço para criar o histórico dos débitos cobrados da
 				// conta
-				for (DebitoCobrado debitoCobrado : debitosCobrados) {
+				for (IDebitoCobrado debitoCobrado : debitosCobrados) {
 					// seta os dados do débito cobrado histórico
 					debitoCobradoHistoricoTemp = new DebitoCobradoHistorico();
 					debitoCobradoHistoricoTemp.setId(debitoCobrado.getId());

@@ -1,5 +1,5 @@
-package gcom.faturamento;
 
+package gcom.faturamento;
 import gcom.arrecadacao.debitoautomatico.DebitoAutomaticoMovimento;
 import gcom.arrecadacao.pagamento.FiltroGuiaPagamento;
 import gcom.atendimentopublico.ligacaoesgoto.LigacaoEsgoto;
@@ -39,11 +39,14 @@ import gcom.faturamento.conta.IContaCategoria;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoRealizado;
 import gcom.faturamento.credito.CreditoRealizadoHistorico;
+import gcom.faturamento.credito.ICreditoRealizado;
 import gcom.faturamento.debito.DebitoACobrar;
 import gcom.faturamento.debito.DebitoACobrarGeral;
 import gcom.faturamento.debito.DebitoCobrado;
 import gcom.faturamento.debito.DebitoTipo;
 import gcom.faturamento.debito.DebitoTipoVigencia;
+import gcom.faturamento.debito.IDebitoCobrado;
+import gcom.faturamento.debito.IDebitoCobradoCategoria;
 import gcom.financeiro.ResumoFaturamento;
 import gcom.gui.cobranca.cobrancaporresultado.MovimentarOrdemServicoEmitirOSHelper;
 import gcom.micromedicao.Rota;
@@ -975,9 +978,9 @@ public interface IRepositorioFaturamento {
 			ConsumoTarifaVigencia consumoTarifaVigencia,
 			Subcategoria subcategoria) throws ErroRepositorioException;
 
-	public Collection<DebitoCobrado> pesquisarDebitosCobrados(Integer idConta) throws ErroRepositorioException;
+	public Collection<IDebitoCobrado> pesquisarDebitosCobrados(Integer idConta) throws ErroRepositorioException;
 
-	public Collection<CreditoRealizado> pesquisarCreditosRealizados(Integer idConta) throws ErroRepositorioException;
+	public Collection<ICreditoRealizado> pesquisarCreditosRealizados(Integer idConta) throws ErroRepositorioException;
 
 	public int pesquisarQuantidadeDebitosCobradosComParcelamento(Collection<ContaValoresHelper> colecaoContasValores) throws ErroRepositorioException;
 
@@ -2963,4 +2966,11 @@ public interface IRepositorioFaturamento {
 	
 	public Date obterDataVencimentoContasFaturarGrupo(FaturamentoGrupo faturamentoGrupo) throws ErroRepositorioException;
 	
+	public Collection<IDebitoCobrado> pesquisarDebitosCobradosHistorico(Integer idConta) throws ErroRepositorioException;
+	
+	public Collection<IDebitoCobradoCategoria> pesquisarDebitosCobradosCategoriaHistorico(Integer idDebitoCobradoHistorico) throws ErroRepositorioException;
+	
+	public Collection<ICreditoRealizado> pesquisarCreditosRealizadosHistorico(Integer idConta) throws ErroRepositorioException;
+	
+	public Collection pesquisarCreditoRealizadoCategoriaHistorico(Integer idCreditoRealizado) throws ErroRepositorioException;
 }

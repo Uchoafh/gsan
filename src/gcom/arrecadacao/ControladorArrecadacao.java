@@ -40285,38 +40285,13 @@ public class ControladorArrecadacao implements SessionBean {
 			throws ControladorException {
 
 		Pagamento pagamento = null;
-		Object[] pagamentoDaConta = null;
 
 		try {
 
-			pagamentoDaConta = repositorioArrecadacao.pesquisarPagamentoDeConta(idConta);
+			pagamento = repositorioArrecadacao.pesquisarPagamentoDeConta(idConta);
 		} catch (ErroRepositorioException ex) {
 			sessionContext.setRollbackOnly();
 			throw new ControladorException("erro.sistema", ex);
-		}
-
-		if (pagamentoDaConta != null && !(pagamentoDaConta.length < 0)) {
-
-			pagamento = new Pagamento();
-
-			// Seta o id do pagamento
-			if (pagamentoDaConta[0] != null) {
-				pagamento.setId((Integer) pagamentoDaConta[0]);
-			}
-			// Seta o valor do pagamento
-			if (pagamentoDaConta[1] != null) {
-				pagamento.setValorPagamento((BigDecimal) pagamentoDaConta[1]);
-			}
-			/**TODO: COSANPA
-			 * Mantis 537
-			 * Retornando também a data de pagamento para que possa ser impressa na segunda via da conta
-			 * 
-			 * @author Wellington Rocha
-			 * @date 14/03/2012*/
-			//Seta a data do pagamento
-			if (pagamentoDaConta[2] != null) {
-				pagamento.setDataPagamento((Date) pagamentoDaConta[2]);
-			}
 		}
 
 		return pagamento;

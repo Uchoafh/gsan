@@ -109,7 +109,6 @@ public class ContaCategoriaPK extends ObjetoGcom implements IContaCategoriaPK{
 	}
 
 	public void setConta(IConta conta) {
-		// TODO Auto-generated method stub
-		
+		this.conta = new Conta(conta.getId());
 	}
 }

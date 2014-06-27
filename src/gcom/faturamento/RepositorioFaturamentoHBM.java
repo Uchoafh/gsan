@@ -60,6 +60,7 @@ import gcom.faturamento.credito.CreditoOrigem;
 import gcom.faturamento.credito.CreditoRealizado;
 import gcom.faturamento.credito.CreditoRealizadoHistorico;
 import gcom.faturamento.credito.CreditoTipo;
+import gcom.faturamento.credito.ICreditoRealizado;
 import gcom.faturamento.debito.DebitoACobrar;
 import gcom.faturamento.debito.DebitoACobrarCategoria;
 import gcom.faturamento.debito.DebitoACobrarGeral;
@@ -67,6 +68,8 @@ import gcom.faturamento.debito.DebitoCobrado;
 import gcom.faturamento.debito.DebitoCreditoSituacao;
 import gcom.faturamento.debito.DebitoTipo;
 import gcom.faturamento.debito.DebitoTipoVigencia;
+import gcom.faturamento.debito.IDebitoCobrado;
+import gcom.faturamento.debito.IDebitoCobradoCategoria;
 import gcom.financeiro.FinanciamentoTipo;
 import gcom.financeiro.ResumoFaturamento;
 import gcom.financeiro.lancamento.LancamentoTipo;
@@ -14214,18 +14217,6 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		}
 	}
 
-	/**
-	 * [UC0155] Encerrar Faturamento do Mês
-	 * 
-	 * Pesquisa os débitos cobrados por categoria
-	 * 
-	 * @author Pedro Alexandre
-	 * @date 09/10/2006
-	 * 
-	 * @param idDebitoCobrado
-	 * @return
-	 * @throws ErroRepositorioException
-	 */
 	public Collection pesquisarDebitoCobradoCategoria(Integer idDebitoCobrado)
 			throws ErroRepositorioException {
 
@@ -14252,20 +14243,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		return retorno;
 	}
 
-	/**
-	 * [UC0155] Encerrar Faturamento do Mês
-	 * 
-	 * Pesquisa os credios realizados por categoria
-	 * 
-	 * @author Pedro Alexandre
-	 * @date 09/10/2006
-	 * 
-	 * @param idCreditoRealizado
-	 * @return
-	 * @throws ErroRepositorioException
-	 */
-	public Collection pesquisarCreditoRealizadoCategoria(
-			Integer idCreditoRealizado) throws ErroRepositorioException {
+	public Collection pesquisarCreditoRealizadoCategoria(Integer idCreditoRealizado) throws ErroRepositorioException {
 
 		Collection retorno = null;
 
@@ -14273,17 +14251,13 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		String consulta;
 
 		try {
-			consulta = "from CreditoRealizadoCategoria crcg "
-					+ "where crcg.creditoRealizado.id = :idCreditoRealizado ";
+			consulta = "from CreditoRealizadoCategoria crcg where crcg.creditoRealizado.id = :idCreditoRealizado ";
 
-			retorno = session.createQuery(consulta).setInteger(
-					"idCreditoRealizado", idCreditoRealizado).list();
+			retorno = session.createQuery(consulta).setInteger("idCreditoRealizado", idCreditoRealizado).list();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 
@@ -21017,93 +20991,71 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		return retorno;
 	}
 
-	/**
-	 * [UC0155] - Encerrar Faturamento do Mês pesquisar debitos cobrados de
-	 * contas
-	 * 
-	 * @param idConta
-	 *            Código da conta
-	 * @throws ErroRepositorioException
-	 *             Erro no hibernate
-	 */
-	public Collection<DebitoCobrado> pesquisarDebitosCobrados(Integer idConta)
-			throws ErroRepositorioException {
+	public Collection<IDebitoCobrado> pesquisarDebitosCobrados(Integer idConta) throws ErroRepositorioException {
 
-		Collection<DebitoCobrado> retorno = null;
+		Collection<IDebitoCobrado> retorno = null;
 
-		// cria uma sessão com o hibernate
 		Session session = HibernateUtil.getSession();
 
-		// cria a variável que vai conter o hql
 		String consulta;
 
 		try {
-			// constroi o hql
-			consulta = "select dbcb " + "from DebitoCobrado dbcb "
-					+ "inner join dbcb.conta cnta "
-					+ "where cnta.id = :idConta ";
+			consulta = "select dbcb " + "from DebitoCobrado dbcb inner join dbcb.conta cnta where cnta.id = :idConta ";
 
-			// executa o hql
-			retorno = session.createQuery(consulta).setInteger("idConta",
-					idConta).list();
+			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno;
+	}
+	
+	public Collection<IDebitoCobrado> pesquisarDebitosCobradosHistorico(Integer idConta) throws ErroRepositorioException {
+
+		Collection<IDebitoCobrado> retorno = null;
+
+		Session session = HibernateUtil.getSession();
+
+		String consulta;
+
+		try {
+			consulta = "select debito " + "from DebitoCobradoHistorico debito inner join debito.contaHistorico conta where conta.id = :idConta ";
+
+			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
 			HibernateUtil.closeSession(session);
 		}
 
 		return retorno;
 	}
 
-	/**
-	 * [UC0155] - Encerrar Faturamento do Mês Pesquisar créditos realizados de
-	 * contas canceladas
-	 * 
-	 * @param idConta
-	 *            Código da conta
-	 * @throws ErroRepositorioException
-	 *             Erro no hibernate
-	 */
-	public Collection<CreditoRealizado> pesquisarCreditosRealizados(
-			Integer idConta) throws ErroRepositorioException {
+	public Collection<ICreditoRealizado> pesquisarCreditosRealizados(Integer idConta) throws ErroRepositorioException {
 
-		Collection<CreditoRealizado> retorno = null;
+		Collection<ICreditoRealizado> retorno = null;
 
-		// cria uma sessão com o hibernate
 		Session session = HibernateUtil.getSession();
 
-		// cria a variável que vai conter o hql
 		String consulta;
 
 		try {
-			// constroi o hql
-			consulta = "select crrz " + "from CreditoRealizado crrz "
+			consulta = "select crrz from CreditoRealizado crrz "
 					+ "inner join crrz.conta cnta "
 					+ "INNER JOIN FETCH crrz.creditoTipo crtp "
-					/**TODO: COSANPA - Mantis 869
-					 * 
-					 * @author Wellington Rocha
-					 * @date 09/09/2013
-					 * 
-					 *  Alteração para evitar o erro duranto a transferência de contas para histórico
-					 *  */
-					//+ "INNER JOIN FETCH crrz.creditoARealizarGeral crgr "
 					+ "LEFT JOIN FETCH crrz.creditoARealizarGeral crgr "
 					+ "where cnta.id = :idConta "
 					+ "ORDER BY crtp.id, crrz.anoMesReferenciaCredito ";
-
-			// executa o hql
-			retorno = session.createQuery(consulta).setInteger("idConta",
-					idConta).list();
+			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
+			
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 
@@ -23148,6 +23100,9 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 
 			consulta = "select contaCategoriaHist "
 					+ "from ContaCategoriaHistorico contaCategoriaHist "
+					+ " inner join fetch contaCategoriaHist.comp_id.categoria categoria "
+					+ " inner join fetch contaCategoriaHist.comp_id.subcategoria subcategoria "
+					+ " inner join fetch contaCategoriaHist.comp_id.contaHistorico conta "
 					+ "where contaCategoriaHist.comp_id.contaHistorico.id = :idConta ";
 
 			retorno = new ArrayList(session.createQuery(consulta).setInteger("idConta", idConta).list());
@@ -60717,14 +60672,6 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		return retorno;
 	}
 	
-	  /**
-	   * Pesquisa uma lista de contas na tabela conta histórico.
-	   * 
-	   * @param contasIds
-	   * @return Collection de contas em histórico
-	   * @exception ErroRepositorioException
-	   *                Descrição da exceção
-	   */
 	  public Collection pesquisarContaOuContaHistorico(Collection idsContas, String className)
 	    throws ErroRepositorioException {
 
@@ -60786,6 +60733,75 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 	
 		return retorno;
 	
+	}
+	
+	public Collection<IDebitoCobradoCategoria> pesquisarDebitosCobradosCategoriaHistorico(Integer idDebitoCobradoHistorico) throws ErroRepositorioException {
+
+		Collection<IDebitoCobradoCategoria> retorno = null;
+
+		Session session = HibernateUtil.getSession();
+		String consulta;
+
+		try {
+			consulta = "from DebitoCobradoCategoriaHistorico dccg where dccg.debitoCobradoHistorico.id = :idDebitoCobradoHistorico ";
+
+			retorno = session.createQuery(consulta).setInteger("idDebitoCobradoHistorico", idDebitoCobradoHistorico).list();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno;
+	}
+	
+	public Collection<ICreditoRealizado> pesquisarCreditosRealizadosHistorico(Integer idConta) throws ErroRepositorioException {
+
+		Collection<ICreditoRealizado> retorno = null;
+
+		Session session = HibernateUtil.getSession();
+
+		String consulta;
+
+		try {
+			consulta = "select credito from CreditoRealizadoHistorico credito "
+					+ "inner join credito.contaHistorico cnta "
+					+ "INNER JOIN FETCH credito.creditoTipo crtp "
+					+ "LEFT JOIN FETCH credito.creditoARealizarGeral crgr "
+					+ "where cnta.id = :idConta "
+					+ "ORDER BY crtp.id, credito.anoMesReferenciaCredito ";
+
+			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno;
+	}
+
+	public Collection pesquisarCreditoRealizadoCategoriaHistorico(Integer idCreditoRealizado) throws ErroRepositorioException {
+
+		Collection retorno = null;
+
+		Session session = HibernateUtil.getSession();
+		String consulta;
+
+		try {
+			consulta = "from CreditoRealizadoCategoriaHistorico credito where credito.creditoRealizadoHistorico.id = :idCreditoRealizado ";
+
+			retorno = session.createQuery(consulta).setInteger("idCreditoRealizado", idCreditoRealizado).list();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno;
 	}
 
 }

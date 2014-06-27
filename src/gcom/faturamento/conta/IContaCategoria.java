@@ -9,9 +9,6 @@ import java.util.Set;
 
 public interface IContaCategoria {
 
-//    public IContaCategoriaPK getComp_id();
-//    public void setComp_id(IContaCategoriaPK comp_id);
-
     public short getQuantidadeEconomia();
     public void setQuantidadeEconomia(short quantidadeEconomia);
 
@@ -57,4 +54,5 @@ public interface IContaCategoria {
     public Subcategoria getSubcategoria();
     
     public String getDescricao();
+    public void setDescricao(String descricao);
 }

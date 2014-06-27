@@ -65,8 +65,6 @@ import gcom.faturamento.consumotarifa.FiltroConsumoTarifaCategoria;
 import gcom.faturamento.conta.Conta;
 import gcom.faturamento.conta.ContaCategoria;
 import gcom.faturamento.conta.ContaCategoriaConsumoFaixa;
-import gcom.faturamento.conta.ContaCategoriaHistorico;
-import gcom.faturamento.conta.ContaCategoriaPK;
 import gcom.faturamento.conta.ContaGeral;
 import gcom.faturamento.conta.ContaHistorico;
 import gcom.faturamento.conta.ContaImpostosDeduzidos;
@@ -96,10 +94,13 @@ import gcom.faturamento.credito.FiltroCreditoARealizarCategoria;
 import gcom.faturamento.credito.FiltroCreditoARealizarGeral;
 import gcom.faturamento.credito.FiltroCreditoRealizado;
 import gcom.faturamento.credito.FiltroCreditoTipo;
+import gcom.faturamento.credito.ICreditoRealizado;
+import gcom.faturamento.credito.ICreditoRealizadoCategoria;
 import gcom.faturamento.debito.DebitoACobrar;
 import gcom.faturamento.debito.DebitoACobrarGeral;
 import gcom.faturamento.debito.DebitoACobrarHistorico;
 import gcom.faturamento.debito.DebitoCobrado;
+import gcom.faturamento.debito.DebitoCobradoCategoria;
 import gcom.faturamento.debito.DebitoCobradoHistorico;
 import gcom.faturamento.debito.DebitoCreditoSituacao;
 import gcom.faturamento.debito.DebitoTipo;
@@ -109,6 +110,8 @@ import gcom.faturamento.debito.FiltroDebitoACobrarHistorico;
 import gcom.faturamento.debito.FiltroDebitoCobrado;
 import gcom.faturamento.debito.FiltroDebitoCobradoHistorico;
 import gcom.faturamento.debito.FiltroDebitoTipo;
+import gcom.faturamento.debito.IDebitoCobrado;
+import gcom.faturamento.debito.IDebitoCobradoCategoria;
 import gcom.financeiro.FinanciamentoTipo;
 import gcom.financeiro.lancamento.LancamentoItemContabil;
 import gcom.gui.ActionServletException;
@@ -16766,6 +16769,8 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		repositorioUtil.inserir(novaConta);
 		
 		this.criarContaCategoriaParaRecuperacaoCredito(contaOrigem, novaConta);
+		this.criarDebitoCobradoParaRecuperacaoCredito(contaOrigem, novaConta);
+		this.criarCreditoRealizadoParaRecuperacaoCredito(contaOrigem, novaConta);
 		
 		return novaConta;
 	}
@@ -16776,12 +16781,70 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 				
 		for (IContaCategoria contaCategoria : listaContaCategoriaOrigem) {
 			IContaCategoria novaContaCategoria = (ContaCategoria) MergeProperties.mergeInterfaceProperties(new ContaCategoria(), contaCategoria);
+			novaContaCategoria.setConta(contaNova);
 			novaContaCategoria.setUltimaAlteracao(new Date());
 			
 			repositorioUtil.inserir(novaContaCategoria);
 		}
 	}
 	
+	private void criarDebitoCobradoParaRecuperacaoCredito(IConta contaAntiga, Conta contaNova) throws Exception {
+		Collection<IDebitoCobrado> listaDebitoCobradoOrigem = repositorioFaturamento.pesquisarDebitosCobrados(contaAntiga.getId());
+		listaDebitoCobradoOrigem.addAll(repositorioFaturamento.pesquisarDebitosCobradosHistorico(contaAntiga.getId()));
+				
+		for (IDebitoCobrado debitoCobradoAntivo : listaDebitoCobradoOrigem) {
+			IDebitoCobrado novoDebitoCobrado = (DebitoCobrado) MergeProperties.mergeInterfaceProperties(new DebitoCobrado(), debitoCobradoAntivo);
+			novoDebitoCobrado.setConta(contaNova);
+			novoDebitoCobrado.setUltimaAlteracao(new Date());
+			
+			repositorioUtil.inserir(novoDebitoCobrado);
+
+			this.criarDebitoCobradoCategoriaParaRecuperacaoCredito(debitoCobradoAntivo, novoDebitoCobrado);
+		}
+	}
+	
+	private void criarDebitoCobradoCategoriaParaRecuperacaoCredito(IDebitoCobrado debitoCobradoAntigo, IDebitoCobrado debitoCobradoNovo) throws Exception {
+		Collection<IDebitoCobradoCategoria> listaDebitosCobradosCategoriaOrigem = repositorioFaturamento.pesquisarDebitoCobradoCategoria(debitoCobradoAntigo.getId());
+		listaDebitosCobradosCategoriaOrigem.addAll(repositorioFaturamento.pesquisarDebitosCobradosCategoriaHistorico(debitoCobradoAntigo.getId()));
+				
+		for (IDebitoCobradoCategoria debitoCobradoCategoria : listaDebitosCobradosCategoriaOrigem) {
+			IDebitoCobradoCategoria novoDebitoCobradoCategoria = (DebitoCobradoCategoria) MergeProperties.mergeInterfaceProperties(new DebitoCobradoCategoria(), debitoCobradoCategoria);
+			
+			novoDebitoCobradoCategoria.setDebitoCobrado((DebitoCobrado)debitoCobradoNovo);
+			novoDebitoCobradoCategoria.setUltimaAlteracao(new Date());
+			
+			repositorioUtil.inserir(novoDebitoCobradoCategoria);
+		}
+	}
+	
+	private void criarCreditoRealizadoParaRecuperacaoCredito(IConta contaAntiga, Conta contaNova) throws Exception {
+		Collection<ICreditoRealizado> listaCreditosOrigem = repositorioFaturamento.pesquisarCreditosRealizados(contaAntiga.getId());
+		listaCreditosOrigem.addAll(repositorioFaturamento.pesquisarCreditosRealizadosHistorico(contaAntiga.getId()));
+				
+		for (ICreditoRealizado creditoRealizadoAntigo : listaCreditosOrigem) {
+			ICreditoRealizado novoCreditoRealizado = (CreditoRealizado) MergeProperties.mergeInterfaceProperties(new CreditoRealizado(), creditoRealizadoAntigo);
+			novoCreditoRealizado.setConta(contaNova);
+			novoCreditoRealizado.setUltimaAlteracao(new Date());
+			
+			repositorioUtil.inserir(novoCreditoRealizado);
+
+			this.criarCreditoRealizadoCategoriaParaRecuperacaoCredito(creditoRealizadoAntigo, novoCreditoRealizado);
+		}
+	}
+	
+	private void criarCreditoRealizadoCategoriaParaRecuperacaoCredito(ICreditoRealizado creditoRealizadoAntigo, ICreditoRealizado creditoRealizadoNovo) throws Exception {
+		Collection<ICreditoRealizadoCategoria> listaCreditosReaizadosCategoriaOrigem = repositorioFaturamento.pesquisarCreditoRealizadoCategoria(creditoRealizadoAntigo.getId());
+		listaCreditosReaizadosCategoriaOrigem.addAll(repositorioFaturamento.pesquisarCreditoRealizadoCategoriaHistorico(creditoRealizadoAntigo.getId()));
+				
+		for (ICreditoRealizadoCategoria creditoRealizadoCategoria : listaCreditosReaizadosCategoriaOrigem) {
+			ICreditoRealizadoCategoria novoCreditoRealizadoCategoria = (CreditoRealizadoCategoria) MergeProperties.mergeInterfaceProperties(new CreditoRealizadoCategoria(), creditoRealizadoCategoria);
+			
+			novoCreditoRealizadoCategoria.setCreditoRealizado((CreditoRealizado) creditoRealizadoNovo);
+			novoCreditoRealizadoCategoria.setUltimaAlteracao(new Date());
+			
+			repositorioUtil.inserir(novoCreditoRealizadoCategoria);
+		}
+	}
 	
 	private Conta criarContaParaRecuperacaoCredito(IConta contaOrigem) throws ControladorException {
 		ContaGeral contaGeral = new ContaGeral();
@@ -16790,7 +16853,7 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		contaGeral.setId((Integer) this.getControladorUtil().inserir(contaGeral));
 		
 		Conta novaConta = new Conta();
-		MergeProperties.mergeProperties(novaConta, contaOrigem);
+		MergeProperties.mergeInterfaceProperties(novaConta, contaOrigem);
 		contaOrigem.buildConta(novaConta);
 		novaConta.setId(contaGeral.getId());
 		novaConta.setContaGeral(contaGeral);

@@ -31,20 +31,16 @@ public class ClassificarPagamentosAction extends GcomAction {
 			ActionForm actionForm, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) {
 		
-		// Seta o retorno
 		ActionForward retorno = actionMapping.findForward("telaSucesso");
 		
-		// Obtém a instância da fachada
 		Fachada fachada = Fachada.getInstancia();
-		
-		// Obtém a sessão
+
 		HttpSession sessao = httpServletRequest.getSession(false);
 		
 		PagamentosAClassificarActionForm classificarPagamentosActionForm = (PagamentosAClassificarActionForm) actionForm;
 		
 		Usuario usuarioLogado = this.getUsuarioLogado(httpServletRequest);
 		
-		// Saber se vai liberar ou nao liberar
 		String parametroDevolver = (String) httpServletRequest.getParameter("devolver");
 		
 		boolean devolver = true;
@@ -81,8 +77,7 @@ public class ClassificarPagamentosAction extends GcomAction {
 		
 		try {
 			
-			fachada.classificarPagamentosResolvidos(colecaoPagamentos, usuarioLogado, 
-					this.creditoTipo, this.creditoOrigem, devolver);
+			fachada.classificarPagamentosResolvidos(colecaoPagamentos, usuarioLogado, this.creditoTipo, this.creditoOrigem, devolver);
 			
 		} catch (ControladorException e) {
 			e.printStackTrace();
@@ -97,16 +92,7 @@ public class ClassificarPagamentosAction extends GcomAction {
 		return retorno;
 	}
 	
-	/**
-	 * Método que seta os ids de: 
-	 *  situação do pagamento resolvido
-	 *  credito tipo
-	 *  credito origem
-	 *  
-	 * @param idPagamentoOriginal
-	 */
 	private void setParametros(Integer idPagamentoOriginal) {
-		
 		if (idPagamentoOriginal.equals(PagamentoSituacao.DOCUMENTO_INEXISTENTE_CONTA_PARCELADA)) {
 			
 			this.creditoTipo = new CreditoTipo(CreditoTipo.DEVOLUCAO_OUTROS_VALORES);

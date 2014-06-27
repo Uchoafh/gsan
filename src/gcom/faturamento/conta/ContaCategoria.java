@@ -216,6 +216,18 @@ public class ContaCategoria extends ObjetoTransacao implements IContaCategoria {
 		return this.getComp_id().getDescricao(); 	
 	}
 	
+	public void setDescricao(String descricao) {
+		if (this.getComp_id() == null) {
+			this.comp_id = new ContaCategoriaPK();
+		}
+		
+		if (this.comp_id.getCategoria() == null) {
+			this.comp_id.setCategoria(new Categoria());
+		}
+		
+		this.comp_id.getCategoria().setDescricao(descricao);
+	}
+	
 	@Override
 	public String getDescricaoParaRegistroTransacao() {
 		return this.getDescricao();

@@ -12,48 +12,25 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-
-/** @author Hibernate CodeGenerator */
 public class ContaCategoriaHistorico implements Serializable, IContaCategoria {
 	private static final long serialVersionUID = 1L;
-    /** identifier field */
+
     private ContaCategoriaHistoricoPK comp_id;
-
-    /** persistent field */
     private short quantidadeEconomia;
-
-    /** nullable persistent field */
     private BigDecimal valorAgua;
-
-    /** nullable persistent field */
     private Integer consumoAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorEsgoto;
-
-    /** nullable persistent field */
     private Integer consumoEsgoto;
-
-    /** nullable persistent field */
     private BigDecimal valorTarifaMinimaAgua;
-
-    /** nullable persistent field */
     private Integer consumoMinimoAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorTarifaMinimaEsgoto;
-
-    /** nullable persistent field */
     private Integer consumoMinimoEsgoto;
-
-    /** persistent field */
     private Date ultimaAlteracao;
 
-    /** nullable persistent field */
-    private Set contaCategoriaConsumoFaixasHistorico;
+    @SuppressWarnings("rawtypes")
+	private Set contaCategoriaConsumoFaixasHistorico;
 
-    /** full constructor */
+    @SuppressWarnings("rawtypes")
     public ContaCategoriaHistorico(ContaCategoriaHistoricoPK comp_id, short quantidadeEconomia, BigDecimal valorAgua, Integer consumoAgua, BigDecimal valorEsgoto, Integer consumoEsgoto, BigDecimal valorTarifaMinimaAgua, Integer consumoMinimoAgua, BigDecimal valorTarifaMinimaEsgoto, Integer consumoMinimoEsgoto, Date ultimaAlteracao, Set contaCategoriaConsumoFaixasHistorico) {
         this.comp_id = comp_id;
         this.quantidadeEconomia = quantidadeEconomia;
@@ -69,11 +46,10 @@ public class ContaCategoriaHistorico implements Serializable, IContaCategoria {
         this.contaCategoriaConsumoFaixasHistorico = contaCategoriaConsumoFaixasHistorico;
     }
 
-    /** default constructor */
     public ContaCategoriaHistorico() {
     }
 
-    /** minimal constructor */
+    @SuppressWarnings("rawtypes")
     public ContaCategoriaHistorico(ContaCategoriaHistoricoPK comp_id, short quantidadeEconomia, Date ultimaAlteracao, Set contaCategoriaConsumoFaixasHistorico) {
         this.comp_id = comp_id;
         this.quantidadeEconomia = quantidadeEconomia;
@@ -81,10 +57,12 @@ public class ContaCategoriaHistorico implements Serializable, IContaCategoria {
         this.contaCategoriaConsumoFaixasHistorico = contaCategoriaConsumoFaixasHistorico;
     }
 
+    @SuppressWarnings("rawtypes")
     public Set getContaCategoriaConsumoFaixasHistorico() {
         return contaCategoriaConsumoFaixasHistorico;
     }
 
+    @SuppressWarnings("rawtypes")
     public void setContaCategoriaConsumoFaixasHistorico(Set contaCategoriaConsumoFaixasHistorico) {
         this.contaCategoriaConsumoFaixasHistorico = contaCategoriaConsumoFaixasHistorico;
     }
@@ -198,15 +176,29 @@ public class ContaCategoriaHistorico implements Serializable, IContaCategoria {
             .toHashCode();
     }
 
+    @SuppressWarnings("rawtypes")
 	public Set getContaCategoriaConsumoFaixas() {
 		return null;
 	}
 
+    @SuppressWarnings("rawtypes")
 	public void setContaCategoriaConsumoFaixas(Set contaCategoriaConsumoFaixas) {
 	}
 
 	public String getDescricao(){
 		return this.getComp_id().getDescricao(); 	
+	}
+	
+	public void setDescricao(String descricao) {
+		if (this.getComp_id() == null) {
+			this.comp_id = new ContaCategoriaHistoricoPK();
+		}
+		
+		if (this.comp_id.getCategoria() == null) {
+			this.comp_id.setCategoria(new Categoria());
+		}
+		
+		this.comp_id.getCategoria().setDescricao(descricao);
 	}
 	
     public void setConta(IConta conta){
