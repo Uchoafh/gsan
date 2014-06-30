@@ -14401,6 +14401,34 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 
 		return retorno;
 	}
+	
+	public Collection pesquisarContaCategoriaConsumoFaixaHistorico(Integer idConta)
+			throws ErroRepositorioException {
+
+		Collection retorno = null;
+
+		Session session = HibernateUtil.getSession();
+		String consulta;
+
+		try {
+			consulta = "select contaCategoriaConsumoFaixaHistorico "
+					+ "from ContaCategoriaConsumoFaixaHistorico contaCategoriaConsumoFaixaHistorico "
+					+ "inner join fetch contaCategoriaConsumoFaixaHistorico.contaCategoriaHistorico cC "
+					+ "inner join cC.comp_id.contaHistorico contaHistorico "
+					+ "where contaHistorico.id = :idContaHistorico "
+					+ "order by contaCategoriaConsumoFaixaHistorico.id ";
+
+			retorno = session.createQuery(consulta).setInteger("idConta",
+					idConta.intValue()).list();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno;
+	}
 
 	/**
 	 * [UC0155] Encerrar Faturamento do Mês

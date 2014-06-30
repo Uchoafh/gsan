@@ -205,18 +205,30 @@ public class ContaCategoriaHistorico implements Serializable, IContaCategoria {
     	if (comp_id == null){
     		comp_id = new ContaCategoriaHistoricoPK();
     	}
+    	
+    	if (this.comp_id.getConta() == null) {
+			this.comp_id.setConta(new Conta());
+		}
     	comp_id.setConta(conta);
     }
     public void setCategoria(Categoria categoria){
     	if (comp_id == null){
     		comp_id = new ContaCategoriaHistoricoPK();
     	}
+    	
+    	if (this.comp_id.getCategoria() == null) {
+			this.comp_id.setCategoria(new Categoria());
+		}
     	comp_id.setCategoria(categoria);
     }
     public void setSubcategoria(Subcategoria subCategoria){
     	if (comp_id == null){
     		comp_id = new ContaCategoriaHistoricoPK();
     	}
+    	
+    	if (this.comp_id.getSubcategoria() == null) {
+			this.comp_id.setSubcategoria(new Subcategoria());
+		}
     	comp_id.setSubcategoria(subCategoria);
     }
     public IConta getConta(){

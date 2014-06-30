@@ -83,6 +83,7 @@ import gcom.faturamento.conta.GerarImpostosDeduzidosContaHelper;
 import gcom.faturamento.conta.IConta;
 import gcom.faturamento.conta.IContaCategoria;
 import gcom.faturamento.conta.IContaImpostosDeduzidos;
+import gcom.faturamento.conta.IContaCategoriaConsumoFaixa;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoARealizarCategoria;
 import gcom.faturamento.credito.CreditoARealizarCategoriaPK;
@@ -16776,7 +16777,25 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		this.criarCreditoRealizadoParaRecuperacaoCredito(contaOrigem, novaConta);
 		this.criarClienteContaParaRecuperacaoCredito(contaOrigem, novaConta);
 		this.criarContaImpostosDeduzidosParaRecuperacaoCredito(contaOrigem, novaConta);
+		this.criarConsumoFaixaCategoriaParaRecuperacaoCredito(contaOrigem, novaConta);
+		
 		return novaConta;
+	}
+	
+	private void criarConsumoFaixaCategoriaParaRecuperacaoCredito(IConta contaAntiga, Conta contaNova) throws Exception {
+		Collection<IContaCategoriaConsumoFaixa> listaContaCategoriaConsumoFaixaOrigem = repositorioFaturamento.pesquisarContaCategoriaConsumoFaixa(contaAntiga.getId());
+		listaContaCategoriaConsumoFaixaOrigem.addAll(repositorioFaturamento.pesquisarContaCategoriaConsumoFaixaHistorico(contaAntiga.getId()));
+				
+		for (IContaCategoriaConsumoFaixa contaCategoriaConsumoFaixa : listaContaCategoriaConsumoFaixaOrigem) {
+			IContaCategoriaConsumoFaixa novaContaCategoriaConsumoFaixa = (ContaCategoriaConsumoFaixa) MergeProperties.mergeInterfaceProperties(new ContaCategoriaConsumoFaixa(), contaCategoriaConsumoFaixa);
+			
+			ContaCategoria contaCategoria = novaContaCategoriaConsumoFaixa.getContaCategoria();
+			contaCategoria.setConta(contaNova);
+			novaContaCategoriaConsumoFaixa.setContaCategoria(contaCategoria);
+			novaContaCategoriaConsumoFaixa.setUltimaAlteracao(new Date());
+			
+			repositorioUtil.inserir(novaContaCategoriaConsumoFaixa);
+		}
 	}
 	
 	private void criarContaCategoriaParaRecuperacaoCredito(IConta contaAntiga, Conta contaNova) throws Exception {

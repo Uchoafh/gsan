@@ -6,51 +6,26 @@ import gcom.cadastro.imovel.Subcategoria;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-/** @author Hibernate CodeGenerator */
-public class ContaCategoriaConsumoFaixa implements Serializable {
+public class ContaCategoriaConsumoFaixa implements Serializable, IContaCategoriaConsumoFaixa {
 	private static final long serialVersionUID = 1L;
-    /** identifier field */
+
     private Integer id;
-
-    /** nullable persistent field */
     private BigDecimal valorAgua;
-
-    /** nullable persistent field */
     private Integer consumoAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorEsgoto;
-
-    /** nullable persistent field */
     private Integer consumoEsgoto;
-
-    /** nullable persistent field */
     private Date ultimaAlteracao;
-
-    /** nullable persistent field */
     private Integer consumoFaixaInicio;
-
-    /** nullable persistent field */
     private Integer consumoFaixaFim;
-
-    /** nullable persistent field */
     private BigDecimal valorTarifaFaixa;
-
-    /** persistent field */
     private Categoria categoria;
-
-    /** persistent field */
-    private gcom.faturamento.conta.ContaCategoria contaCategoria;
-    
-    /** persistent field */
+    private ContaCategoria contaCategoria;
     private Subcategoria subcategoria;
 
-
-    /** full constructor */
-    public ContaCategoriaConsumoFaixa(BigDecimal valorAgua, Integer consumoAgua, BigDecimal valorEsgoto, Integer consumoEsgoto, Date ultimaAlteracao, Integer consumoFaixaInicio, Integer consumoFaixaFim, BigDecimal valorTarifaFaixa, Categoria categoria, gcom.faturamento.conta.ContaCategoria contaCategoria, Subcategoria subcategoria) {
+    public ContaCategoriaConsumoFaixa(BigDecimal valorAgua, Integer consumoAgua, BigDecimal valorEsgoto, Integer consumoEsgoto, Date ultimaAlteracao, Integer consumoFaixaInicio, Integer consumoFaixaFim, BigDecimal valorTarifaFaixa, Categoria categoria, ContaCategoria contaCategoria, Subcategoria subcategoria) {
         this.valorAgua = valorAgua;
         this.consumoAgua = consumoAgua;
         this.valorEsgoto = valorEsgoto;
@@ -64,12 +39,10 @@ public class ContaCategoriaConsumoFaixa implements Serializable {
         this.subcategoria = subcategoria;
     }
 
-    /** default constructor */
     public ContaCategoriaConsumoFaixa() {
     }
 
-    /** minimal constructor */
-    public ContaCategoriaConsumoFaixa(Categoria categoria, gcom.faturamento.conta.ContaCategoria contaCategoria) {
+    public ContaCategoriaConsumoFaixa(Categoria categoria, ContaCategoria contaCategoria) {
         this.categoria = categoria;
         this.contaCategoria = contaCategoria;
     }
@@ -154,11 +127,11 @@ public class ContaCategoriaConsumoFaixa implements Serializable {
         this.categoria = categoria;
     }
 
-    public gcom.faturamento.conta.ContaCategoria getContaCategoria() {
+    public ContaCategoria getContaCategoria() {
         return this.contaCategoria;
     }
 
-    public void setContaCategoria(gcom.faturamento.conta.ContaCategoria contaCategoria) {
+    public void setContaCategoria(ContaCategoria contaCategoria) {
         this.contaCategoria = contaCategoria;
     }
 
@@ -168,16 +141,10 @@ public class ContaCategoriaConsumoFaixa implements Serializable {
             .toString();
     }
 
-	/**
-	 * @return Retorna o campo subcategoria.
-	 */
 	public Subcategoria getSubcategoria() {
 		return subcategoria;
 	}
 
-	/**
-	 * @param subcategoria O subcategoria a ser setado.
-	 */
 	public void setSubcategoria(Subcategoria subcategoria) {
 		this.subcategoria = subcategoria;
 	}
