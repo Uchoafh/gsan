@@ -11,8 +11,10 @@ import gcom.atendimentopublico.ordemservico.ServicoCobrancaValor;
 import gcom.batch.UnidadeProcessamento;
 import gcom.cadastro.EnvioEmail;
 import gcom.cadastro.cliente.Cliente;
+import gcom.cadastro.cliente.ClienteConta;
 import gcom.cadastro.cliente.ClienteImovel;
 import gcom.cadastro.cliente.EsferaPoder;
+import gcom.cadastro.cliente.IClienteConta;
 import gcom.cadastro.empresa.Empresa;
 import gcom.cadastro.geografico.Municipio;
 import gcom.cadastro.imovel.Categoria;
@@ -80,6 +82,7 @@ import gcom.faturamento.conta.FiltroContaImpressao;
 import gcom.faturamento.conta.GerarImpostosDeduzidosContaHelper;
 import gcom.faturamento.conta.IConta;
 import gcom.faturamento.conta.IContaCategoria;
+import gcom.faturamento.conta.IContaImpostosDeduzidos;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoARealizarCategoria;
 import gcom.faturamento.credito.CreditoARealizarCategoriaPK;
@@ -16771,7 +16774,8 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		this.criarContaCategoriaParaRecuperacaoCredito(contaOrigem, novaConta);
 		this.criarDebitoCobradoParaRecuperacaoCredito(contaOrigem, novaConta);
 		this.criarCreditoRealizadoParaRecuperacaoCredito(contaOrigem, novaConta);
-		
+		this.criarClienteContaParaRecuperacaoCredito(contaOrigem, novaConta);
+		this.criarContaImpostosDeduzidosParaRecuperacaoCredito(contaOrigem, novaConta);
 		return novaConta;
 	}
 	
@@ -16843,6 +16847,32 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 			novoCreditoRealizadoCategoria.setUltimaAlteracao(new Date());
 			
 			repositorioUtil.inserir(novoCreditoRealizadoCategoria);
+		}
+	}
+	
+	private void criarContaImpostosDeduzidosParaRecuperacaoCredito(IConta contaAntiga, Conta contaNova) throws Exception {
+		Collection<IContaImpostosDeduzidos> listaContaImpostoOrigem = repositorioFaturamento.pesquisarContaImpostosDeduzidos(contaAntiga.getId());
+		listaContaImpostoOrigem.addAll(repositorioFaturamento.pesquisarContaImpostosDeduzidosHistorico(contaAntiga.getId()));
+				
+		for (IContaImpostosDeduzidos contaImpostoDeduzidoAntigo : listaContaImpostoOrigem) {
+			IContaImpostosDeduzidos novaContaImpostosDeduzido = (ContaImpostosDeduzidos) MergeProperties.mergeInterfaceProperties(new ContaImpostosDeduzidos(), contaImpostoDeduzidoAntigo);
+			novaContaImpostosDeduzido.setConta(contaNova);
+			novaContaImpostosDeduzido.setUltimaAlteracao(new Date());
+			
+			repositorioUtil.inserir(novaContaImpostosDeduzido);
+		}
+	}
+	
+	private void criarClienteContaParaRecuperacaoCredito(IConta contaAntiga, Conta contaNova) throws Exception {
+		Collection<IClienteConta> listaClienteContaOrigem = repositorioFaturamento.pesquisarClienteConta(contaAntiga.getId());
+		listaClienteContaOrigem.addAll(repositorioFaturamento.pesquisarClienteContaHistorico(contaAntiga.getId()));
+				
+		for (IClienteConta clienteContaAntigo : listaClienteContaOrigem) {
+			IClienteConta novoClienteConta = (ClienteConta) MergeProperties.mergeInterfaceProperties(new ClienteConta(), clienteContaAntigo);
+			novoClienteConta.setConta(contaNova);
+			novoClienteConta.setUltimaAlteracao(new Date());
+			
+			repositorioUtil.inserir(novoClienteConta);
 		}
 	}
 	

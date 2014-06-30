@@ -14,6 +14,7 @@ import gcom.cadastro.cliente.ClienteConta;
 import gcom.cadastro.cliente.ClienteFone;
 import gcom.cadastro.cliente.ClienteRelacaoTipo;
 import gcom.cadastro.cliente.EsferaPoder;
+import gcom.cadastro.cliente.IClienteConta;
 import gcom.cadastro.empresa.Empresa;
 import gcom.cadastro.imovel.Categoria;
 import gcom.cadastro.imovel.CategoriaTipo;
@@ -55,12 +56,14 @@ import gcom.faturamento.conta.ContaMotivoRevisao;
 import gcom.faturamento.conta.Fatura;
 import gcom.faturamento.conta.FaturaItem;
 import gcom.faturamento.conta.IContaCategoria;
+import gcom.faturamento.conta.IContaImpostosDeduzidos;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoOrigem;
 import gcom.faturamento.credito.CreditoRealizado;
 import gcom.faturamento.credito.CreditoRealizadoHistorico;
 import gcom.faturamento.credito.CreditoTipo;
 import gcom.faturamento.credito.ICreditoRealizado;
+import gcom.faturamento.credito.ICreditoRealizadoCategoria;
 import gcom.faturamento.debito.DebitoACobrar;
 import gcom.faturamento.debito.DebitoACobrarCategoria;
 import gcom.faturamento.debito.DebitoACobrarGeral;
@@ -14337,19 +14340,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		return retorno;
 	}
 
-	/**
-	 * [UC0155] Encerrar Faturamento do Mês
-	 * 
-	 * Pesquisa os impostos deduzidos da conta.
-	 * 
-	 * @author Pedro Alexandre
-	 * @date 10/10/2006
-	 * 
-	 * @param idConta
-	 * @return
-	 * @throws ErroRepositorioException
-	 */
-	public Collection pesquisarContaImpostosDeduzidos(Integer idConta)
+	public Collection<IContaImpostosDeduzidos> pesquisarContaImpostosDeduzidos(Integer idConta)
 			throws ErroRepositorioException {
 		Collection retorno = null;
 
@@ -14357,17 +14348,13 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		String consulta = null;
 
 		try {
-			consulta = "select cnid from " + "ContaImpostosDeduzidos cnid "
-					+ "where cnid.conta.id = :idConta";
+			consulta = "select cnid from " + "ContaImpostosDeduzidos cnid where cnid.conta.id = :idConta";
 
-			retorno = session.createQuery(consulta).setInteger("idConta",
-					idConta).list();
+			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 		return retorno;
@@ -14528,30 +14515,15 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		}
 	}
 
-	/**
-	 * [UC0155] Encerrar Faturamento do Mês
-	 * 
-	 * Pesquisa os relacionamentos entre cliente e conta.
-	 * 
-	 * @author Pedro Alexandre
-	 * @date 13/10/2005
-	 * 
-	 * @param idConta
-	 * @return
-	 * @throws ErroRepositorioException
-	 */
-	public Collection pesquisarClienteConta(Integer idConta)
-			throws ErroRepositorioException {
+	public Collection<IClienteConta> pesquisarClienteConta(Integer idConta) throws ErroRepositorioException {
 
-		Collection retorno = null;
+		Collection<IClienteConta> retorno = null;
 
 		Session session = HibernateUtil.getSession();
 		String consulta;
 
 		try {
-			consulta = "select clienteConta "
-					+ "from ClienteConta clienteConta "
-					+ "inner join clienteConta.conta conta "
+			consulta = "select clienteConta from ClienteConta clienteConta inner join clienteConta.conta conta "
 					+ "where conta.id = :idConta ";
 
 			retorno = session.createQuery(consulta).setInteger("idConta",
@@ -60783,7 +60755,7 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		return retorno;
 	}
 
-	public Collection pesquisarCreditoRealizadoCategoriaHistorico(Integer idCreditoRealizado) throws ErroRepositorioException {
+	public Collection<ICreditoRealizadoCategoria> pesquisarCreditoRealizadoCategoriaHistorico(Integer idCreditoRealizado) throws ErroRepositorioException {
 
 		Collection retorno = null;
 
@@ -60794,6 +60766,48 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 			consulta = "from CreditoRealizadoCategoriaHistorico credito where credito.creditoRealizadoHistorico.id = :idCreditoRealizado ";
 
 			retorno = session.createQuery(consulta).setInteger("idCreditoRealizado", idCreditoRealizado).list();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno;
+	}
+	
+	public Collection<IContaImpostosDeduzidos> pesquisarContaImpostosDeduzidosHistorico(Integer idConta)
+			throws ErroRepositorioException {
+		Collection retorno = null;
+
+		Session session = HibernateUtil.getSession();
+		String consulta = null;
+
+		try {
+			consulta = "select cnid from " + "ContaImpostosDeduzidosHistorico cnid where cnid.contaHistorico.id = :idConta";
+
+			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+		return retorno;
+	}
+	
+	public Collection<IClienteConta> pesquisarClienteContaHistorico(Integer idConta) throws ErroRepositorioException {
+
+		Collection<IClienteConta> retorno = null;
+
+		Session session = HibernateUtil.getSession();
+		String consulta;
+
+		try {
+			consulta = "select clienteConta from ClienteContaHistorico clienteConta inner join clienteConta.contaHistorico conta "
+					+ "where conta.id = :idConta ";
+
+			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
 
 		} catch (HibernateException e) {
 			throw new ErroRepositorioException(e, "Erro no Hibernate");

@@ -66,6 +66,7 @@ import gcom.cadastro.cliente.FiltroCliente;
 import gcom.cadastro.cliente.FiltroClienteGuiaPagamento;
 import gcom.cadastro.cliente.FiltroClienteImovel;
 import gcom.cadastro.cliente.FiltroClienteTipo;
+import gcom.cadastro.cliente.IClienteConta;
 import gcom.cadastro.cliente.IRepositorioClienteImovel;
 import gcom.cadastro.cliente.RepositorioClienteImovelHBM;
 import gcom.cadastro.empresa.Empresa;
@@ -197,6 +198,7 @@ import gcom.faturamento.conta.FiltroContaGeral;
 import gcom.faturamento.conta.FiltroContaMensagem;
 import gcom.faturamento.conta.GerarImpostosDeduzidosContaHelper;
 import gcom.faturamento.conta.IContaCategoria;
+import gcom.faturamento.conta.IContaImpostosDeduzidos;
 import gcom.faturamento.conta.ImpostoDeduzidoHelper;
 import gcom.faturamento.conta.MotivoNaoEntregaDocumento;
 import gcom.faturamento.conta.UC0146ManterConta;
@@ -47591,7 +47593,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		Collection colecaoClienteContaRemover = new ArrayList();
 
 		try {
-			Collection<ClienteConta> colecaoClienteConta = repositorioFaturamento
+			Collection<IClienteConta> colecaoClienteConta = repositorioFaturamento
 					.pesquisarClienteConta(idConta);
 
 			ClienteContaHistorico clienteContaHistoricoTemp = null;
@@ -47600,7 +47602,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 				colecaoClienteContaRemover.addAll(colecaoClienteConta);
 
-				for (ClienteConta clienteConta : colecaoClienteConta) {
+				for (IClienteConta clienteConta : colecaoClienteConta) {
 					clienteContaHistoricoTemp = new ClienteContaHistorico();
 					clienteContaHistoricoTemp.setId(clienteConta.getId());
 					clienteContaHistoricoTemp.setCliente(clienteConta
@@ -47657,7 +47659,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		try {
 
-			Collection<ContaImpostosDeduzidos> colecaoContaImpostosDeduzidos = this.repositorioFaturamento
+			Collection<IContaImpostosDeduzidos> colecaoContaImpostosDeduzidos = this.repositorioFaturamento
 					.pesquisarContaImpostosDeduzidos(idConta);
 
 			ContaImpostosDeduzidosHistorico contaImpostosDeduzidosHistoricoTemp = null;
@@ -47670,7 +47672,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				colecaoContaImpostosDeduzidosRemover
 						.addAll(colecaoContaImpostosDeduzidos);
 
-				for (ContaImpostosDeduzidos contaImpostosDeduzidos : colecaoContaImpostosDeduzidos) {
+				for (IContaImpostosDeduzidos contaImpostosDeduzidos : colecaoContaImpostosDeduzidos) {
 					contaImpostosDeduzidosHistoricoTemp = new ContaImpostosDeduzidosHistorico();
 					contaImpostosDeduzidosHistoricoTemp
 							.setId(contaImpostosDeduzidos.getId());

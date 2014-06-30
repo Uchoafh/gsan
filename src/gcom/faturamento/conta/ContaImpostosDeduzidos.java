@@ -5,9 +5,10 @@ import gcom.faturamento.ImpostoTipo;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class ContaImpostosDeduzidos implements Serializable {
+public class ContaImpostosDeduzidos implements Serializable, IContaImpostosDeduzidos {
 	private static final long serialVersionUID = 1L;
     
     private Integer id;
@@ -59,8 +60,8 @@ public class ContaImpostosDeduzidos implements Serializable {
 		return conta;
 	}
 
-	public void setConta(Conta conta) {
-		this.conta = conta;
+	public void setConta(IConta conta) {
+		this.conta = new Conta(conta.getId());
 	}
 
 	public String toString() {
