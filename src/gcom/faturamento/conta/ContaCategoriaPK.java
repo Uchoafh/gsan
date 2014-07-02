@@ -8,8 +8,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-/** @author Hibernate CodeGenerator */
 public class ContaCategoriaPK extends ObjetoGcom implements IContaCategoriaPK{
 	private static final long serialVersionUID = 1L;
    
@@ -17,7 +15,7 @@ public class ContaCategoriaPK extends ObjetoGcom implements IContaCategoriaPK{
     private Categoria categoria;
     private Subcategoria subcategoria;
 
-    public ContaCategoriaPK(gcom.faturamento.conta.Conta conta, Categoria categoria) {
+    public ContaCategoriaPK(Conta conta, Categoria categoria) {
         this.conta = conta;
         this.categoria = categoria;
     }
@@ -30,6 +28,7 @@ public class ContaCategoriaPK extends ObjetoGcom implements IContaCategoriaPK{
         this.categoria = categoria;
         this.subcategoria = subcategoria;
     }
+    
     public gcom.faturamento.conta.Conta getConta() {
         return this.conta;
     }

@@ -61,6 +61,10 @@ public class ContaCategoria extends ObjetoTransacao implements IContaCategoria {
     public ContaCategoria(Conta conta, Categoria categoria) {
     	this.comp_id = new ContaCategoriaPK(conta, categoria);
     }
+    
+    public ContaCategoria(Conta conta, Categoria categoria, Subcategoria subcategoria) {
+    	this.comp_id = new ContaCategoriaPK(conta.getId(), categoria, subcategoria);
+    }
 
     @SuppressWarnings("rawtypes")
 	public ContaCategoria(ContaCategoriaPK comp_id, short quantidadeEconomia, Set contaCategoriaConsumoFaixas) {

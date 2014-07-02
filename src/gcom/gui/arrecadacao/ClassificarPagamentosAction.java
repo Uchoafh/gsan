@@ -93,15 +93,16 @@ public class ClassificarPagamentosAction extends GcomAction {
 	}
 	
 	private void setParametros(Integer idPagamentoOriginal) {
-		if (idPagamentoOriginal.equals(PagamentoSituacao.DOCUMENTO_INEXISTENTE_CONTA_PARCELADA)) {
-			
-			this.creditoTipo = new CreditoTipo(CreditoTipo.DEVOLUCAO_OUTROS_VALORES);
-			this.creditoOrigem = new CreditoOrigem(CreditoOrigem.VALORES_COBRADOS_INDEVIDAMENTE);
-			
-		} else if (idPagamentoOriginal.equals(PagamentoSituacao.PAGAMENTO_EM_DUPLICIDADE)) {
+		if (idPagamentoOriginal.equals(PagamentoSituacao.PAGAMENTO_EM_DUPLICIDADE)) {
 			
 			this.creditoTipo = new CreditoTipo(CreditoTipo.DEVOLUCAO_PAGAMENTOS_DUPLICIDADE);
 			this.creditoOrigem = new CreditoOrigem(CreditoOrigem.CONTAS_PAGAS_EM_DUPLICIDADE_EXCESSO);
+
+		} else {
+
+			this.creditoTipo = new CreditoTipo(CreditoTipo.DEVOLUCAO_OUTROS_VALORES);
+			this.creditoOrigem = new CreditoOrigem(CreditoOrigem.VALORES_COBRADOS_INDEVIDAMENTE);
+			
 		}
 	}
 

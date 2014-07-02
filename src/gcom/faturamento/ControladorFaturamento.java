@@ -82,8 +82,8 @@ import gcom.faturamento.conta.FiltroContaImpressao;
 import gcom.faturamento.conta.GerarImpostosDeduzidosContaHelper;
 import gcom.faturamento.conta.IConta;
 import gcom.faturamento.conta.IContaCategoria;
-import gcom.faturamento.conta.IContaImpostosDeduzidos;
 import gcom.faturamento.conta.IContaCategoriaConsumoFaixa;
+import gcom.faturamento.conta.IContaImpostosDeduzidos;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.credito.CreditoARealizarCategoria;
 import gcom.faturamento.credito.CreditoARealizarCategoriaPK;
@@ -16789,7 +16789,7 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		for (IContaCategoriaConsumoFaixa contaCategoriaConsumoFaixa : listaContaCategoriaConsumoFaixaOrigem) {
 			IContaCategoriaConsumoFaixa novaContaCategoriaConsumoFaixa = (ContaCategoriaConsumoFaixa) MergeProperties.mergeInterfaceProperties(new ContaCategoriaConsumoFaixa(), contaCategoriaConsumoFaixa);
 			
-			ContaCategoria contaCategoria = novaContaCategoriaConsumoFaixa.getContaCategoria();
+			IContaCategoria contaCategoria = novaContaCategoriaConsumoFaixa.getContaCategoria();
 			contaCategoria.setConta(contaNova);
 			novaContaCategoriaConsumoFaixa.setContaCategoria(contaCategoria);
 			novaContaCategoriaConsumoFaixa.setUltimaAlteracao(new Date());

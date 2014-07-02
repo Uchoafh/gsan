@@ -2,7 +2,6 @@ package gcom.faturamento.conta;
 
 import gcom.cadastro.imovel.Categoria;
 import gcom.cadastro.imovel.Subcategoria;
-import gcom.faturamento.credito.CreditoRealizado;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -154,11 +153,22 @@ public class ContaCategoriaConsumoFaixaHistorico implements Serializable, IConta
     }
 
 	public IContaCategoria getContaCategoria() {
-		return new ContaCategoria(this.getContaCategoriaHistorico().get);
+		return contaCategoriaHistorico;
 	}
 
 	public void setContaCategoria(IContaCategoria contaCategoria) {
-		// TODO Auto-generated method stub
-		
+    	if (contaCategoriaHistorico == null) {
+    		contaCategoriaHistorico = new ContaCategoriaHistorico();
+    		
+    	}
+    	
+    	if (contaCategoriaHistorico.getComp_id() == null) {
+    		ContaCategoriaHistoricoPK comp_id = new ContaCategoriaHistoricoPK();
+    		contaCategoriaHistorico.setComp_id(comp_id);
+    	}
+    	
+    	contaCategoriaHistorico.getComp_id().setConta(contaCategoria.getConta());
+    	contaCategoriaHistorico.getComp_id().setCategoria(contaCategoria.getCategoria());
+    	contaCategoriaHistorico.getComp_id().setSubcategoria(contaCategoria.getSubcategoria());
 	}
 }

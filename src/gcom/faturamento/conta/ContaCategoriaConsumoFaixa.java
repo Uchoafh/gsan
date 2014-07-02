@@ -127,12 +127,24 @@ public class ContaCategoriaConsumoFaixa implements Serializable, IContaCategoria
         this.categoria = categoria;
     }
 
-    public ContaCategoria getContaCategoria() {
+    public IContaCategoria getContaCategoria() {
         return this.contaCategoria;
     }
 
-    public void setContaCategoria(ContaCategoria contaCategoria) {
-        this.contaCategoria = contaCategoria;
+    public void setContaCategoria(IContaCategoria contaCategoria) {
+    	if (this.contaCategoria == null) {
+    		this.contaCategoria = new ContaCategoria();
+    		
+    	}
+    	
+    	if (this.contaCategoria.getComp_id() == null) {
+    		ContaCategoriaPK comp_id = new ContaCategoriaPK();
+    		this.contaCategoria.setComp_id(comp_id);
+    	}
+    	
+    	this.contaCategoria.getComp_id().setConta(contaCategoria.getConta());
+    	this.contaCategoria.getComp_id().setCategoria(contaCategoria.getCategoria());
+    	this.contaCategoria.getComp_id().setSubcategoria(contaCategoria.getSubcategoria());
     }
 
     public String toString() {

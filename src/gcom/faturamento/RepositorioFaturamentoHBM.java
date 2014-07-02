@@ -14414,12 +14414,15 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 			consulta = "select contaCategoriaConsumoFaixaHistorico "
 					+ "from ContaCategoriaConsumoFaixaHistorico contaCategoriaConsumoFaixaHistorico "
 					+ "inner join fetch contaCategoriaConsumoFaixaHistorico.contaCategoriaHistorico cC "
-					+ "inner join cC.comp_id.contaHistorico contaHistorico "
+					+ "inner join fetch contaCategoriaConsumoFaixaHistorico.categoria categoria "
+					+ "inner join fetch contaCategoriaConsumoFaixaHistorico.subcategoria subcategoria "
+					+ "inner join fetch cC.comp_id.contaHistorico contaHistorico "
+					+ "inner join fetch cC.comp_id.categoria catg "
+					+ "inner join fetch cC.comp_id.subcategoria subcatg "
 					+ "where contaHistorico.id = :idContaHistorico "
 					+ "order by contaCategoriaConsumoFaixaHistorico.id ";
 
-			retorno = session.createQuery(consulta).setInteger("idConta",
-					idConta.intValue()).list();
+			retorno = session.createQuery(consulta).setInteger("idContaHistorico", idConta.intValue()).list();
 
 		} catch (HibernateException e) {
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
@@ -60829,13 +60832,16 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		Collection<IClienteConta> retorno = null;
 
 		Session session = HibernateUtil.getSession();
-		String consulta;
+		StringBuilder consulta = new StringBuilder();
 
 		try {
-			consulta = "select clienteConta from ClienteContaHistorico clienteConta inner join clienteConta.contaHistorico conta "
-					+ "where conta.id = :idConta ";
+			consulta.append("select clienteConta from ClienteContaHistorico clienteConta ")
+			.append("inner join fetch clienteConta.contaHistorico conta ")
+			.append("inner join fetch clienteConta.clienteRelacaoTipo clienteRelacaoTipo ")
+			.append("inner join fetch clienteConta.cliente cliente ")
+			.append("where conta.id = :idConta ");
 
-			retorno = session.createQuery(consulta).setInteger("idConta", idConta).list();
+			retorno = session.createQuery(consulta.toString()).setInteger("idConta", idConta).list();
 
 		} catch (HibernateException e) {
 			throw new ErroRepositorioException(e, "Erro no Hibernate");

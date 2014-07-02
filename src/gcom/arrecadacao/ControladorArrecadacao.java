@@ -56481,29 +56481,18 @@ public class ControladorArrecadacao implements SessionBean {
 		}
 	}
 	
-	/**
-	 * TODO : COSANPA
-	 * @author Pamela Gatinho
-	 * @date 17/05/2013
-	 * 
-	 * Método para criar um crédito para pagamentos em devolução
-	 * 
-	 * @param pagamentos
-	 * @param usuarioLogado
-	 * @throws ControladorException
-	 */
-	public void incluirCreditoPagamentosResolvidos(Collection<Pagamento> pagamentos, Usuario usuarioLogado,
-			CreditoTipo creditoTipo, CreditoOrigem creditoOrigem) 
-		throws ControladorException {
+	public void incluirCreditoPagamentosResolvidos(Collection<Pagamento> pagamentos, Usuario usuarioLogado, CreditoTipo creditoTipo, CreditoOrigem creditoOrigem) throws Exception {
 		
+		SistemaParametro sistemaParametros = getControladorUtil().pesquisarParametrosDoSistema();	
+
 		for (Pagamento pagamento : pagamentos){
+			Imovel imovel = getControladorImovel().pesquisarImovel(pagamento.getImovel().getId());
+
 			CreditoARealizar credito = new CreditoARealizar();
 			
-			Imovel imovel = getControladorImovel().pesquisarImovel(pagamento.getImovel().getId());
-			
-			SistemaParametro sistemaParametros = getControladorUtil().pesquisarParametrosDoSistema();	
-			credito.setAnoMesReferenciaCredito(sistemaParametros.getAnoMesArrecadacao());
-			
+			credito.setAnoMesReferenciaCredito(pagamento.getAnoMesReferenciaPagamento());
+			credito.setAnoMesCobrancaCredito(this.obterReferenciaCobrancaCreditoRecuperacaoCredito(imovel.getId()));
+			credito.setAnoMesReferenciaContabil(sistemaParametros.getAnoMesFaturamento());
 			credito.setCreditoTipo(creditoTipo);
 			credito.setCreditoOrigem(creditoOrigem);
 			credito.setImovel(imovel);
@@ -56519,16 +56508,25 @@ public class ControladorArrecadacao implements SessionBean {
 			credito.setValorCredito(pagamento.getValorPagamento());
 			credito.setGeracaoCredito(new Date());
 			credito.setUltimaAlteracao(new Date());
-			
-			LancamentoItemContabil lancamentoItemContabil = new LancamentoItemContabil(LancamentoItemContabil.OUTROS_SERVICOS_AGUA);
-			credito.setLancamentoItemContabil(lancamentoItemContabil);
-			
-			DebitoCreditoSituacao debitoCreditoSituacaoAtual =  new DebitoCreditoSituacao(DebitoCreditoSituacao.NORMAL);
-			credito.setDebitoCreditoSituacaoAtual(debitoCreditoSituacaoAtual);
-			
-			//getControladorFaturamento().inserirCreditoARealizar(imovel, credito, usuarioLogado);
+			credito.setLancamentoItemContabil(new LancamentoItemContabil(LancamentoItemContabil.OUTROS_SERVICOS_AGUA));
+			credito.setDebitoCreditoSituacaoAtual(new DebitoCreditoSituacao(DebitoCreditoSituacao.NORMAL));
+			credito.setUsuario(usuarioLogado);
+
 			getControladorFaturamento().gerarCreditoARealizar(credito, imovel, usuarioLogado);
 		}
+	}
+	
+	private Integer obterReferenciaCobrancaCreditoRecuperacaoCredito(Integer idImovel) throws Exception {
+		Integer referenciaCobranca = null;
+		Rota rota = getControladorMicromedicao().buscarRotaDoImovel(idImovel);
+		
+		if (getControladorMicromedicao().isImovelEmCampo(idImovel)) {
+			referenciaCobranca = Util.somaUmMesAnoMesReferencia(rota.getFaturamentoGrupo().getAnoMesReferencia());
+		} else {
+			referenciaCobranca = rota.getFaturamentoGrupo().getAnoMesReferencia();
+		}
+		
+		return referenciaCobranca;
 	}
 	
 	public void atualizarIndicadorDebitoAutomaticoComDataExclusao(Integer idImovel) throws ControladorException {

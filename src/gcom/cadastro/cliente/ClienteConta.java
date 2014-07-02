@@ -1,6 +1,7 @@
 package gcom.cadastro.cliente;
 
 import gcom.faturamento.conta.Conta;
+import gcom.faturamento.conta.ContaHistorico;
 import gcom.faturamento.conta.IConta;
 
 import java.io.Serializable;
@@ -57,7 +58,9 @@ public class ClienteConta implements Serializable, IClienteConta {
     }
 
     public void setConta(IConta conta) {
-        this.conta = (Conta) conta;
+    	if (conta != null) {
+    		this.conta = new Conta(conta.getId());
+    	}
     }
 
     public String toString() {

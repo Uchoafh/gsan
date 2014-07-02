@@ -89,7 +89,9 @@ public class ClienteContaHistorico implements Serializable, IClienteConta {
 	}
 
 	public void setConta(IConta conta) {
-		this.contaHistorico = new ContaHistorico(conta.getId());
+		if (conta != null) {
+			this.contaHistorico = new ContaHistorico(conta.getId());
+		}
 	}
 
 }
