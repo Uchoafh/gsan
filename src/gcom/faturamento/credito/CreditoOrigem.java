@@ -8,7 +8,6 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-/** @author Hibernate CodeGenerator */
 public class CreditoOrigem extends ObjetoTransacao {
 	private static final long serialVersionUID = 1L;
 
@@ -23,6 +22,8 @@ public class CreditoOrigem extends ObjetoTransacao {
 	public final static Integer AJUSTES_PARA_ZERAR_CONTA = new Integer(9);
 	public final static Integer CONTAS_PAGAS_EM_EXCESSO = new Integer (10);
 	public final static Integer DESCONTOS_CONDICIONAIS = new Integer(11);
+	public final static Integer RECUPERACAO_CREDITO_CONTA_CANCELADA = new Integer(12);
+	public final static Integer RECUPERACAO_CREDITO_CONTA_PARCELADA = new Integer(13);
 
 	private Integer id;
 	private String descricaoCreditoOrigem;

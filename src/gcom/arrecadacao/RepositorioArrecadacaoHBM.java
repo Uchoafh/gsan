@@ -31492,12 +31492,15 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 				.setParameterList("idsPagamentos", idsPagamentos).setMaxResults(1500).list();
 			
 			for (Pagamento pagamento: pagamentos) {
-				System.out.println("Pagamento: " + pagamento.getId());
 				if (pagamento.getContaGeral() != null) {
 					ContaGeral contaGeral = (ContaGeral) session.get(ContaGeral.class, pagamento.getContaGeral().getId());
 					
 					if (contaGeral.getConta() != null) {
 						Conta conta = (Conta) session.get(Conta.class, pagamento.getContaGeral().getId());
+						
+						if (conta.getImovel().getId().equals(new Integer(2697408))) {
+							System.out.println("Debug...");
+						}
 						contaGeral.setConta(conta);
 						
 						if (conta.getContaMotivoCancelamento() != null) {
@@ -31510,6 +31513,9 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					} else  {
 						ContaHistorico conta = (ContaHistorico) session.get(ContaHistorico.class, pagamento.getContaGeral().getId());
 						contaGeral.setContaHistorico(conta);
+						if (conta.getImovel().getId().equals(new Integer(2697408))) {
+							System.out.println("Debug...");
+						}
 						if (conta.getContaMotivoCancelamento() != null) {
 							
 							ContaMotivoCancelamento contaMotivoCancelamento = (ContaMotivoCancelamento) session.get(

@@ -71,6 +71,7 @@ import gcom.faturamento.conta.ContaGeral;
 import gcom.faturamento.conta.ContaHistorico;
 import gcom.faturamento.conta.ContaImpostosDeduzidos;
 import gcom.faturamento.conta.ContaImpressao;
+import gcom.faturamento.conta.ContaMotivoInclusao;
 import gcom.faturamento.conta.ContaMotivoRetificacao;
 import gcom.faturamento.conta.ContaTipo;
 import gcom.faturamento.conta.FiltroConta;
@@ -16749,7 +16750,8 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		}
 	}
 	
-	public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos) throws ControladorException, ErroRepositorioException {
+	public Map<Integer, Conta> incluirContasParaRefaturarPagamentos(Collection<Pagamento> pagamentos, Usuario usuarioLogado) throws ControladorException, ErroRepositorioException {
+		
 		Map<Integer, Conta> mapNovasContas = new HashMap<Integer, Conta>();
 		
 		Collection<IConta> listaContaHistoricoOrigem = this.pesquisarContaOuContaHistorico(pagamentos);
@@ -16823,6 +16825,7 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 			repositorioUtil.inserir(novoDebitoCobrado);
 
 			this.criarDebitoCobradoCategoriaParaRecuperacaoCredito(debitoCobradoAntivo, novoDebitoCobrado);
+
 		}
 	}
 	

@@ -4896,11 +4896,12 @@ public interface IRepositorioArrecadacao {
      * @return Collection
      * @throws ErroRepositorioException
      */
-    public Collection pesquisarPagamentoHistoricoAvisoBancario(Integer idAvisoBancario) 
+    @SuppressWarnings("rawtypes")
+	public Collection pesquisarPagamentoHistoricoAvisoBancario(Integer idAvisoBancario) 
     	throws ErroRepositorioException;
 
 	public Pagamento pesquisarPagamentoDeConta(Integer idConta) throws ErroRepositorioException ;
-	
+    
 	public void atualizarContaEmPagamento(Integer idPagamento, Integer idConta) throws ErroRepositorioException;
 	
 	public Integer pesquisarIdPagamentoDaGuia(Integer idGuiaPagamento) throws ErroRepositorioException;

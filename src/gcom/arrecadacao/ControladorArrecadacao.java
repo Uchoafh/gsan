@@ -40272,22 +40272,11 @@ public class ControladorArrecadacao implements SessionBean {
 
 	}
 
-	/**
-	 * [UC0150] Retificar Conta
-	 * 
-	 * @author Vivianne Sousa
-	 * @data 23/04/2006
-	 * 
-	 * @param idConta
-	 * @return idParcelamento
-	 */
-	public Pagamento pesquisarPagamentoDeConta(Integer idConta)
-			throws ControladorException {
+	public Pagamento pesquisarPagamentoDeConta(Integer idConta) throws ControladorException {
 
 		Pagamento pagamento = null;
 
 		try {
-
 			pagamento = repositorioArrecadacao.pesquisarPagamentoDeConta(idConta);
 		} catch (ErroRepositorioException ex) {
 			sessionContext.setRollbackOnly();
@@ -56417,14 +56406,6 @@ public class ControladorArrecadacao implements SessionBean {
 
     }
 	
-	/**
-	 * TODO : COSANPA
-	 * @author Pamela Gatinho
-	 * @date 17/05/2013
-	 * 
-	 * @param idsPagamentos
-	 * @return
-	 */
 	public Collection<Pagamento> obterPagamentos(Collection<Integer> idsPagamentos) 
 		throws ControladorException {
 		Collection<Pagamento> pagamentos = null;
@@ -56448,13 +56429,12 @@ public class ControladorArrecadacao implements SessionBean {
 	 */
 	public void recuperarCredito(Collection<Pagamento> pagamentos, Usuario usuarioLogado, CreditoTipo creditoTipo, CreditoOrigem creditoOrigem, 
 			boolean indicadorIncluirCredito) throws ControladorException {
-		
 		try {
 			
 			if (indicadorIncluirCredito) {
 				incluirCreditoPagamentosResolvidos(pagamentos, usuarioLogado, creditoTipo, creditoOrigem);
 			} else {
-				refaturarContaParaRecuperacaoCredito(pagamentos);
+				refaturarContaParaClassificarPagamentos(pagamentos, usuarioLogado);
 			}
 			
 			repositorioArrecadacao.atualizarSituacaoEValorExcedentePagamento(pagamentos, PagamentoSituacao.PAGAMENTO_CLASSIFICADO);
@@ -56464,20 +56444,30 @@ public class ControladorArrecadacao implements SessionBean {
 		}
 	}
 	
-	private void refaturarContaParaRecuperacaoCredito(Collection<Pagamento> pagamentos) throws Exception {
-		Map<Integer, Conta> mapContasNovas = getControladorFaturamento().incluirContasParaRefaturarPagamentos(pagamentos);
+	private void refaturarContaParaClassificarPagamentos(Collection<Pagamento> pagamentos, Usuario usuarioLogado) 
+		throws ControladorException {
 		
-		Set<Integer> listaIdsContaHistorico = mapContasNovas.keySet();
-		
-		for (Integer idContaHistorico : listaIdsContaHistorico) {
-			Pagamento pagamento = this.pesquisarPagamentoDeConta(idContaHistorico);
+		try{
+			Map<Integer, Conta> mapContasNovas = getControladorFaturamento().incluirContasParaRefaturarPagamentos(pagamentos, usuarioLogado);
 			
-			if (pagamento != null) {
-				Conta novaConta = mapContasNovas.get(idContaHistorico);
-				pagamento.setContaGeral(novaConta.getContaGeral());
+			Collection<Integer> idsContas = getControladorFaturamento().getListaIdContas(pagamentos);
+
+			Set<Integer> listaIdsContaHistorico = mapContasNovas.keySet();
+			
+			for (Integer idContaHistorico : listaIdsContaHistorico) {
+				Pagamento pagamento = this.pesquisarPagamentoDeConta(idContaHistorico);
+				if (pagamento != null) {
+					Conta novaConta = mapContasNovas.get(idContaHistorico);
+					pagamento.setContaGeral(novaConta.getContaGeral());
+					
+					repositorioUtil.atualizar(pagamento);
+				}
 				
 				repositorioUtil.atualizar(pagamento);
 			}
+		} catch (Exception e) {
+			logger.error("Erro ao refaturar conta para recuperação de crédito.", e);
+			throw new ControladorException("Erro ao refaturar conta para recuperação de crédito.", e);
 		}
 	}
 	
@@ -56511,7 +56501,13 @@ public class ControladorArrecadacao implements SessionBean {
 			credito.setLancamentoItemContabil(new LancamentoItemContabil(LancamentoItemContabil.OUTROS_SERVICOS_AGUA));
 			credito.setDebitoCreditoSituacaoAtual(new DebitoCreditoSituacao(DebitoCreditoSituacao.NORMAL));
 			credito.setUsuario(usuarioLogado);
-
+			
+			LancamentoItemContabil lancamentoItemContabil = new LancamentoItemContabil(LancamentoItemContabil.OUTROS_SERVICOS_AGUA);
+			credito.setLancamentoItemContabil(lancamentoItemContabil);
+			
+			DebitoCreditoSituacao debitoCreditoSituacaoAtual =  new DebitoCreditoSituacao(DebitoCreditoSituacao.NORMAL);
+			credito.setDebitoCreditoSituacaoAtual(debitoCreditoSituacaoAtual);
+			
 			getControladorFaturamento().gerarCreditoARealizar(credito, imovel, usuarioLogado);
 		}
 	}

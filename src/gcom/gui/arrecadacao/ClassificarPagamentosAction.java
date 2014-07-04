@@ -32,17 +32,37 @@ public class ClassificarPagamentosAction extends GcomAction {
 			HttpServletResponse httpServletResponse) {
 		
 		ActionForward retorno = actionMapping.findForward("telaSucesso");
-		
+
 		Fachada fachada = Fachada.getInstancia();
 
 		HttpSession sessao = httpServletRequest.getSession(false);
-		
-		PagamentosAClassificarActionForm classificarPagamentosActionForm = (PagamentosAClassificarActionForm) actionForm;
-		
+		PagamentosAClassificarActionForm form = (PagamentosAClassificarActionForm) actionForm;
 		Usuario usuarioLogado = this.getUsuarioLogado(httpServletRequest);
-		
 		String parametroDevolver = (String) httpServletRequest.getParameter("devolver");
 		
+		this.setParametros(new Integer(form.getIdSituacaoPagamento()));
+		
+		String[] registrosClassificacao = form.getIdRegistrosClassificacao();
+		Collection<Pagamento> colecaoPagamentos = obterPagamentosSelecionados(form, registrosClassificacao);
+		
+		try {
+			
+			fachada.classificarPagamentosResolvidos(colecaoPagamentos, usuarioLogado, this.creditoTipo, this.creditoOrigem, isDevolucao(sessao, parametroDevolver));
+			
+		} catch (ControladorException e) {
+			e.printStackTrace();
+		}
+		
+		montarPaginaSucesso(httpServletRequest,
+				"Pagamentos selecionados já classificados",
+				"Voltar",
+				"exibirFiltrarPagamentosAClassificarAction.do?menu=sim");
+		
+		sessao.removeAttribute("contas");
+		return retorno;
+	}
+
+	private boolean isDevolucao(HttpSession sessao, String parametroDevolver) {
 		boolean devolver = true;
 		
 		if(parametroDevolver == null){
@@ -52,15 +72,13 @@ public class ClassificarPagamentosAction extends GcomAction {
 		if (parametroDevolver.equals("0")) {
 			devolver = false;
 		}
-		
-		this.setParametros(new Integer(classificarPagamentosActionForm.getIdSituacaoPagamento()));
-		
-		String[] registrosClassificacao = classificarPagamentosActionForm.getIdRegistrosClassificacao();
-		
+		return devolver;
+	}
+
+	private Collection<Pagamento> obterPagamentosSelecionados(PagamentosAClassificarActionForm form, String[] registrosClassificacao) {
 		Collection<Pagamento> colecaoPagamentos = new ArrayList<Pagamento>();
-		
-		if(!classificarPagamentosActionForm.getColecaoPagamentosAClassificar().isEmpty()){
-			Collection<Pagamento> pagamentos =	(Collection<Pagamento>) classificarPagamentosActionForm.getColecaoPagamentosAClassificar();
+		if(!form.getColecaoPagamentosAClassificar().isEmpty()){
+			Collection<Pagamento> pagamentos =	(Collection<Pagamento>) form.getColecaoPagamentosAClassificar();
 			
 			Iterator<Pagamento> iteratorPagamentos = pagamentos.iterator();
 			while (iteratorPagamentos.hasNext()) {
@@ -75,21 +93,7 @@ public class ClassificarPagamentosAction extends GcomAction {
 			}
 		}
 		
-		try {
-			
-			fachada.classificarPagamentosResolvidos(colecaoPagamentos, usuarioLogado, this.creditoTipo, this.creditoOrigem, devolver);
-			
-		} catch (ControladorException e) {
-			e.printStackTrace();
-		}
-		
-		montarPaginaSucesso(httpServletRequest,
-				"Pagamentos selecionados já classificados",
-				"Voltar",
-				"exibirFiltrarPagamentosAClassificarAction.do?menu=sim");
-		
-		sessao.removeAttribute("contas");
-		return retorno;
+		return colecaoPagamentos;
 	}
 	
 	private void setParametros(Integer idPagamentoOriginal) {
