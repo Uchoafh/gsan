@@ -23044,38 +23044,37 @@ public class ControladorArrecadacao implements SessionBean {
 					lancamentoItemTemp = new LancamentoItem();
 
 					resumoArrecadacaoTemp = new ResumoArrecadacao();
-					recebimentoTipoTemp
-							.setId(RecebimentoTipo.RECEBIMENTOS_CLASSIFICADOS);
-					lancamentoTipoTemp
-							.setId(LancamentoTipo.CREDITOS_REALIZADOS_SUP_CONTAS);
-					lancamentoItemTemp
-							.setId(LancamentoItem.CONTAS_PAGAS_EM_EXCESSO);
-					resumoArrecadacaoTemp
-							.setGerenciaRegional(gerenciaRegional);
+					recebimentoTipoTemp.setId(RecebimentoTipo.RECEBIMENTOS_CLASSIFICADOS);
+					lancamentoTipoTemp.setId(LancamentoTipo.CREDITOS_REALIZADOS_SUP_CONTAS);
+					lancamentoItemTemp.setId(LancamentoItem.CONTAS_PAGAS_EM_EXCESSO);
+					resumoArrecadacaoTemp.setGerenciaRegional(gerenciaRegional);
 					resumoArrecadacaoTemp.setLocalidade(localidade);
 					resumoArrecadacaoTemp.setCategoria(categoria);
-					resumoArrecadacaoTemp
-							.setAnoMesReferencia(anoMesReferenciaArrecadacao);
-					resumoArrecadacaoTemp
-							.setRecebimentoTipo(recebimentoTipoTemp);
-					resumoArrecadacaoTemp
-							.setLancamentoTipo(lancamentoTipoTemp);
-					resumoArrecadacaoTemp
-							.setLancamentoItem(lancamentoItemTemp);
-					resumoArrecadacaoTemp
-							.setLancamentoItemContabil(null);
-					resumoArrecadacaoTemp
-							.setSequenciaTipoLancamento(new Short("800"));
-					resumoArrecadacaoTemp
-							.setSequenciaItemTipoLancamento(new Short(
-									"0"));
-					resumoArrecadacaoTemp
-							.setUltimaAlteracao(new Date());
-					resumoArrecadacaoTemp
-							.setValorItemArrecadacao(somaValorCreditoRealizadoPagamentosClassificadosContaOrigemCreditoContasPagasEmExcesso);
+					resumoArrecadacaoTemp.setAnoMesReferencia(anoMesReferenciaArrecadacao);
+					resumoArrecadacaoTemp.setRecebimentoTipo(recebimentoTipoTemp);
+					resumoArrecadacaoTemp.setLancamentoTipo(lancamentoTipoTemp);
+					resumoArrecadacaoTemp.setLancamentoItem(lancamentoItemTemp);
+					resumoArrecadacaoTemp.setLancamentoItemContabil(null);
+					resumoArrecadacaoTemp.setSequenciaTipoLancamento(new Short("800"));
+					resumoArrecadacaoTemp.setSequenciaItemTipoLancamento(new Short("0"));
+					resumoArrecadacaoTemp.setUltimaAlteracao(new Date());
+					resumoArrecadacaoTemp.setValorItemArrecadacao(somaValorCreditoRealizadoPagamentosClassificadosContaOrigemCreditoContasPagasEmExcesso);
+					
 					colecaoResumoArrecadacao.add(resumoArrecadacaoTemp);
 				}
-						/*
+						
+				resumoArrecadacaoTemp = this.contabilizarRecuperacaoCredito(anoMesReferenciaArrecadacao, localidade, categoria, 
+						CreditoOrigem.RECUPERACAO_CREDITO_CONTA_CANCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_CANCELADA);
+				
+				valorAcumuladoSequenciaTipoLancamentoEntre800e1099 = valorAcumuladoSequenciaTipoLancamentoEntre800e1099
+						.add(resumoArrecadacaoTemp.getValorItemArrecadacao());
+				
+				resumoArrecadacaoTemp = this.contabilizarRecuperacaoCredito(anoMesReferenciaArrecadacao, localidade, categoria, 
+						CreditoOrigem.RECUPERACAO_CREDITO_CONTA_PARCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_PARCELADA);
+				
+				valorAcumuladoSequenciaTipoLancamentoEntre800e1099 = valorAcumuladoSequenciaTipoLancamentoEntre800e1099
+						.add(resumoArrecadacaoTemp.getValorItemArrecadacao());
+				/*
 						 * Seqüêncial de Tipo de Lançamento 1000 Para os
 						 * pagamento classificados de conta acumula o valor dos
 						 * créditos realizados por categoria para a origem do
@@ -29762,6 +29761,32 @@ public class ControladorArrecadacao implements SessionBean {
 			throw new EJBException(e);
 		}
 
+	}
+	
+	private ResumoArrecadacao contabilizarRecuperacaoCredito(Integer referenciaArrecadacao, Localidade localidade, Categoria categoria, 
+			Integer idCreditoOrigem, Integer idLancamentoItem) throws ErroRepositorioException {
+		
+		BigDecimal valorCreditos = repositorioArrecadacao.acumularValorCreditoRealizadoPagamentosClassificadosContaOrigemCredito(
+						localidade.getId(), referenciaArrecadacao, categoria.getId(), idCreditoOrigem);
+		
+		ResumoArrecadacao resumoArrecadacao = null;
+		if (valorCreditos != null && valorCreditos.doubleValue() > 0.00) {
+
+			ResumoArrecadacao resumoArrecadacaoTemp = new ResumoArrecadacao();
+			
+			resumoArrecadacaoTemp.setGerenciaRegional(localidade.getGerenciaRegional());
+			resumoArrecadacaoTemp.setLocalidade(localidade);
+			resumoArrecadacaoTemp.setCategoria(categoria);
+			resumoArrecadacaoTemp.setAnoMesReferencia(referenciaArrecadacao);
+			resumoArrecadacaoTemp.setRecebimentoTipo(new RecebimentoTipo(RecebimentoTipo.RECEBIMENTOS_CLASSIFICADOS));
+			resumoArrecadacaoTemp.setLancamentoTipo(new LancamentoTipo(LancamentoTipo.CREDITOS_REALIZADOS_SUP_CONTAS));
+			resumoArrecadacaoTemp.setLancamentoItem(new LancamentoItem(idLancamentoItem));
+			resumoArrecadacaoTemp.setLancamentoItemContabil(null);
+			resumoArrecadacaoTemp.setUltimaAlteracao(new Date());
+			resumoArrecadacaoTemp.setValorItemArrecadacao(valorCreditos);
+		}
+		
+		return resumoArrecadacao;
 	}
 
 	/**

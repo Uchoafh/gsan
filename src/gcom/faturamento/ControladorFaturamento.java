@@ -16555,15 +16555,9 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
     			
     			
     			if (arquivoTextoRetornoIS != null && arquivoTextoRetornoIS.getId() != null) {
-    				arquivoTextoRetornoIS.setNomeArquivo(this.obterNomeArquivoRetorno(arquivoTextoRetornoIS).toString());
-
     				movimento.setArquivoTextoRetornoIS(arquivoTextoRetornoIS);
-    				
-	    			if (arquivoTextoRetornoIS.getTipoFinalizacao() == null || 
-	    					arquivoTextoRetornoIS.getTipoFinalizacao().intValue() == ProcessarRequisicaoDipositivoMovelImpressaoSimultaneaAction.FINALIZAR_LEITURA_ARQUIVO_IMOVEIS_FALTANDO) {
-	    					movimento.setArquivoTexto(helper.getArquivoImovel().toString());
-	    					movimento.setNomeArquivo(arquivoTextoRetornoIS.getNomeArquivo());
-	    			}
+					movimento.setArquivoTexto(helper.getArquivoImovel().toString());
+					movimento.setNomeArquivo(this.obterNomeArquivoRetorno(arquivoTextoRetornoIS).toString());
     			}
     			
     			if (helper.getAnormalidadeConsumo() != null) {

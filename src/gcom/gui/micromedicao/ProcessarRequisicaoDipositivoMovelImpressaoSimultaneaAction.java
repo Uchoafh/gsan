@@ -307,8 +307,9 @@ public class ProcessarRequisicaoDipositivoMovelImpressaoSimultaneaAction extends
 		Integer idRota = 0;
 
 		InputStreamReader reader = new InputStreamReader(data);
+		InputStreamReader readerOriginal = new InputStreamReader(data);
 		BufferedReader buffer = new BufferedReader(reader);
-		BufferedReader bufferOriginal = new BufferedReader(reader);
+		BufferedReader bufferOriginal = new BufferedReader(readerOriginal);
 
 		Integer codRota = null;
 		Integer setorComercial = null;

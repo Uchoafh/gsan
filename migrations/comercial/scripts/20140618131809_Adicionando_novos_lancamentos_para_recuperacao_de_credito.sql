@@ -8,7 +8,8 @@ insert into financeiro.lancamento_tipo values (102, 102, 'OUTR_CRED_A_REAL_POR_R
 insert into financeiro.lancamento_tipo values (103, 103, 'OUTR_CRED_A_REAL_POR_RECUP_CRED_INCLUIDOS', 'OCRARERECR', 1, null, now(), 2, 2);
 insert into financeiro.lancamento_tipo values (104, 104, 'OUTR_CRED_A_REAL_POR_RECUP_CRED_CANCELADOS', 'OCRARERECR', 1, null, now(), 2, 2);
 
-insert into financeiro.lancamento_item values (83, 'RECUPERACAO CREDITO', 'RECCRED', 2, now());
+insert into financeiro.lancamento_item values (83, 'RECUPERACAO CREDITO CONTA CANCELADA', 'RECCREDCAN', 2, now());
+insert into financeiro.lancamento_item values (84, 'RECUPERACAO CREDITO CONTA PARCELADA', 'RECCREDPAR', 2, now());
 
 -- //@UNDO
 -- SQL to undo the change goes here.

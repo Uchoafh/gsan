@@ -16960,6 +16960,8 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 			for (Integer idLocalidade : colecaoIdsLocalidades) {
 
+				BigDecimal valorCreditosRealizadosRecuperacaoCredito = null;
+				
 				repositorioFaturamento.excluirResumoFaturamentoPorAnoMesArrecadacaoPorLocalidade(anoMesFaturamento, idLocalidade);
 
 				Integer idGerenciaRegional = this.getControladorLocalidade().pesquisarIdGerenciaParaLocalidade(idLocalidade);
@@ -21361,11 +21363,9 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 					if (valorCreditoRealizadoOrigemCreditoDescontosConcedidosParcelamento
 							.compareTo(BigDecimal.ZERO) != 0) {
 						lancamentoTipo = new LancamentoTipo();
-						lancamentoTipo
-								.setId(LancamentoTipo.OUTROS_CREDITOS_CANCELADOS_POR_REFATURAMENTO);
+						lancamentoTipo.setId(LancamentoTipo.OUTROS_CREDITOS_CANCELADOS_POR_REFATURAMENTO);
 						lancamentoItem = new LancamentoItem();
-						lancamentoItem
-								.setId(LancamentoItem.DESCONTOS_CONCEDIDOS_NO_PARCELAMENTO);
+						lancamentoItem.setId(LancamentoItem.DESCONTOS_CONCEDIDOS_NO_PARCELAMENTO);
 
 						resumoFaturamentoTemporario = new ResumoFaturamento();
 						resumoFaturamentoTemporario
@@ -23935,6 +23935,44 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						}
 					}
 
+					resumoFaturamentoTemporario = this.contabilizarCreditosRealizadosCanceladosRecuperacaoCredito(anoMesFaturamento, localidade, categoria, 
+							CreditoOrigem.RECUPERACAO_CREDITO_CONTA_CANCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_CANCELADA);
+					
+					if (resumoFaturamentoTemporario != null) {
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
+					}
+					
+					resumoFaturamentoTemporario = this.contabilizarCreditosRealizadosCanceladosRecuperacaoCredito(anoMesFaturamento, localidade, categoria, 
+							CreditoOrigem.RECUPERACAO_CREDITO_CONTA_PARCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_PARCELADA);
+					
+					if (resumoFaturamentoTemporario != null) {
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
+					}
+					
+					resumoFaturamentoTemporario = this.contabilizarCreditosRealizadosRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria, 
+							CreditoOrigem.RECUPERACAO_CREDITO_CONTA_CANCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_CANCELADA);
+					
+					if (resumoFaturamentoTemporario != null) {
+						resumoFaturamentoTotalCobradoNasContas.setValorItemFaturamento(resumoFaturamentoTotalCobradoNasContas.getValorItemFaturamento().subtract(resumoFaturamentoTemporario.getValorItemFaturamento()));
+						resumoFaturamentoValoresDevolvidosNasContas.setValorItemFaturamento(resumoFaturamentoValoresDevolvidosNasContas.getValorItemFaturamento().add(resumoFaturamentoTemporario.getValorItemFaturamento()));
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
+					}
+					
+					resumoFaturamentoTemporario = this.contabilizarCreditosRealizadosRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria, 
+							CreditoOrigem.RECUPERACAO_CREDITO_CONTA_PARCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_PARCELADA);
+					
+					if (resumoFaturamentoTemporario != null) {
+						resumoFaturamentoTotalCobradoNasContas.setValorItemFaturamento(resumoFaturamentoTotalCobradoNasContas.getValorItemFaturamento().subtract(resumoFaturamentoTemporario.getValorItemFaturamento()));
+						resumoFaturamentoValoresDevolvidosNasContas.setValorItemFaturamento(resumoFaturamentoValoresDevolvidosNasContas.getValorItemFaturamento().add(resumoFaturamentoTemporario.getValorItemFaturamento()));
+						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
+					}
+					
+					colecaoResumoFaturamento.addAll(this.contabilizarCreditosARealizarRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria, 
+							CreditoOrigem.RECUPERACAO_CREDITO_CONTA_CANCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_CANCELADA));
+					
+					colecaoResumoFaturamento.addAll(this.contabilizarCreditosARealizarRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria, 
+							CreditoOrigem.RECUPERACAO_CREDITO_CONTA_PARCELADA, LancamentoItem.RECUPERACAO_CREDITO_CONTA_PARCELADA));
+					
 					//LANCAMENTO TIPO: DESCONTOS_INCONDICIONAIS_INCLUIDOS - ITEM 1040
 					resumoFaturamentoTemporario = obterResumoValorCreditoARealizarPorOrigemCreditoSituacoesConta(anoMesFaturamento, localidade, 
 							categoria, CreditoOrigem.DESCONTOS_INCONDICIONAIS, DebitoCreditoSituacao.NORMAL, DebitoCreditoSituacao.NORMAL, 
@@ -24061,7 +24099,6 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
 					}
 					
-					colecaoResumoFaturamento.addAll(this.contabilizarCreditosDaRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria));
 				}
 
 				if (colecaoResumoFaturamento != null && !colecaoResumoFaturamento.isEmpty()) {
@@ -24079,123 +24116,84 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		}
 	}
 	
-	private Collection contabilizarCreditosRecuperacaoDeCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria) throws Exception {
-		return null;
-	}
-	
-	private Collection<ResumoFaturamento> contabilizarCreditosARealizarRecuperacaoDeCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria) throws Exception {
+	private ResumoFaturamento contabilizarCreditosRealizadosRecuperacaoDeCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria,
+			Integer idCreditoOrigem, Integer idLancamentoItem) throws ErroRepositorioException, ControladorException {
 		
-		Collection<ResumoFaturamento> colecaoResumo = new ArrayList<ResumoFaturamento>();
-		
-		ResumoFaturamento resumo = contabilizarCreditosARealizarContaNormalRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria, CreditoOrigem.RECUPERACAO_CREDITO_CONTA_CANCELADA, 
-				LancamentoItem.RECUPERACAO_CREDITO, new Short("9300"), new Short("10"));
-		
-		if (resumo != null) {
-			colecaoResumo.add(resumo);
-		}
-		resumo = contabilizarCreditosARealizarContaCanceladaRecuperacaoDeCredito(anoMesFaturamento, localidade, categoria, CreditoOrigem.RECUPERACAO_CREDITO_CONTA_PARCELADA, 
-				LancamentoItem.RECUPERACAO_CREDITO, new Short("9400"), new Short("10"));
-		
-		if (resumo != null) {
-			colecaoResumo.add(resumo);
-		}
-		return colecaoResumo;
-	
-	}
-	
-	private Collection contabilizarCreditosRealizadosRecuperacaoDeCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria, 
-			Integer idCreditoOrigem, Integer idLancamentoTipo, Integer idLancamentoItem) throws Exception {
-		
-		Collection<ResumoFaturamento> colecaoResumoFaturamento = new ArrayList<ResumoFaturamento>();
+		ResumoFaturamento resumoFaturamento = null;
 
-		Integer[] idsCreditosOrigem = new Integer[1];
-		idsCreditosOrigem[0] = idCreditoOrigem;
-		LancamentoTipo lancamentoTipo;
-		LancamentoItem lancamentoItem = new LancamentoItem(LancamentoItem.RECUPERACAO_CREDITO);
+		Integer[] idsCreditosOrigem = new Integer[]{idCreditoOrigem};
 		
-		BigDecimal valorItemFaturamento = repositorioFaturamento.acumularValorCategoriaCreditoRealizadoCategoriaPorOrigemCreditoPorReferenciaContaDuplicidade(
-				anoMesFaturamento, localidade.getId(), categoria.getId(), idsCreditosOrigem, DebitoCreditoSituacao.NORMAL, DebitoCreditoSituacao.NORMAL);
+		BigDecimal valorItemFaturamento = repositorioFaturamento
+				.acumularValorCategoriaCreditoRealizadoCategoriaPorOrigemCreditoPorReferenciaConta(
+						anoMesFaturamento, localidade.getId(), categoria.getId(), idsCreditosOrigem, DebitoCreditoSituacao.NORMAL, DebitoCreditoSituacao.NORMAL);
 		
 		if (valorItemFaturamento.compareTo(BigDecimal.ZERO) != 0) {
-			lancamentoTipo = new LancamentoTipo(LancamentoTipo.DEVOLUCAO_VALORES_RECUPERACAO_CREDITO); 
-			
-			ResumoFaturamento resumoFaturamento = buildResumoFaturamento(valorItemFaturamento, anoMesFaturamento, categoria, localidade, 
-					lancamentoTipo, lancamentoItem, null, new Short("9000"), new Short("10"));
-			
-			colecaoResumoFaturamento.add(resumoFaturamento);
-		}
+			resumoFaturamento = buildResumoFaturamento(valorItemFaturamento, anoMesFaturamento, categoria, localidade, 
+					new LancamentoTipo(LancamentoTipo.DEVOLUCAO_VALORES_RECUPERACAO_CREDITO), new LancamentoItem(idLancamentoItem), 
+					null, null, null);
+		} 
 		
-		BigDecimal valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcesso = repositorioFaturamento.acumularValorCategoriaCreditoRealizadoCategoriaPorOrigemCredito(
-				anoMesFaturamento, localidade.getId(), categoria.getId(), idsCreditosOrigem, DebitoCreditoSituacao.CANCELADA);
-		
-		BigDecimal[] diferencaCreditoOrigemCanceladaPorRetificacaoeERetificada = this.obterDiferencaValoresCreditosRealizadosContaRetificadaDuplicidade(
-				anoMesFaturamento, localidade.getId(), categoria.getId(), idsCreditosOrigem);
-		
-		BigDecimal[] diferencaCreditoOrigemDuplicidadeAte201212CanceladaPorRetificacaoeERetificada = this.obterDiferencaValoresCreditosRealizadosContaRetificadaDuplicidadeAte201212(
-				anoMesFaturamento, localidade.getId(), categoria.getId(), idsCreditosOrigem);
-		
-		valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcesso = valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcesso
-				.add(diferencaCreditoOrigemCanceladaPorRetificacaoeERetificada[0]);
-		
-		valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcesso = valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcesso
-				.add(diferencaCreditoOrigemDuplicidadeAte201212CanceladaPorRetificacaoeERetificada[0]);
-		
-		if (valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcesso.compareTo(BigDecimal.ZERO) != 0) {
-			lancamentoTipo = new LancamentoTipo(LancamentoTipo.OUTROS_CREDITOS_CANCELADOS_POR_RECUPERACAO_CREDITO); 
-			
-			ResumoFaturamento resumoFaturamento = buildResumoFaturamento(valorItemFaturamento, anoMesFaturamento, categoria, localidade, 
-					lancamentoTipo, lancamentoItem, null, new Short("9000"), new Short("20"));
-			
-			colecaoResumoFaturamento.add(resumoFaturamento);
-		}
-		
-		
-		BigDecimal valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcessoSituacaoIncluida = repositorioFaturamento
-				.acumularValorCategoriaCreditoRealizadoCategoriaPorOrigemCreditoDuplicidade(
-						anoMesFaturamento,
-						localidade.getId(), categoria.getId(),
-						idsCreditosOrigem,
-						DebitoCreditoSituacao.INCLUIDA);
-		
-		valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcessoSituacaoIncluida = valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcessoSituacaoIncluida
-				.add(diferencaCreditoOrigemCanceladaPorRetificacaoeERetificada[1]);
-		
-		if (valorCreditoRealizadoOrigemCreditoContasPagasEmDuplicidadeExcessoSituacaoIncluida.compareTo(BigDecimal.ZERO) != 0) {
-			lancamentoTipo = new LancamentoTipo(LancamentoTipo.OUTROS_CREDITOS_CONCEDIDOS_POR_RECUPERACAO_CREDITO); 
-			
-			ResumoFaturamento resumoFaturamento = buildResumoFaturamento(valorItemFaturamento, anoMesFaturamento, categoria, localidade, 
-					lancamentoTipo, lancamentoItem, null, new Short("9000"), new Short("30"));
-			
-			colecaoResumoFaturamento.add(resumoFaturamento);
-		}
-		
-		
-		return colecaoResumoFaturamento;
-		
+		return resumoFaturamento;
 	}
 	
-	private ResumoFaturamento contabilizarCreditosARealizarContaNormalRecuperacaoDeCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria, 
-			Integer idCreditoOrigem, Integer idLancamentoItem, Short seqTipoLancamento, Short seqItemTipoLancamento) throws Exception {
+	private ResumoFaturamento contabilizarCreditosRealizadosCanceladosRecuperacaoCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria,
+			Integer idCreditoOrigem, Integer idLancamentoItem) throws ErroRepositorioException, ControladorException {
 		
-		ResumoFaturamento resumoFaturamento = obterResumoValorCreditoARealizarPorOrigemCreditoSituacoesConta(anoMesFaturamento, localidade,  
+		Integer[] idsCreditosOrigem = new Integer[]{idCreditoOrigem};
+		ResumoFaturamento resumoFaturamento = null;
+		
+		BigDecimal valorCreditoRealizadoOrigemCredito = repositorioFaturamento
+				.acumularValorCategoriaCreditoRealizadoCategoriaPorOrigemCredito(
+						anoMesFaturamento, localidade.getId(), categoria.getId(), idsCreditosOrigem, DebitoCreditoSituacao.CANCELADA);
+
+		BigDecimal[] diferencaCreditoOrigemDescontosConcedidosParcelamentoCanceladaPorRetificacaoeERetificada = this
+				.obterDiferencaValoresCreditosRealizadosContaRetificada(anoMesFaturamento, localidade.getId(), categoria.getId(), idsCreditosOrigem);
+
+		valorCreditoRealizadoOrigemCredito = valorCreditoRealizadoOrigemCredito
+				.add(diferencaCreditoOrigemDescontosConcedidosParcelamentoCanceladaPorRetificacaoeERetificada[0]);
+
+		if (valorCreditoRealizadoOrigemCredito.compareTo(BigDecimal.ZERO) != 0) {
+			
+			resumoFaturamento = buildResumoFaturamento(valorCreditoRealizadoOrigemCredito, anoMesFaturamento, categoria, localidade, 
+					new LancamentoTipo(LancamentoTipo.OUTROS_CREDITOS_CANCELADOS_POR_RECUPERACAO_CREDITO), new LancamentoItem(idLancamentoItem), 
+					null, null, null);
+		}
+		
+		return resumoFaturamento;
+	}
+	
+	private Collection contabilizarCreditosARealizarRecuperacaoDeCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria,
+			Integer idCreditoOrigem, Integer idLancamentoItem) throws ErroRepositorioException, ControladorException {
+		
+		Collection<ResumoFaturamento> colecaoResumoFaturamento = new ArrayList<ResumoFaturamento>();
+		
+		ResumoFaturamento resumoFaturamentoTemporario = obterResumoValorCreditoARealizarPorOrigemCreditoSituacoesConta(anoMesFaturamento, localidade,  
 				categoria, idCreditoOrigem, DebitoCreditoSituacao.NORMAL, DebitoCreditoSituacao.NORMAL, 
 				LancamentoTipo.OUTROS_CREDITOS_A_REALIZAR_POR_RECUPERACAO_CREDITO_INCLUIDOS,
-				idLancamentoItem, seqTipoLancamento , seqItemTipoLancamento);
+				idLancamentoItem, null, null);
 		
-		return resumoFaturamento;
-	}
-
-	private ResumoFaturamento contabilizarCreditosARealizarContaCanceladaRecuperacaoDeCredito(int anoMesFaturamento, Localidade localidade, Categoria categoria, 
-			Integer idCreditoOrigem, Integer idLancamentoItem, Short seqTipoLancamento, Short seqItemTipoLancamento) throws Exception {
-			
-		ResumoFaturamento resumoFaturamento = obterResumoValorCreditoARealizarPorOrigemCredito(anoMesFaturamento, localidade, 
+		if (resumoFaturamentoTemporario != null) {
+			colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
+		}
+		
+		resumoFaturamentoTemporario = obterResumoValorCreditoARealizarPorOrigemCredito(anoMesFaturamento, localidade, 
 				categoria, idCreditoOrigem, DebitoCreditoSituacao.CANCELADA, 
 				LancamentoTipo.OUTROS_CREDITOS_A_REALIZAR_POR_RECUPERACAO_CREDITO_CANCELADOS,
-				idLancamentoItem, seqTipoLancamento, seqItemTipoLancamento);
+				idLancamentoItem, null, null);
 		
-		return resumoFaturamento;
+		if (resumoFaturamentoTemporario != null) {
+			colecaoResumoFaturamento.add(resumoFaturamentoTemporario);
+		}
+		
+		return colecaoResumoFaturamento;
 	}
 
+	private BigDecimal obterValorCreditosRealizadosRecuepracaoCredito(Integer idLancamentoTipo, Collection<ResumoFaturamento> colecaoReumo) {
+		BigDecimal valorCreditos = null;
+		
+		
+		return valorCreditos;
+	}
 	private ResumoFaturamento preencherDadosLocalizacaoResumoFaturamento(Localidade localidade, Categoria categoria, ResumoFaturamento resumoFaturamento) {
 		resumoFaturamento.setGerenciaRegional(localidade.getGerenciaRegional());
 		resumoFaturamento.setUnidadeNegocio(localidade.getUnidadeNegocio());

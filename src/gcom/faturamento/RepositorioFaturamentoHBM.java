@@ -35307,29 +35307,10 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 
 		BigDecimal retorno = null;
 
-		// cria uma sessão com o hibernate
 		Session session = HibernateUtil.getSession();
-
-		// cria a variável que vai conter o hql
 		String consulta;
 
-		/*TODO: COSANPA - Alteração para corrigir o valor dos créditos
-		 *  no resumo do gerencial em 22/08/2011*/
 		try {
-			/*
-			 * consulta = "select " + "  sum(crcg.crcg_vlcategoria) as col_0 " +
-			 * "  from " + "   faturamento.credito_realizado_categoria crcg " +
-			 * "  inner join " +
-			 * "   faturamento.credito_realizado crrz on crcg.crrz_id=crrz.crrz_id "
-			 * + "  inner join " +
-			 * "   faturamento.conta cnta on crrz.cnta_id=cnta.cnta_id " +
-			 * "  where " + "   cnta.cnta_amreferenciaconta= :anoMesReferencia "
-			 * + "   and cnta.loca_id= :idLocalidade  " +
-			 * "   and crcg.catg_id= :idCategoria  " +
-			 * "   and (cnta.dcst_idatual=:idSituacaoAtual or cnta.dcst_idanterior=:idSituacaoAnterior) "
-			 * + "   and (crrz.crog_id in (:idsCreditoOrigem)) ";
-			 */
-			
 			consulta = " select "
 					+ " sum(crrz.crrz_vlcredito) as col_0 "
 					+ " from "
