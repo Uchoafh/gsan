@@ -149,7 +149,6 @@ import gcom.atendimentopublico.registroatendimento.bean.RegistroAtendimentoPende
 import gcom.atendimentopublico.registroatendimento.bean.VerificarRAFaltaAguaHelper;
 import gcom.atualizacaocadastral.ControladorAtualizacaoCadastralLocal;
 import gcom.atualizacaocadastral.ControladorAtualizacaoCadastralLocalHome;
-import gcom.atualizacaocadastral.ImagemRetorno;
 import gcom.atualizacaocadastral.ImovelControleAtualizacaoCadastral;
 import gcom.batch.ControladorBatchLocal;
 import gcom.batch.ControladorBatchLocalHome;
