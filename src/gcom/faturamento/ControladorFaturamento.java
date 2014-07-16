@@ -16914,8 +16914,8 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		DebitoCreditoSituacao debitoCreditoSituacao = new DebitoCreditoSituacao(DebitoCreditoSituacao.INCLUIDA);
 		novaConta.setDebitoCreditoSituacaoAtual(debitoCreditoSituacao);
 		
-		
 		return novaConta;
+		
 	}
 	
 	public Collection<IConta> pesquisarContaOuContaHistorico(Collection<Pagamento> pagamentos) throws ControladorException{
