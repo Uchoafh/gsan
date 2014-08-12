@@ -12,6 +12,7 @@ import gcom.arrecadacao.bean.MovimentoArrecadadoresPorNSAHelper;
 import gcom.arrecadacao.bean.PesquisarAnaliseArrecadacaoHelper;
 import gcom.arrecadacao.bean.PesquisarAnaliseAvisosBancariosHelper;
 import gcom.arrecadacao.bean.PesquisarAvisoBancarioPorContaCorrenteHelper;
+import gcom.arrecadacao.debitoautomatico.DebitoAutomatico;
 import gcom.arrecadacao.debitoautomatico.DebitoAutomaticoMovimento;
 import gcom.arrecadacao.pagamento.FiltroPagamento;
 import gcom.arrecadacao.pagamento.GuiaPagamento;
@@ -94,27 +95,13 @@ import org.hibernate.StatelessSession;
 import org.hibernate.type.Type;
 
 
-/**
- * O repositório faz a comunicação com a base de dados através do hibernate. O
- * cliente usa o repositório como fonte de dados.
- * 
- * @author Sávio Luiz
- */
 public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 
 	protected static IRepositorioArrecadacao instancia;
 
-	/** 
-	 * Construtor da classe RepositorioCargaFuncionalidadesHBM
-	 */
 	protected RepositorioArrecadacaoHBM() {
 	}
 
-	/**
-	 * Retorna o valor de instancia
-	 * 
-	 * @return O valor de instancia
-	 */
 	public static IRepositorioArrecadacao getInstancia() {
 
 		String dialect = HibernateUtil.getDialect();
@@ -270,13 +257,6 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 
 	}
 
-	/*
-	 * [UC0235] Inserir Aviso Bancário [FS0003] Verificar existência de avisos
-	 * bancários não realizados [FS0004] Verificar seleção de aviso Retorna o
-	 * valor do maior número sequencial do arrecadador selecionado @author
-	 * Rafael Corrêa
-	 */
-
 	public Short pesquisarValorMaximoNumeroSequencial(Date dataLancamento,
 			String idArrecadador) throws ErroRepositorioException {
 
@@ -347,10 +327,8 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					.uniqueResult();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 
@@ -393,10 +371,8 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					.uniqueResult();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 
@@ -439,10 +415,8 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					.uniqueResult();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 
@@ -474,36 +448,6 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 
 		return retorno;
 	}
-
-	/*public ArrecadadorContrato pesquisarNumeroSequecialArrecadadorContrato(
-			Short idArrecadador) throws ErroRepositorioException {
-
-		ArrecadadorContrato retorno = null;
-
-		Session session = HibernateUtil.getSession();
-
-		String consulta;
-
-		try {
-			consulta = "SELECT ac " + "FROM ArrecadadorContrato ac "
-					+ "INNER JOIN ac.arrecadador arr "
-					//+ "WHERE arr.codigoAgente = :codigoAgente AND "
-					+ "WHERE arr.id = :codigoAgente AND "
-					+ "ac.dataContratoEncerramento is null";
-
-			retorno = (ArrecadadorContrato) session.createQuery(consulta)
-					.setShort("codigoAgente", idArrecadador).setMaxResults(1)
-					.uniqueResult();
-
-		} catch (HibernateException e) {
-
-			throw new ErroRepositorioException("Erro no Hibernate");
-		} finally {
-			HibernateUtil.closeSession(session);
-		}
-
-		return retorno;
-	}*/
 	
 	public ArrecadadorContrato pesquisarNumeroSequecialArrecadadorContrato(
 			Integer idArrecadadorContrato) throws ErroRepositorioException {
@@ -516,8 +460,6 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 
 		try {
 			consulta = "SELECT ac " + "FROM ArrecadadorContrato ac "
-					//+ "INNER JOIN ac.arrecadador arr "
-					//+ "WHERE arr.codigoAgente = :codigoAgente AND "
 					+ "WHERE ac.id = :idArrecadadorContrato AND "
 					+ "ac.dataContratoEncerramento is null";
 
@@ -535,10 +477,6 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 		return retorno;
 	}
 
-	/*
-	 * Verifica a Existência do Banco na Base de Dados @author Roberta Costa
-	 * @created 23/02/2006
-	 */
 	public Integer verificarExistenciaBanco(Integer idBanco)
 			throws ErroRepositorioException {
 		Integer retorno = null;
@@ -553,19 +491,13 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					.uniqueResult();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 		return retorno;
 	}
 
-	/*
-	 * Verifica a Existência da Agência bancária na Base de Dados @author
-	 * Roberta Costa @created 23/02/2006
-	 */
 	public Integer verificarExistenciaAgencia(String codigoAgencia,
 			Integer idBanco) throws ErroRepositorioException {
 		Integer retorno = null;
@@ -581,10 +513,8 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					idBanco).setMaxResults(1).uniqueResult();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 		return retorno;
@@ -615,10 +545,8 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					idBanco).setMaxResults(1).uniqueResult();
 
 		} catch (HibernateException e) {
-			// levanta a exceção para a próxima camada
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {
-			// fecha a sessão
 			HibernateUtil.closeSession(session);
 		}
 		return retorno;
@@ -20836,35 +20764,18 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 		return retorno;
 	}
 
-	/**
-	 * [UC0150] Retificar Conta
-	 * 
-	 * @author Vivianne Sousa
-	 * @data 23/04/2006
-	 * 
-	 * @param idConta
-	 * @return idParcelamento
-	 */
-	public Object[] pesquisarPagamentoDeConta(Integer idConta)
+	public Pagamento pesquisarPagamentoDeConta(Integer idConta)
 			throws ErroRepositorioException {
 
-		Object[] retorno = null;
+		Pagamento retorno = null;
 
 		Session session = HibernateUtil.getSession();
 		String consulta = null;
 
-		/**TODO: COSANPA
-		 * Mantis 537
-		 * Retornando também a data do pagamento para que seja informado na impressão da segunda via
-		 * 
-		 * @author Wellington Rocha
-		 * @date 14/03/2012*/
 		try {
-			consulta = "SELECT pgmt.id,pgmt.valorPagamento, pgmt.dataPagamento " + "FROM Pagamento as pgmt "
-			+ "WHERE pgmt.contaGeral.id = :idConta ";
+			consulta = "SELECT pgmt FROM Pagamento as pgmt WHERE pgmt.contaGeral.id = :idConta ";
 
-			retorno = (Object[]) session.createQuery(consulta).setInteger(
-			"idConta", idConta).setMaxResults(1).uniqueResult();
+			retorno = (Pagamento) session.createQuery(consulta).setInteger("idConta", idConta).setMaxResults(1).uniqueResult();
 
 		} catch (HibernateException e) {
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
@@ -24690,7 +24601,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 	  */
 		public Integer countImoveisBancoDebitoAutomatico(String[] bancos, 
 				Integer anoMesInicial,Integer anoMesFinal, Date dataVencimentoInicial,
-				Date dataVencimentoFinal, String indicadorContaPaga)
+				Date dataVencimentoFinal, String indicadorContaPaga, Integer somenteDebitoAutomatico)
 			throws ErroRepositorioException {
 			
 			Integer retorno = null;
@@ -24708,11 +24619,16 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 				 + " inner join conta.debitoCreditoSituacaoAtual dcst "
 				 + " left  join conta.debitoCreditoSituacaoAnterior dcsan "
 				 + " inner join conta.imovel imov "
+				 + " inner join conta c "
 				 + " where ag.banco.id in (:idBanco) " 
 				 + " and dcst.id in(:normal, :retificada) "
 				 + " and conta.referencia between :anoMesInicial and :anoMesFinal " 
 				 + " and da.dataExclusao is null "
 				 + " and dam.numeroSequenciaArquivoEnviado is null";
+				
+				if (somenteDebitoAutomatico != null && somenteDebitoAutomatico == 1) {
+					select += " and c.indicadorDebitoConta = 1 ";
+				}
 				
 				if(dataVencimentoInicial != null){
 					select += " and conta.dataVencimentoConta between :vencimentoInicial and :vencimentoFinal ";
@@ -29273,7 +29189,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 	public Integer countImoveisBancoDebitoAutomaticoPorGrupoFaturamento(
 			String[] bancos, Integer anoMesInicial, Integer anoMesFinal,
 			Date dataVencimentoInicial, Date dataVencimentoFinal,
-			String indicadorContaPaga, Integer idGrupoFaturamento)
+			String indicadorContaPaga, Integer idGrupoFaturamento, Integer somenteDebitoAutomatico)
 			throws ErroRepositorioException {
 
 		Integer retorno = null;
@@ -29289,6 +29205,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					+ " inner join dam.contaGeral.conta conta "
 					+ " inner join da.agencia ag"
 					+ " inner join conta.debitoCreditoSituacaoAtual dcst "
+					+ " inner join conta c "
 					+ " left  join conta.debitoCreditoSituacaoAnterior dcsan "
 					+ " inner join conta.imovel imov "
 					+ " where ag.banco.id in (:idBanco) "
@@ -29298,6 +29215,10 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					+ " and dam.numeroSequenciaArquivoEnviado is null"
 					+ " and conta.faturamentoGrupo.id = :idGrupoFaturamento";
 
+			if (somenteDebitoAutomatico != null && somenteDebitoAutomatico == 1) {
+				select += " and c.indicadorDebitoConta = 1 ";
+			}
+			
 			if (dataVencimentoInicial != null) {
 				select += " and conta.dataVencimentoConta between :vencimentoInicial and :vencimentoFinal ";
 				parameters.put("vencimentoInicial", dataVencimentoInicial);
@@ -31309,7 +31230,8 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 				+ "boig_qtdconstotal as quantidadeConsumidoresTotal, "
 				+ "boig_indicecortados as indiceCortados, "
 				+ "boig_indicesuprimidos as indiceSuprimidos, "
-				+ "boig_indicefactiveis as indiceFactiveis "
+				+ "boig_indicefactiveis as indiceFactiveis, "
+				+ "loca.loca_id as idLocalidade "
 				+ "FROM arrecadacao.boletim_informacoes_gerenciais big "
 				+ "INNER JOIN cadastro.localidade loca ON loca.loca_id = big.loca_id "
 				+ "INNER JOIN cadastro.gerencia_regional greg ON greg.greg_id = loca.greg_id "
@@ -31350,6 +31272,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					.addScalar("indiceCortados", Hibernate.BIG_DECIMAL)
 					.addScalar("indiceSuprimidos", Hibernate.BIG_DECIMAL)
 					.addScalar("indiceFactiveis", Hibernate.BIG_DECIMAL)
+					.addScalar("idLocalidade", Hibernate.INTEGER)
 					.setInteger("anoMesReferencia", anoMesReferencia)
 					.list();
 
@@ -31376,7 +31299,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					.append(", coalesce((c.cnta_vlagua + c.cnta_vlesgoto + c.cnta_vldebitos - c.cnta_vlcreditos - c.cnta_vlimpostos)") 
 					.append(", d.dbac_vldebito, g.gpag_vldebito) as valorDocumento")
 					.append(", coalesce( c.cnta_amreferenciaconta, d.dbac_amreferenciadebito, g.gpag_amreferenciacontabil ) as dataPagamento ")
-					.append(", p.imov_id as idImovel")
+					.append(", p.imov_id as idImovel, p.cnta_id as idConta")
 					.append(" from arrecadacao.pagamento p")
 					.append(" inner join cadastro.localidade l on p.loca_id = l.loca_id") 
 					.append(" left join faturamento.conta c on p.cnta_id = c.cnta_id")
@@ -31394,6 +31317,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					.addScalar("valorDocumento", Hibernate.BIG_DECIMAL)
 					.addScalar("dataPagamento", Hibernate.STRING)
 					.addScalar("idImovel", Hibernate.INTEGER)
+					.addScalar("idConta", Hibernate.INTEGER)
 					.setInteger("qtdPrestacoes", 1)
 					.setInteger("anoMesReferenciaArrecadacao", anoMesReferenciaArrecadacao)
 					.setInteger("pagamentoSituacao", pagamentoSituacao)
@@ -31409,6 +31333,7 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 				pagamento.setValorDocumento((BigDecimal)registro[3]);
 				pagamento.setDataPagamento((String)registro[4]);
 				pagamento.setIdImovel((Integer)registro[5]);
+				pagamento.setIdConta((Integer)registro[6]);
 				retorno.add(pagamento);
 			}
 		} catch (HibernateException e) {
@@ -31579,12 +31504,15 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 				.setParameterList("idsPagamentos", idsPagamentos).setMaxResults(1500).list();
 			
 			for (Pagamento pagamento: pagamentos) {
-				System.out.println("Pagamento: " + pagamento.getId());
 				if (pagamento.getContaGeral() != null) {
 					ContaGeral contaGeral = (ContaGeral) session.get(ContaGeral.class, pagamento.getContaGeral().getId());
 					
 					if (contaGeral.getConta() != null) {
 						Conta conta = (Conta) session.get(Conta.class, pagamento.getContaGeral().getId());
+						
+						if (conta.getImovel().getId().equals(new Integer(2697408))) {
+							System.out.println("Debug...");
+						}
 						contaGeral.setConta(conta);
 						
 						if (conta.getContaMotivoCancelamento() != null) {
@@ -31597,6 +31525,9 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 					} else  {
 						ContaHistorico conta = (ContaHistorico) session.get(ContaHistorico.class, pagamento.getContaGeral().getId());
 						contaGeral.setContaHistorico(conta);
+						if (conta.getImovel().getId().equals(new Integer(2697408))) {
+							System.out.println("Debug...");
+						}
 						if (conta.getContaMotivoCancelamento() != null) {
 							
 							ContaMotivoCancelamento contaMotivoCancelamento = (ContaMotivoCancelamento) session.get(
@@ -31611,6 +31542,29 @@ public class RepositorioArrecadacaoHBM implements IRepositorioArrecadacao {
 				retorno.add(pagamento);
 			}
 
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno;
+	}
+	
+	public Collection<DebitoAutomatico> pesquisarDebitoAutomaticoSemDataExclusao(
+			Integer idImovel) throws ErroRepositorioException {
+
+		Collection<DebitoAutomatico> retorno = new ArrayList<DebitoAutomatico>();
+		
+		Session session = HibernateUtil.getSession();
+		String consulta = null;
+
+		try {
+			consulta = "FROM DebitoAutomatico AS debitoAutomatico "
+				+ "WHERE debitoAutomatico.imovel.id = :idImovel "
+				+ "and debitoAutomatico.dataExclusao is null";
+
+			retorno = session.createQuery(consulta).setInteger("idImovel", idImovel).list();
 		} catch (HibernateException e) {
 			throw new ErroRepositorioException(e, "Erro no Hibernate");
 		} finally {

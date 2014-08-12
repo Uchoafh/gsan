@@ -3860,29 +3860,6 @@ public class Fachada {
 		}
 	}
 
-	/**
-	 * [UC0201] Excluir débito automático
-	 * 
-	 * @author Bruno Barros
-	 * @since 11/06/2008
-	 */
-	public void removerDebitoAutomatico(String[] ids) {
-		try {
-			this.getControladorCobranca().removerDebitoAutomatico(ids);
-		} catch (ControladorException ex) {
-			throw new FachadaException(ex.getMessage(), ex, ex
-					.getParametroMensagem());
-		}
-	}
-
-	/**
-	 * [UC0156] Informar Situacao Especial Faturamento
-	 * 
-	 * @author Rhawi Dantas
-	 * @created 09/01/2006
-	 * 
-	 */
-
 	public Collection pesquisarImovelSituacaoEspecialFaturamento(String valor,
 			SituacaoEspecialFaturamentoHelper situacaoEspecialFaturamentoHelper) {
 		try {
@@ -19175,8 +19152,9 @@ public class Fachada {
 	public StringBuilder obterDadosConsumoAnterior(Integer idImovel,
 			int anoMes, int qtdMeses, Integer tipoLigacao, Integer tipoMedicao) {
 		try {
+			EmitirContaHelper emitirConta = new EmitirContaHelper(idImovel, anoMes);
 			return this.getControladorFaturamento().obterDadosConsumoAnterior(
-					idImovel, anoMes, qtdMeses, tipoLigacao, tipoMedicao);
+					emitirConta, qtdMeses, tipoLigacao, tipoMedicao);
 		} catch (ControladorException ex) {
 			throw new FachadaException(ex.getMessage(), ex, ex
 					.getParametroMensagem());
@@ -26868,12 +26846,12 @@ public class Fachada {
 			Collection idsImovel, Integer codigoCliente, Short relacaoTipo,
 			Date dataVencimentoContaInicio, Date dataVencimentoContaFim,
 			Integer idGrupoFaturamento, Integer anoMesFim,
-			String indicadorContaPaga) {
+			String indicadorContaPaga, Integer somenteDebitoAutomatico) {
 		try {
 			return this.getControladorFaturamento().obterContasConjuntoImoveis(
 					anoMes, idsImovel, codigoCliente, relacaoTipo,
 					dataVencimentoContaInicio, dataVencimentoContaFim,
-					idGrupoFaturamento, anoMesFim, indicadorContaPaga);
+					idGrupoFaturamento, anoMesFim, indicadorContaPaga, somenteDebitoAutomatico);
 		} catch (ControladorException ex) {
 			throw new FachadaException(ex.getMessage(), ex, ex
 					.getParametroMensagem());
@@ -33460,20 +33438,9 @@ public class Fachada {
 		}
 	}
 
-	/**
-	 * 
-	 * Busca uma Lista de Imoveis por Rota
-	 * 
-	 * @param idRota
-	 * @return
-	 * @throws ControladorException
-	 */
-	public Collection<DadosMovimentacao> buscarImoveisPorRota(Rota idRota,
-			Integer anoMesReferencia, boolean manter) throws FachadaException {
-
+	public Collection<DadosMovimentacao> buscarImoveisPorRota(Rota rota, boolean manter) throws FachadaException {
 		try {
-			return this.getControladorMicromedicao().buscarImoveisPorRota(
-					idRota, anoMesReferencia, manter);
+			return this.getControladorMicromedicao().buscarImoveisPorRota(rota, manter);
 		} catch (ControladorException ex) {
 			throw new FachadaException(ex.getMessage(), ex, ex
 					.getParametroMensagem());
@@ -37860,12 +37827,12 @@ public class Fachada {
 	public Integer countImoveisBancoDebitoAutomatico(String[] bancos,
 			Integer anoMesInicial, Integer anoMesFinal,
 			Date dataVencimentoInicial, Date dataVencimentoFinal,
-			String indicadorContaPaga) {
+			String indicadorContaPaga, Integer somenteDebitoAutomatico) {
 		try {
 			return this.getControladorArrecadacao()
 					.countImoveisBancoDebitoAutomatico(bancos, anoMesInicial,
 							anoMesFinal, dataVencimentoInicial,
-							dataVencimentoFinal, indicadorContaPaga);
+							dataVencimentoFinal, indicadorContaPaga, somenteDebitoAutomatico);
 		} catch (ControladorException ex) {
 			throw new FachadaException(ex.getMessage(), ex, ex
 					.getParametroMensagem());
@@ -51928,12 +51895,12 @@ public class Fachada {
 	public Integer countImoveisBancoDebitoAutomaticoPorGrupoFaturamento(String[] bancos,
 			Integer anoMesInicial, Integer anoMesFinal,
 			Date dataVencimentoInicial, Date dataVencimentoFinal,
-			String indicadorContaPaga, Integer idGrupoFaturamento) {
+			String indicadorContaPaga, Integer idGrupoFaturamento, Integer somenteDebitoAutomatico) {
 		try {
 			return this.getControladorArrecadacao()
 					.countImoveisBancoDebitoAutomaticoPorGrupoFaturamento(bancos, anoMesInicial,
 							anoMesFinal, dataVencimentoInicial,
-							dataVencimentoFinal, indicadorContaPaga, idGrupoFaturamento);
+							dataVencimentoFinal, indicadorContaPaga, idGrupoFaturamento, somenteDebitoAutomatico);
 		} catch (ControladorException ex) {
 			throw new FachadaException(ex.getMessage(), ex, ex
 					.getParametroMensagem());
@@ -52304,11 +52271,9 @@ public class Fachada {
 			CreditoTipo creditoTipo, CreditoOrigem creditoOrigem, boolean indicadorIncluirCredito) 
 		throws ControladorException {
 		try {
-			this.getControladorArrecadacao().classificarPagamentosResolvidos(pagamentos, usuarioLogado, 
-					creditoTipo, creditoOrigem, indicadorIncluirCredito);
+			this.getControladorArrecadacao().recuperarCredito(pagamentos, usuarioLogado, creditoTipo, creditoOrigem, indicadorIncluirCredito);
 		} catch (ControladorException ex) {
-			throw new FachadaException(ex.getMessage(), ex, ex
-					.getParametroMensagem());
+			throw new FachadaException(ex.getMessage(), ex, ex.getParametroMensagem());
 		}
 	}
 
@@ -52347,4 +52312,39 @@ public class Fachada {
 			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
 		}
 	}
+	
+	public void validarImovelEmCampo(Integer idImovel) {
+		try {
+			this.getControladorMicromedicao().validarImovelEmCampo(idImovel);
+		} catch (ControladorException e) {
+			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
+		}
+	}
+	
+	public void atualizarIndicadorDebitoAutomaticoComDataExclusao(Integer idImovel) {
+		try {
+			this.getControladorArrecadacao().atualizarIndicadorDebitoAutomaticoComDataExclusao(idImovel);
+		} catch (ControladorException e) {
+			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
+		}
+	}
+	
+	public Collection pesquisarImagensRetornoPorIdImovel(Integer idImovel) {
+		try {
+			return this.getControladorAtualizacaoCadastral().pesquisarImagensRetornoPorIdImovel(idImovel);
+		} catch (ControladorException e) {
+			throw new FachadaException(e.getMessage(), e, e.getParametroMensagem());
+		}
+	}
+	
+	public Collection<DadosMovimentacao> buscarImoveisFaturamentoSeletivo(Integer matriculaImovel, Rota rota, boolean manter) throws FachadaException {
+		try {
+			return this.getControladorMicromedicao().buscarImoveisFaturamentoSeletivo(matriculaImovel, rota, manter);
+		} catch (ControladorException ex) {
+			throw new FachadaException(ex.getMessage(), ex, ex
+					.getParametroMensagem());
+		}
+
+	}
+	
 }
