@@ -4057,81 +4057,40 @@ public class UC0745GerarArquivoTextoFaturamento {
 	 * @throws ControladorException
 	 * @return idArquivoTextoRoteiroEmpresa
 	 */
-	public Integer inserirArquivoTextoRoteiroEmpresa(Integer anoMesFaturamento,
-			FaturamentoGrupo faturamentoGrupo, Rota rota, Imovel imovel,
-			Integer qtdImoveis, StringBuilder arquivoTexto,
-			Boolean apenasNaoEnviados,
-			boolean rotaSoComImoveisInformativos) throws ControladorException {
+	public Integer inserirArquivoTextoRoteiroEmpresa(Integer anoMesFaturamento, FaturamentoGrupo faturamentoGrupo, Rota rota, Imovel imovel,
+			Integer qtdImoveis, StringBuilder arquivoTexto, boolean rotaSoComImoveisInformativos) throws ControladorException {
 
 		ArquivoTextoRoteiroEmpresa arquivoTextoRoteiroEmpresa = null;
 
-		if (!apenasNaoEnviados) {
-			arquivoTextoRoteiroEmpresa = new ArquivoTextoRoteiroEmpresa();
-		} else {
-			FiltroArquivoTextoRoteiroEmpresa filtro = new FiltroArquivoTextoRoteiroEmpresa();
-			filtro.adicionarParametro(new ParametroSimples(
-					FiltroArquivoTextoRoteiroEmpresa.ROTA_ID, rota.getId()));
-			filtro.adicionarParametro(new ParametroSimples(
-					FiltroArquivoTextoRoteiroEmpresa.ANO_MES_REFERENCIA,
-					anoMesFaturamento));
-
-			Collection<ArquivoTextoRoteiroEmpresa> colArquivoTextoRoteiroEmpresa = Fachada
-					.getInstancia().pesquisar(filtro,
-							ArquivoTextoRoteiroEmpresa.class.getName());
-
-			arquivoTextoRoteiroEmpresa = (ArquivoTextoRoteiroEmpresa) Util
-					.retonarObjetoDeColecao(colArquivoTextoRoteiroEmpresa);
-		}
+		arquivoTextoRoteiroEmpresa = new ArquivoTextoRoteiroEmpresa();
 
 		Rota rotaAlternativa = null;
 
 		if (rota.getIndicadorRotaAlternativa().equals(ConstantesSistema.SIM)) {
 			FiltroRota filtroRota = new FiltroRota();
-			filtroRota.adicionarParametro(new ParametroSimples(
-					FiltroRota.ID_ROTA, rota.getId()));
-			filtroRota
-					.adicionarCaminhoParaCarregamentoEntidade("setorComercial");
-			filtroRota
-					.adicionarCaminhoParaCarregamentoEntidade("setorComercial.localidade");
+			filtroRota.adicionarParametro(new ParametroSimples(FiltroRota.ID_ROTA, rota.getId()));
+			filtroRota.adicionarCaminhoParaCarregamentoEntidade("setorComercial");
+			filtroRota.adicionarCaminhoParaCarregamentoEntidade("setorComercial.localidade");
 			filtroRota.adicionarCaminhoParaCarregamentoEntidade("leiturista");
-			Collection<Rota> colRotas = Fachada.getInstancia().pesquisar(
-					filtroRota, Rota.class.getName());
+			Collection<Rota> colRotas = Fachada.getInstancia().pesquisar(filtroRota, Rota.class.getName());
 			rotaAlternativa = (Rota) Util.retonarObjetoDeColecao(colRotas);
 		}
 
 		String nomeArquivoTexto = "";
 
 		if (rotaAlternativa != null) {
-			// NOME DO ARQUIVO
-			// [FS0006] - Nome do arquivo texto
-			nomeArquivoTexto = "G"
-					+ Util.adicionarZerosEsquedaNumero(3,
-							faturamentoGrupo.getId() + "")
-					+ Util.adicionarZerosEsquedaNumero(3, rotaAlternativa
-							.getSetorComercial().getLocalidade().getId()
-							+ "")
-					+ Util.adicionarZerosEsquedaNumero(3, rotaAlternativa
-							.getSetorComercial().getCodigo() + "")
-					+ Util.adicionarZerosEsquedaNumero(4,
-							rotaAlternativa.getCodigo() + "")
-					+ Util.adicionarZerosEsquedaNumero(6, anoMesFaturamento
-							+ "");
+			nomeArquivoTexto = "G" + Util.adicionarZerosEsquedaNumero(3, faturamentoGrupo.getId() + "")
+					+ Util.adicionarZerosEsquedaNumero(3, rotaAlternativa.getSetorComercial().getLocalidade().getId() + "")
+					+ Util.adicionarZerosEsquedaNumero(3, rotaAlternativa.getSetorComercial().getCodigo() + "")
+					+ Util.adicionarZerosEsquedaNumero(4, rotaAlternativa.getCodigo() + "")
+					+ Util.adicionarZerosEsquedaNumero(6, anoMesFaturamento + "");
 		} else {
-			// NOME DO ARQUIVO
-			// [FS0006] - Nome do arquivo texto
-			nomeArquivoTexto = "G"
-					+ Util.adicionarZerosEsquedaNumero(3,
-							faturamentoGrupo.getId() + "")
-					+ Util.adicionarZerosEsquedaNumero(3, imovel
-							.getLocalidade().getId() + "")
-					+ Util.adicionarZerosEsquedaNumero(3, imovel
-							.getSetorComercial().getCodigo() + "")
-					+ Util.adicionarZerosEsquedaNumero(4, rota.getCodigo() + "")
-					+ Util.adicionarZerosEsquedaNumero(6, anoMesFaturamento
-							+ "");
+			nomeArquivoTexto = "G" + Util.adicionarZerosEsquedaNumero(3, faturamentoGrupo.getId() + "")
+					+ Util.adicionarZerosEsquedaNumero(3, imovel.getLocalidade().getId() + "")
+					+ Util.adicionarZerosEsquedaNumero(3, imovel.getSetorComercial().getCodigo() + "")
+					+ Util.adicionarZerosEsquedaNumero(4, rota.getCodigo() + "") + Util.adicionarZerosEsquedaNumero(6, anoMesFaturamento + "");
 		}
 
-		// ARQUIVO TEMPORÁRIO GERADO PARA ROTA
 		ByteArrayOutputStream baosArquivoZip = new ByteArrayOutputStream();
 
 		GZIPOutputStream zos = null;
@@ -4139,21 +4098,12 @@ public class UC0745GerarArquivoTextoFaturamento {
 
 		try {
 
-			// arquivoTexto =
-			// new StringBuilder( Util.reencodeString(
-			// arquivoTexto.toString(), "UTF-8" ) );
-
-			// Convertemos o StringBuilder em um vetor de array
-			// arquivoTextoByte =
-			// IoUtil.transformarObjetoParaBytes(arquivoTexto);
-
 			File compactado = new File(nomeArquivoTexto + ".tar.gz");
 
 			zos = new GZIPOutputStream(new FileOutputStream(compactado));
 			File leitura = new File(nomeArquivoTexto + ".txt");
 
-			out = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(leitura.getAbsolutePath())));
+			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(leitura.getAbsolutePath())));
 			out.write(arquivoTexto.toString());
 			out.flush();
 			ZipUtil.adicionarArquivo(zos, leitura);
@@ -4162,7 +4112,6 @@ public class UC0745GerarArquivoTextoFaturamento {
 
 			FileInputStream inputStream = new FileInputStream(compactado);
 
-			// Escrevemos aos poucos
 			int INPUT_BUFFER_SIZE = 1024;
 			byte[] temp = new byte[INPUT_BUFFER_SIZE];
 			int numBytesRead = 0;
@@ -4171,18 +4120,8 @@ public class UC0745GerarArquivoTextoFaturamento {
 				baosArquivoZip.write(temp, 0, numBytesRead);
 			}
 
-			if (!apenasNaoEnviados) {
-				arquivoTextoRoteiroEmpresa.setArquivoTexto(baosArquivoZip
-						.toByteArray());
-			} else {
-				arquivoTextoRoteiroEmpresa
-						.setArquivoTextoNaoRecebido(baosArquivoZip
-								.toByteArray());
+			arquivoTextoRoteiroEmpresa.setArquivoTexto(baosArquivoZip.toByteArray());
 
-				this.getControladorUtil().atualizar(arquivoTextoRoteiroEmpresa);
-			}
-
-			// Fechamos o inputStream
 			inputStream.close();
 			baosArquivoZip.close();
 
@@ -4194,169 +4133,108 @@ public class UC0745GerarArquivoTextoFaturamento {
 			throw new ControladorException("erro.sistema", e);
 		}
 
-		if (!apenasNaoEnviados) {
+		Object[] intervalorNumeroQuadra = null;
 
-			Object[] intervalorNumeroQuadra = null;
+		arquivoTextoRoteiroEmpresa.setAnoMesReferencia(anoMesFaturamento);
 
-			// ANO_MES_REFERENCIA
-			arquivoTextoRoteiroEmpresa.setAnoMesReferencia(anoMesFaturamento);
+		arquivoTextoRoteiroEmpresa.setFaturamentoGrupo(faturamentoGrupo);
 
-			// FATURAMENTO_GRUPO
-			arquivoTextoRoteiroEmpresa.setFaturamentoGrupo(faturamentoGrupo);
+		if (rotaAlternativa != null) {
+			arquivoTextoRoteiroEmpresa.setEmpresa(rotaAlternativa.getEmpresa());
 
+			arquivoTextoRoteiroEmpresa.setLocalidade(rotaAlternativa.getSetorComercial().getLocalidade());
+
+			arquivoTextoRoteiroEmpresa.setCodigoSetorComercial1(rotaAlternativa.getSetorComercial().getCodigo());
+
+			try {
+				intervalorNumeroQuadra = this.repositorioFaturamento.pesquisarIntervaloNumeroQuadraPorRota(rotaAlternativa.getId());
+			} catch (ErroRepositorioException e) {
+				sessionContext.setRollbackOnly();
+				throw new ControladorException("erro.sistema", e);
+			}
+
+			arquivoTextoRoteiroEmpresa.setRota(rotaAlternativa);
+		} else {
+			arquivoTextoRoteiroEmpresa.setEmpresa(rota.getEmpresa());
+
+			arquivoTextoRoteiroEmpresa.setLocalidade(imovel.getLocalidade());
+
+			arquivoTextoRoteiroEmpresa.setCodigoSetorComercial1(imovel.getSetorComercial().getCodigo());
+
+			try {
+				intervalorNumeroQuadra = this.repositorioFaturamento.pesquisarIntervaloNumeroQuadraPorRota(rota.getId());
+			} catch (ErroRepositorioException e) {
+				sessionContext.setRollbackOnly();
+				throw new ControladorException("erro.sistema", e);
+			}
+
+			arquivoTextoRoteiroEmpresa.setRota(rota);
+		}
+
+		if (rota.getNumeroSequenciaLeitura() != null && !rota.getNumeroSequenciaLeitura().equals("")) {
 			if (rotaAlternativa != null) {
-				// EMPRESA
-				arquivoTextoRoteiroEmpresa.setEmpresa(rotaAlternativa
-						.getEmpresa());
-
-				// LOCALIDADE
-				arquivoTextoRoteiroEmpresa.setLocalidade(rotaAlternativa
-						.getSetorComercial().getLocalidade());
-
-				// CÓDIGO DO SETOR COMERCIAL
-				arquivoTextoRoteiroEmpresa
-						.setCodigoSetorComercial1(rotaAlternativa
-								.getSetorComercial().getCodigo());
-
-				try {
-					intervalorNumeroQuadra = this.repositorioFaturamento
-							.pesquisarIntervaloNumeroQuadraPorRota(rotaAlternativa
-									.getId());
-				} catch (ErroRepositorioException e) {
-					sessionContext.setRollbackOnly();
-					throw new ControladorException("erro.sistema", e);
-				}
-
-				// ROTA
-				arquivoTextoRoteiroEmpresa.setRota(rotaAlternativa);
+				arquivoTextoRoteiroEmpresa.setNumeroSequenciaLeitura(rotaAlternativa.getNumeroSequenciaLeitura());
 			} else {
-				// EMPRESA
-				arquivoTextoRoteiroEmpresa.setEmpresa(rota.getEmpresa());
-
-				// LOCALIDADE
-				arquivoTextoRoteiroEmpresa
-						.setLocalidade(imovel.getLocalidade());
-
-				// CÓDIGO DO SETOR COMERCIAL
-				arquivoTextoRoteiroEmpresa.setCodigoSetorComercial1(imovel
-						.getSetorComercial().getCodigo());
-
-				try {
-					intervalorNumeroQuadra = this.repositorioFaturamento
-							.pesquisarIntervaloNumeroQuadraPorRota(rota.getId());
-				} catch (ErroRepositorioException e) {
-					sessionContext.setRollbackOnly();
-					throw new ControladorException("erro.sistema", e);
-				}
-
-				// ROTA
-				arquivoTextoRoteiroEmpresa.setRota(rota);
+				arquivoTextoRoteiroEmpresa.setNumeroSequenciaLeitura(rota.getNumeroSequenciaLeitura());
 			}
+		}
 
-			// NÚMERO SEQUENCIA DE LEITURA
-			if (rota.getNumeroSequenciaLeitura() != null
-					&& !rota.getNumeroSequenciaLeitura().equals("")) {
-				if (rotaAlternativa != null) {
-					arquivoTextoRoteiroEmpresa
-							.setNumeroSequenciaLeitura(rotaAlternativa
-									.getNumeroSequenciaLeitura());
-				} else {
-					arquivoTextoRoteiroEmpresa.setNumeroSequenciaLeitura(rota
-							.getNumeroSequenciaLeitura());
-				}
+		if (intervalorNumeroQuadra != null && intervalorNumeroQuadra[0] != null) {
+			arquivoTextoRoteiroEmpresa.setNumeroQuadraInicial1((Integer) intervalorNumeroQuadra[0]);
+		} else {
+			arquivoTextoRoteiroEmpresa.setNumeroQuadraInicial1(0);
+		}
+
+		if (intervalorNumeroQuadra != null && intervalorNumeroQuadra[1] != null) {
+			arquivoTextoRoteiroEmpresa.setNumeroQuadraFinal1((Integer) intervalorNumeroQuadra[1]);
+		} else {
+			arquivoTextoRoteiroEmpresa.setNumeroQuadraFinal1(0);
+		}
+
+		arquivoTextoRoteiroEmpresa.setQuantidadeImovel(qtdImoveis);
+
+		arquivoTextoRoteiroEmpresa.setNomeArquivo(nomeArquivoTexto + ".gz");
+
+		if (rotaAlternativa != null && rotaAlternativa.getLeiturista() != null) {
+			arquivoTextoRoteiroEmpresa.setLeiturista(rotaAlternativa.getLeiturista());
+			arquivoTextoRoteiroEmpresa.setCodigoLeiturista(rotaAlternativa.getLeiturista().getCodigoDDD());
+			arquivoTextoRoteiroEmpresa.setNumeroFoneLeiturista(rotaAlternativa.getLeiturista().getNumeroFone());
+
+			if (rota.getNumeroLimiteImoveis() == null) {
+				arquivoTextoRoteiroEmpresa.setNumeroImei(rotaAlternativa.getLeiturista().getNumeroImei());
+			} else if (rota.getNumeroLimiteImoveis() != null && qtdImoveis >= 250) {
+				arquivoTextoRoteiroEmpresa.setNumeroImei(null);
 			}
+		} else if (rota.getLeiturista() != null) {
+			arquivoTextoRoteiroEmpresa.setLeiturista(rota.getLeiturista());
+			arquivoTextoRoteiroEmpresa.setCodigoLeiturista(rota.getLeiturista().getCodigoDDD());
+			arquivoTextoRoteiroEmpresa.setNumeroFoneLeiturista(rota.getLeiturista().getNumeroFone());
 
-			// MENOR E MAIOR NÚMERO DA QUADRA PARA ROTA
-			/**
-		 	 * TODO : COSANPA
-		 	 * Alteracao para inserir numero da quadra zero quando for 
-		  	 * rota alternativa (pois rota alternativa não tem referencia 
-		 	 * para quadra)
-		 	 */
-			if (intervalorNumeroQuadra != null && intervalorNumeroQuadra[0] != null) {
-				arquivoTextoRoteiroEmpresa.setNumeroQuadraInicial1((Integer) intervalorNumeroQuadra[0]);
-			} else {
-				arquivoTextoRoteiroEmpresa.setNumeroQuadraInicial1(0);
+			if (rota.getNumeroLimiteImoveis() == null) {
+				arquivoTextoRoteiroEmpresa.setNumeroImei(rota.getLeiturista().getNumeroImei());
+			} else if (rota.getNumeroLimiteImoveis() != null && qtdImoveis >= 250) {
+				arquivoTextoRoteiroEmpresa.setNumeroImei(null);
 			}
-		
-			if ( intervalorNumeroQuadra != null &&  intervalorNumeroQuadra[1] != null) {
-				arquivoTextoRoteiroEmpresa.setNumeroQuadraFinal1((Integer) intervalorNumeroQuadra[1]);
-			} else {
-				arquivoTextoRoteiroEmpresa.setNumeroQuadraFinal1(0);
-			}
-			
-			// QUANTIDADE DE IMÓVEIS
-			arquivoTextoRoteiroEmpresa.setQuantidadeImovel(qtdImoveis);
+		}
 
-			arquivoTextoRoteiroEmpresa.setNomeArquivo(nomeArquivoTexto + ".gz");
-
-			// INFORMAÇÕES LEITURISTA
-			if (rotaAlternativa != null
-					&& rotaAlternativa.getLeiturista() != null) {
-				arquivoTextoRoteiroEmpresa.setLeiturista(rotaAlternativa
-						.getLeiturista());
-				arquivoTextoRoteiroEmpresa.setCodigoLeiturista(rotaAlternativa
-						.getLeiturista().getCodigoDDD());
-				arquivoTextoRoteiroEmpresa
-						.setNumeroFoneLeiturista(rotaAlternativa
-								.getLeiturista().getNumeroFone());
-
-				if (rota.getNumeroLimiteImoveis() == null) {
-					arquivoTextoRoteiroEmpresa.setNumeroImei(rotaAlternativa
-							.getLeiturista().getNumeroImei());
-				} else if (rota.getNumeroLimiteImoveis() != null
-						&& qtdImoveis >= 250) {
-					arquivoTextoRoteiroEmpresa.setNumeroImei(null);
-				}
-			} else if (rota.getLeiturista() != null) {
-				arquivoTextoRoteiroEmpresa.setLeiturista(rota.getLeiturista());
-				arquivoTextoRoteiroEmpresa.setCodigoLeiturista(rota
-						.getLeiturista().getCodigoDDD());
-				arquivoTextoRoteiroEmpresa.setNumeroFoneLeiturista(rota
-						.getLeiturista().getNumeroFone());
-
-				if (rota.getNumeroLimiteImoveis() == null) {
-					arquivoTextoRoteiroEmpresa.setNumeroImei(rota
-							.getLeiturista().getNumeroImei());
-				} else if (rota.getNumeroLimiteImoveis() != null
-						&& qtdImoveis >= 250) {
-					arquivoTextoRoteiroEmpresa.setNumeroImei(null);
-				}
-			}
-
-			/*TODO : COSANPA 
-		 * Caso rota contenha apenas imóveis informativos, insere com situação TRANSMITIDO
-		 * */
 		SituacaoTransmissaoLeitura situacaoTransmissaoLeitura = new SituacaoTransmissaoLeitura();
 		if (rotaSoComImoveisInformativos) {
-			situacaoTransmissaoLeitura
-					.setId(SituacaoTransmissaoLeitura.TRANSMITIDO);
-		}
-		else{
-		situacaoTransmissaoLeitura.setId(SituacaoTransmissaoLeitura.DISPONIVEL);
+			situacaoTransmissaoLeitura.setId(SituacaoTransmissaoLeitura.TRANSMITIDO);
+		} else {
+			situacaoTransmissaoLeitura.setId(SituacaoTransmissaoLeitura.DISPONIVEL);
 		}
 
-			arquivoTextoRoteiroEmpresa
-					.setSituacaoTransmissaoLeitura(situacaoTransmissaoLeitura);
+		arquivoTextoRoteiroEmpresa.setSituacaoTransmissaoLeitura(situacaoTransmissaoLeitura);
 
-			// ULTIMA ALTERACAO
-			arquivoTextoRoteiroEmpresa.setUltimaAlteracao(new Date());
+		arquivoTextoRoteiroEmpresa.setUltimaAlteracao(new Date());
 
-			// ULTIMA ALTERACAO
-			arquivoTextoRoteiroEmpresa.setUltimaAlteracao(new Date());
+		arquivoTextoRoteiroEmpresa.setUltimaAlteracao(new Date());
 
-			// TIPO DO SERVICO CELULAR
-			ServicoTipoCelular servicoTipoCelular = new ServicoTipoCelular();
-			servicoTipoCelular.setId(ServicoTipoCelular.IMPRESSAO_SIMULTANEA);
-			arquivoTextoRoteiroEmpresa
-					.setServicoTipoCelular(servicoTipoCelular);
+		ServicoTipoCelular servicoTipoCelular = new ServicoTipoCelular();
+		servicoTipoCelular.setId(ServicoTipoCelular.IMPRESSAO_SIMULTANEA);
+		arquivoTextoRoteiroEmpresa.setServicoTipoCelular(servicoTipoCelular);
 
-			// INSERINDO NA BASE
-			return (Integer) this.getControladorUtil().inserir(
-					arquivoTextoRoteiroEmpresa);
-		}
-
-		return -1;
+		return (Integer) this.getControladorUtil().inserir(arquivoTextoRoteiroEmpresa);
 	}
 
 	/**
