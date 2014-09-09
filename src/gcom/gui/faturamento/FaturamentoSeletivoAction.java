@@ -26,10 +26,10 @@ public class FaturamentoSeletivoAction extends GcomAction {
 
         FaturamentoSeletivoActionForm form = (FaturamentoSeletivoActionForm) actionForm;
         
-        FaturamentoSeletivoBO faturamentoSeletivo = new FaturamentoSeletivoBO(form);
-        faturamentoSeletivo.faturar();
+        //FaturamentoSeletivoBO faturamentoSeletivo = new FaturamentoSeletivoBO(form);
+      //faturamentoSeletivo.faturar();
 
-        //this.faturar(form);
+        this.faturar(form);
 
  		montarPaginaSucesso(httpServletRequest, "Imóveis selecionados faturados com sucesso.", "Faturar outro imóvel", "filtrarFaturamentoSeletivo.do?menu=sim");
      		
@@ -71,7 +71,7 @@ public class FaturamentoSeletivoAction extends GcomAction {
 				fachada.faturarImovelSeletivo(imovel);
 			
 			} catch (Exception e) {
-				throw new ActionServletException("Erro ao faturar seletivamente imóvel " + imovel.getIdImovel());
+				throw new ActionServletException("Erro ao faturar seletivamente imóvel " + imovel.getIdImovel(), e);
 			}
 		}
 	}
