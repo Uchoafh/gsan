@@ -485,46 +485,37 @@ public class ControladorLigacaoAguaSEJB implements SessionBean {
 	 * @param helper
 	 * @throws ControladorException
 	 */
-	public void efetuarCorteLigacaoAgua(
-			IntegracaoComercialHelper integracaoComercialHelper)
-			throws ControladorException {
+	public void efetuarCorteLigacaoAgua(IntegracaoComercialHelper integracaoComercialHelper) throws ControladorException {
 
-		DadosEfetuacaoCorteLigacaoAguaHelper helper = integracaoComercialHelper
-				.getDadosEfetuacaoCorteLigacaoAguaHelper();
+		
+		DadosEfetuacaoCorteLigacaoAguaHelper helper = integracaoComercialHelper.getDadosEfetuacaoCorteLigacaoAguaHelper();
 
-		this.getControladorImovel().verificarImovelControleConcorrencia(
-				helper.getImovel());
+		this.getControladorImovel().verificarImovelControleConcorrencia(helper.getImovel());
 		LigacaoAgua ligacaoAgua = helper.getImovel().getLigacaoAgua();
+
+		this.getControladorMicromedicao().validarImovelEmCampo(ligacaoAgua.getId());
+		
 		this.verificarLigacaoAguaControleConcorrencia(ligacaoAgua);
-		
-		
-		/*
-		 * [UC0107] Registrar Transação
-		 * 
-		 */
-		RegistradorOperacao registradorOperacao = new RegistradorOperacao(
-				Operacao.OPERACAO_CORTE_LIGACAO_AGUA_EFETUAR,
-				ligacaoAgua.getId(), ligacaoAgua.getId(),
-				new UsuarioAcaoUsuarioHelper(integracaoComercialHelper.getUsuarioLogado(),
-						UsuarioAcao.USUARIO_ACAO_EFETUOU_OPERACAO));
+
+		RegistradorOperacao registradorOperacao = new RegistradorOperacao(Operacao.OPERACAO_CORTE_LIGACAO_AGUA_EFETUAR, ligacaoAgua.getId(),
+				ligacaoAgua.getId(), new UsuarioAcaoUsuarioHelper(integracaoComercialHelper.getUsuarioLogado(), UsuarioAcao.USUARIO_ACAO_EFETUOU_OPERACAO));
+
 		registradorOperacao.registrarOperacao(ligacaoAgua);
+		
 		getControladorTransacao().registrarTransacao(ligacaoAgua);
 		try {
-			// Efetuar Corte Ligação de Água
 			repositorioLigacaoAgua.efetuarCorteLigacaoAgua(helper);
+
 			if (!helper.isVeioEncerrarOS()) {
-				this.getControladorOrdemServico().atualizaOSGeral(
-						helper.getOrdemServico());
+				this.getControladorOrdemServico().atualizaOSGeral(helper.getOrdemServico());
 			}
+			
 			if (helper.getOrdemServico().getServicoTipo().getDebitoTipo() != null
-					&& (helper.getOrdemServico().getServicoNaoCobrancaMotivo() == null || helper
-							.getOrdemServico().getServicoNaoCobrancaMotivo()
-							.getId().intValue() == ConstantesSistema.NUMERO_NAO_INFORMADO)) {
+					&& (helper.getOrdemServico().getServicoNaoCobrancaMotivo() == null 
+					|| helper.getOrdemServico().getServicoNaoCobrancaMotivo().getId().intValue() == ConstantesSistema.NUMERO_NAO_INFORMADO)) {
 				// Gerar Débito OS
-				this.getControladorOrdemServico().gerarDebitoOrdemServico(
-						helper.getOrdemServico().getId(),
-						helper.getOrdemServico().getServicoTipo().getDebitoTipo().getId(),
-						helper.getOrdemServico().getValorAtual(), helper.getQtdeParcelas(),
+				this.getControladorOrdemServico().gerarDebitoOrdemServico(helper.getOrdemServico().getId(),
+						helper.getOrdemServico().getServicoTipo().getDebitoTipo().getId(), helper.getOrdemServico().getValorAtual(), helper.getQtdeParcelas(),
 						helper.getOrdemServico().getPercentualCobranca().toString(), integracaoComercialHelper.getUsuarioLogado());
 			}
 		} catch (ErroRepositorioException ex) {

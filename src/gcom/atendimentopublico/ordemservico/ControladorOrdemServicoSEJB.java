@@ -4810,6 +4810,9 @@ public class ControladorOrdemServicoSEJB implements SessionBean {
 			}
 	
 			OrdemServico osNaBase = (OrdemServico) colecaoOS.iterator().next();
+			
+			validarEncerramentoOsImovelEmCampo(osNaBase);
+			
 			if (ultimaAlteracao != null && !ultimaAlteracao.equals("")) {
 	
 				if (osNaBase.getUltimaAlteracao().after(ultimaAlteracao)) {
