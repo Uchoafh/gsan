@@ -1712,6 +1712,7 @@ public class ControladorImovelSEJB implements SessionBean {
 	 * @return Descrição do retorno
 	 * @throws ControladorException
 	 */
+	@SuppressWarnings("rawtypes")
 	public Collection obterQuantidadeEconomiasCategoria(Integer imovel) throws ControladorException {
 		Collection colecaoCategoria = new ArrayList();
 		Collection colecaoImovelSubCategoriaArray = null;

@@ -4127,54 +4127,83 @@ public class ControladorMicromedicao implements SessionBean {
 		return leituraAnormalidade;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public LeituraAnormalidade obterAnormalidadeLeitura(Collection colecaoAnormalidadeLeitura) {
+	/**
+	 * Método utlizado para receber uma coleção e retornar um objeto do tipo
+	 * Anormalidade de Leitura
+	 */
+	public LeituraAnormalidade obterAnormalidadeLeitura(
+			Collection colecaoAnormalidadeLeitura) {
 
+		// Cria os objetos
 		LeituraAnormalidade leituraAnormalidade = new LeituraAnormalidade();
 		LeituraAnormalidadeConsumo leituraAnormalidadeConsumoSemLeitura = new LeituraAnormalidadeConsumo();
 		LeituraAnormalidadeConsumo leituraAnormalidadeConsumoComLeitura = new LeituraAnormalidadeConsumo();
 		LeituraAnormalidadeLeitura leituraAnormalidadeLeituraSemLeitura = new LeituraAnormalidadeLeitura();
 		LeituraAnormalidadeLeitura leituraAnormalidadeLeituraComLeitura = new LeituraAnormalidadeLeitura();
 
+		// Verifica se a coleção é nula
 		if (!Util.isVazioOrNulo(colecaoAnormalidadeLeitura)) {
 
-			Object[] anormalidadeLeituraArray = (Object[]) Util.retonarObjetoDeColecaoArray(colecaoAnormalidadeLeitura);
+			Object[] anormalidadeLeituraArray = (Object[]) Util
+					.retonarObjetoDeColecaoArray(colecaoAnormalidadeLeitura);
 
+			// Seta o id da anormalidade de leitura
 			if (anormalidadeLeituraArray[0] != null) {
-				leituraAnormalidade.setId((Integer) anormalidadeLeituraArray[0]);
+				leituraAnormalidade
+						.setId((Integer) anormalidadeLeituraArray[0]);
 
+				// Seta o consumo sem leitura
 				if (anormalidadeLeituraArray[1] != null) {
-					leituraAnormalidadeConsumoSemLeitura.setId((Integer) anormalidadeLeituraArray[1]);
+					leituraAnormalidadeConsumoSemLeitura
+							.setId((Integer) anormalidadeLeituraArray[1]);
 				}
 
+				// Seta o consumo com leitura
 				if (anormalidadeLeituraArray[2] != null) {
-					leituraAnormalidadeConsumoComLeitura.setId((Integer) anormalidadeLeituraArray[2]);
+					leituraAnormalidadeConsumoComLeitura
+							.setId((Integer) anormalidadeLeituraArray[2]);
 				}
 
+				// Seta a leitura sem leitura
 				if (anormalidadeLeituraArray[3] != null) {
-					leituraAnormalidadeLeituraSemLeitura.setId((Integer) anormalidadeLeituraArray[3]);
+					leituraAnormalidadeLeituraSemLeitura
+							.setId((Integer) anormalidadeLeituraArray[3]);
 				}
 
+				// Seta a leitura com leitura
 				if (anormalidadeLeituraArray[4] != null) {
-					leituraAnormalidadeLeituraComLeitura.setId((Integer) anormalidadeLeituraArray[4]);
+					leituraAnormalidadeLeituraComLeitura
+							.setId((Integer) anormalidadeLeituraArray[4]);
 				}
 
+				// Seta Numero Fator Sem Leitura
 				if (anormalidadeLeituraArray[5] != null) {
-					leituraAnormalidade.setNumeroFatorSemLeitura((BigDecimal) anormalidadeLeituraArray[5]);
+					leituraAnormalidade
+							.setNumeroFatorSemLeitura((BigDecimal) anormalidadeLeituraArray[5]);
 				}
 
+				// Seta Numero Fator Com Leitura
 				if (anormalidadeLeituraArray[6] != null) {
-					leituraAnormalidade.setNumeroFatorComLeitura((BigDecimal) anormalidadeLeituraArray[6]);
+					leituraAnormalidade
+							.setNumeroFatorComLeitura((BigDecimal) anormalidadeLeituraArray[6]);
 				}
 
-				leituraAnormalidade.setLeituraAnormalidadeConsumoSemleitura(leituraAnormalidadeConsumoSemLeitura);
-				leituraAnormalidade.setLeituraAnormalidadeConsumoComleitura(leituraAnormalidadeConsumoComLeitura);
-				leituraAnormalidade.setLeituraAnormalidadeLeituraSemleitura(leituraAnormalidadeLeituraSemLeitura);
-				leituraAnormalidade.setLeituraAnormalidadeLeituraComleitura(leituraAnormalidadeLeituraComLeitura);
+				// Associa seta a anormalidade de leitura
+				leituraAnormalidade
+						.setLeituraAnormalidadeConsumoSemleitura(leituraAnormalidadeConsumoSemLeitura);
+				leituraAnormalidade
+						.setLeituraAnormalidadeConsumoComleitura(leituraAnormalidadeConsumoComLeitura);
+				leituraAnormalidade
+						.setLeituraAnormalidadeLeituraSemleitura(leituraAnormalidadeLeituraSemLeitura);
+				leituraAnormalidade
+						.setLeituraAnormalidadeLeituraComleitura(leituraAnormalidadeLeituraComLeitura);
 			}
 
 		}
+
+		// Retorna a anormalidade de leitura
 		return leituraAnormalidade;
+
 	}
 
 	/**
@@ -4249,220 +4278,425 @@ public class ControladorMicromedicao implements SessionBean {
 	 * [UC0101] - Consistir Leituras e Calcular Consumos [SF0011] - Dados para
 	 * Faturamento com Anormalidade de Leitura
 	 */
-	@SuppressWarnings("rawtypes")
-	protected void dadosFaturamentoAnormalidadeLeitura(MedicaoHistorico medicaoHistorico, ConsumoHistorico consumoHistorico, int[] consumoMedioHidrometro,
+	protected void dadosFaturamentoAnormalidadeLeitura(
+			MedicaoHistorico medicaoHistorico,
+			ConsumoHistorico consumoHistorico, int[] consumoMedioHidrometro,
 			int leituraAnterior, Imovel imovel, Rota rota) throws ControladorException {
 
+		// Cria objeto consumo tipo
 		ConsumoTipo consumoTipo = new ConsumoTipo();
 		Collection colecaoAnormalidadeLeitura = null;
-		SistemaParametro sistemaParametro = this.getControladorUtil().pesquisarParametrosDoSistema();
+		SistemaParametro sistemaParametro = this.getControladorUtil()
+				.pesquisarParametrosDoSistema();
 
 		try {
-			colecaoAnormalidadeLeitura = repositorioMicromedicao.pesquisarAnormalidadeLeitura(medicaoHistorico.getLeituraAnormalidadeFaturamento());
+			// Pesquisa a anormalidade de leitura de faturamento
+			colecaoAnormalidadeLeitura = repositorioMicromedicao
+					.pesquisarAnormalidadeLeitura(medicaoHistorico
+							.getLeituraAnormalidadeFaturamento());
+
 		} catch (ErroRepositorioException ex) {
+			// sessionContext.setRollbackOnly();
 			throw new ControladorException("erro.sistema", ex);
 		}
 
-		LeituraAnormalidade anormalidade = obterAnormalidadeLeitura(colecaoAnormalidadeLeitura);
+		// Obtém a leitura anormalidade
+		LeituraAnormalidade leituraAnormalidade = obterAnormalidadeLeitura(colecaoAnormalidadeLeitura);
 
-		medicaoHistorico.getLeituraAnormalidadeFaturamento().setLeituraAnormalidadeConsumoSemleitura(anormalidade.getLeituraAnormalidadeConsumoSemleitura());
-		medicaoHistorico.getLeituraAnormalidadeFaturamento().setLeituraAnormalidadeConsumoComleitura(anormalidade.getLeituraAnormalidadeConsumoComleitura());
-		medicaoHistorico.getLeituraAnormalidadeFaturamento().setLeituraAnormalidadeLeituraSemleitura(anormalidade.getLeituraAnormalidadeLeituraSemleitura());
-		medicaoHistorico.getLeituraAnormalidadeFaturamento().setLeituraAnormalidadeLeituraComleitura(anormalidade.getLeituraAnormalidadeLeituraComleitura());
+		// Seta a leitura anormalidade faturamento
+		medicaoHistorico.getLeituraAnormalidadeFaturamento()
+				.setLeituraAnormalidadeConsumoSemleitura(
+						leituraAnormalidade
+								.getLeituraAnormalidadeConsumoSemleitura());
 
+		medicaoHistorico.getLeituraAnormalidadeFaturamento()
+				.setLeituraAnormalidadeConsumoComleitura(
+						leituraAnormalidade
+								.getLeituraAnormalidadeConsumoComleitura());
+
+		medicaoHistorico.getLeituraAnormalidadeFaturamento()
+				.setLeituraAnormalidadeLeituraSemleitura(
+						leituraAnormalidade
+								.getLeituraAnormalidadeLeituraSemleitura());
+
+		medicaoHistorico.getLeituraAnormalidadeFaturamento()
+				.setLeituraAnormalidadeLeituraComleitura(
+						leituraAnormalidade
+								.getLeituraAnormalidadeLeituraComleitura());
+
+		// Caso a leitura atual informada seja zero
 		if (medicaoHistorico.getLeituraAtualInformada() == null) {
 
+			// Vivianne Sousa 19/08/2009 analista:Rosana
+			// O sistema gera a Anormalidade de Consumo com o valor
+			// correspondente
+			// a anormalidade de leitura da tabela CONSUMO_ANORMALIDADE
 			if (consumoHistorico.getConsumoAnormalidade() != null
-					&& !consumoHistorico.getConsumoAnormalidade().getId().equals(ConsumoAnormalidade.HIDROMETRO_SUBSTITUIDO_INFORMADO)) {
+					&& !consumoHistorico
+							.getConsumoAnormalidade()
+							.getId()
+							.equals(ConsumoAnormalidade.HIDROMETRO_SUBSTITUIDO_INFORMADO)) {
 
-				ConsumoAnormalidade consumoAnormalidade = new ConsumoAnormalidade(ConsumoAnormalidade.ANORMALIDADE_DE_LEITURA);
+				ConsumoAnormalidade consumoAnormalidade = new ConsumoAnormalidade();
+				consumoAnormalidade
+						.setId(ConsumoAnormalidade.ANORMALIDADE_DE_LEITURA);
 				consumoHistorico.setConsumoAnormalidade(consumoAnormalidade);
 			}
 
-			if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoSemleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.NAO_OCORRE.intValue()) {
-
-				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(consumoMedioHidrometro[0]));
+			// Caso a leitura anormalidade consumo sem leitura seja igual a
+			// leitura anormalidade consumo não ocorre
+			if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoSemleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.NAO_OCORRE
+					.intValue()) {
+				// Consumo a ser cobrado no mês será o consumo médio do
+				// hidrômetro
+				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(
+						consumoMedioHidrometro[0]));
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.MEDIA_HIDROMETRO);
+				// Caso a leitura anormalidade consumo sem leitura seja igual a
+				// leitura anormalidade consumo mínimo
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoSemleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.MINIMO.intValue()) {
+				/*
+				 * Data: 21/05/2009 Autor: Bruno Barros Analista: Sávio
+				 * 
+				 * Alteração solicitada: O consumo a ser cobrado no mes será o
+				 * valor retornado <<inclui>> [UC0105] - Obter consumo minino da
+				 * ligação.
+				 */
+				// Consumo a ser cobrado no mês será zero
+				consumoHistorico.setNumeroConsumoFaturadoMes(this
+						.obterConsumoMinimoLigacao(imovel, null));
+				/*
+				 * FIM ALTERAÇÃO BRUNO BARROS
+				 * 
+				 * Código Anterior: // Consumo a ser cobrado no mês será zero
+				 * consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(0));
+				 */
 
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoSemleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.MINIMO.intValue()) {
-
-				consumoHistorico.setNumeroConsumoFaturadoMes(this.obterConsumoMinimoLigacao(imovel, null));
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.SEM_CONSUMO);
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoSemleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.MEDIA.intValue()) {
+				// Consumo a ser cobrado no mês será o consumo médio do
+				// hidrômetro
 
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoSemleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.MEDIA.intValue()) {
-
-				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(consumoMedioHidrometro[0]));
+				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(
+						consumoMedioHidrometro[0]));
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.MEDIA_HIDROMETRO);
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoSemleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.NAO_MEDIDO
+					.intValue()) {
 
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoSemleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.NAO_MEDIDO.intValue()) {
-
-				Short indicadorNaoMedidoTarifa = sistemaParametro.getIndicadorNaoMedidoTarifa();
+				Short IndicadorNaoMedidoTarifa = sistemaParametro
+						.getIndicadorNaoMedidoTarifa();
 				Integer consumo = new Integer(0);
 
-				if (indicadorNaoMedidoTarifa.compareTo(ConstantesSistema.SIM) == 0) {
+				if (IndicadorNaoMedidoTarifa.compareTo(ConstantesSistema.SIM) == 0) {
+					// Consumo a ser cobrado no mês será o consumo para ligação
+					// não medida
+					// por tarifa
 					consumo = this.obterConsumoMinimoLigacao(imovel, null);
 					consumoHistorico.setNumeroConsumoFaturadoMes(consumo);
+				} else if (IndicadorNaoMedidoTarifa
+						.compareTo(ConstantesSistema.NAO) == 0) {
+					/*
+					 * RM 954 – Alteração para adequação da implantação da
+					 * COSAMA. Cálculo do consumo não medido por ponto de
+					 * utilização ou número de moradores. Mariana Victor em
+					 * 23/05/2011 - Analista: Rosana Carvalho
+					 */
+					if (sistemaParametro.getCodigoTipoCalculoNaoMedido() != null
+							&& sistemaParametro.getCodigoTipoCalculoNaoMedido()
+									.equals(new Integer(1))) {
 
-				} else if (indicadorNaoMedidoTarifa.compareTo(ConstantesSistema.NAO) == 0) {
-
-					if (sistemaParametro.getCodigoTipoCalculoNaoMedido() != null 
-							&& sistemaParametro.getCodigoTipoCalculoNaoMedido().equals(new Integer(1))) {
-
-						consumo = this.obterConsumoNaoMedidoSemTarifa(imovel.getId(), sistemaParametro.getAnoMesFaturamento());
+						// Consumo a ser cobrado no mês será o consumo para
+						// ligação não medida
+						// sem ser por tarifa
+						consumo = this.obterConsumoNaoMedidoSemTarifa(imovel.getId(),
+								sistemaParametro.getAnoMesFaturamento());
 						consumoHistorico.setNumeroConsumoFaturadoMes(consumo);
 
 					} else if (sistemaParametro.getCodigoTipoCalculoNaoMedido() != null
-							&& (sistemaParametro.getCodigoTipoCalculoNaoMedido().equals(new Integer(2)) 
-									|| sistemaParametro.getCodigoTipoCalculoNaoMedido().equals(new Integer(3)))) {
+							&& (sistemaParametro
+									.getCodigoTipoCalculoNaoMedido().equals(
+											new Integer(2)) || sistemaParametro
+									.getCodigoTipoCalculoNaoMedido().equals(
+											new Integer(3)))) {
 
-						consumo = this.obterConsumoNaoMedidoPorParametro(imovel.getId(), sistemaParametro.getAnoMesFaturamento(), null);
+						/**
+						 * Colocado por Mariana Victor em 23/05/2011 - Analista:
+						 * Rosana Carvalho [UC0000] - Obter Consumo Não Medido
+						 * Por Parâmetro
+						 */
+						consumo = this.obterConsumoNaoMedidoPorParametro(
+								imovel.getId(),
+								sistemaParametro.getAnoMesFaturamento(), null);
 						consumoHistorico.setNumeroConsumoFaturadoMes(consumo);
 					}
 				}
+
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.ESTIMADO);
 			}
-			
-			if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeLeituraSemleitura().getId().intValue() 
-					== LeituraAnormalidadeLeitura.ANTERIOR_MAIS_MEDIA.intValue()) {
-				
-				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior + consumoMedioHidrometro[0]);
-
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeLeituraSemleitura().getId().intValue() 
-					== LeituraAnormalidadeLeitura.ANTERIOR.intValue()) {
-			
+			// Identifica a anormalidade leitura sem leitura
+			if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeLeituraSemleitura().getId()
+					.intValue() == LeituraAnormalidadeLeitura.ANTERIOR_MAIS_MEDIA
+					.intValue()) {
+				// Leitura atual de faturamento será a anterior mais a média
+				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior
+						+ consumoMedioHidrometro[0]);
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeLeituraSemleitura().getId()
+					.intValue() == LeituraAnormalidadeLeitura.ANTERIOR
+					.intValue()) {
+				// Leitura atual de faturamento será a igual a anterior
 				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior);
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeLeituraSemleitura().getId()
+					.intValue() == LeituraAnormalidadeLeitura.ANTERIOR_MAIS_CONSUMO
+					.intValue()) {
+				// Leitura atual de faturamento será a leitura anterior mais
+				// consumo cobrado mes
+				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior
+						+ consumoHistorico.getNumeroConsumoFaturadoMes()
+								.intValue());
+			}
+
+			// 1.1.4. O sistema deverá aplicar o fator definido sem leitura no
+			// sistema ao consumo apurado
+			// de acordo com o definido na anormalidade especificada
+			// (LTAN_NNFATORSEMLEITURA da tabela LEITURA_ANORMALIDADE
+			// com LTAN_ID = anormalidade informada).
+			if (consumoHistorico.getNumeroConsumoFaturadoMes() != null
+					&& leituraAnormalidade.getNumeroFatorSemLeitura() != null) {
+
+				BigDecimal consumoFaturadoMesSemLeitura = new BigDecimal(
+						consumoHistorico.getNumeroConsumoFaturadoMes());
+
+				consumoFaturadoMesSemLeitura = leituraAnormalidade
+						.getNumeroFatorSemLeitura().multiply(
+								consumoFaturadoMesSemLeitura);
+
+				consumoHistorico
+						.setNumeroConsumoFaturadoMes(consumoFaturadoMesSemLeitura
+								.intValue());
+
+			}
 			
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeLeituraSemleitura().getId().intValue() 
-					== LeituraAnormalidadeLeitura.ANTERIOR_MAIS_CONSUMO.intValue()) {
-
-				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior + consumoHistorico.getNumeroConsumoFaturadoMes().intValue());
-			}
-
-			if (consumoHistorico.getNumeroConsumoFaturadoMes() != null && anormalidade.getNumeroFatorSemLeitura() != null) {
-
-				BigDecimal consumoFaturadoMesSemLeitura = new BigDecimal(consumoHistorico.getNumeroConsumoFaturadoMes());
-
-				consumoFaturadoMesSemLeitura = anormalidade.getNumeroFatorSemLeitura().multiply(consumoFaturadoMesSemLeitura);
-
-				consumoHistorico.setNumeroConsumoFaturadoMes(consumoFaturadoMesSemLeitura.intValue());
-
-			}
-
 			consumoHistorico.setConsumoTipo(consumoTipo);
-			determinarAjusteMensal(medicaoHistorico, consumoHistorico, imovel, rota, consumoMedioHidrometro[0], sistemaParametro);
 
+			determinarAjusteMensal(medicaoHistorico, consumoHistorico, imovel,
+					rota, consumoMedioHidrometro[0], sistemaParametro);
+			
+			// Caso leitura atual informada diferente de zero
 		} else if (medicaoHistorico.getLeituraAtualInformada() != null) {
-
-			if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoComleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.NAO_OCORRE.intValue()) {
-
-				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(consumoMedioHidrometro[0]));
+			// Caso a leitura anormalidade leitura com leitura seja igual a
+			// leitura anormalidade consumo não ocorre
+			if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoComleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.NAO_OCORRE
+					.intValue()) {
+				// O consumo a ser cobrado no mes será o consumo médio do
+				// hidrômetro
+				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(
+						consumoMedioHidrometro[0]));
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.MEDIA_HIDROMETRO);
-				
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoComleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.MINIMO.intValue()) {
-
+			}
+			// Caso a leitura anormalidade leitura com leitura seja igual a
+			// leitura anormalidade consumo mínimo
+			else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoComleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.MINIMO.intValue()) {
+				// Consumo a ser cobrado no mês será zero
 				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(0));
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.SEM_CONSUMO);
+				// Caso a leitura anormalidade leitura com leitura seja igual a
+				// leitura anormalidade consumo médio
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoComleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.MEDIA.intValue()) {
+				// Consumo a ser cobrado no mês será o consumo médio do
+				// hidrômetro
 
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoComleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.MEDIA.intValue()) {
-
-				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(consumoMedioHidrometro[0]));
+				consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(
+						consumoMedioHidrometro[0]));
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.MEDIA_HIDROMETRO);
+				// Caso a leitura anormalidade leitura com leitura seja igual a
+				// leitura anormalidade consumo normal
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoComleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.NORMAL.intValue()) {
+				// Consumo a ser cobrado no mês será o já calculado
+				consumoHistorico.setNumeroConsumoFaturadoMes(consumoHistorico
+						.getNumeroConsumoFaturadoMes());
 
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoComleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.NORMAL.intValue()) {
-
-				consumoHistorico.setNumeroConsumoFaturadoMes(consumoHistorico.getNumeroConsumoFaturadoMes());
-
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoComleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.MAIOR_ENTRE_CONSUMO_MEDIO_HIDROMETRO_CONSUMO_MEDIDO.intValue()) {
-
-				if (consumoMedioHidrometro[0] > consumoHistorico.getNumeroConsumoFaturadoMes().intValue()) {
-					consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(consumoMedioHidrometro[0]));
+				// Caso a leitura anormalidade leitura com leitura seja igual a
+				// leitura anormalidade consumo medido
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoComleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.MAIOR_ENTRE_CONSUMO_MEDIO_HIDROMETRO_CONSUMO_MEDIDO
+					.intValue()) {
+				// Caso o consumo médio hidrômetro seja maior que o consumo
+				// medido
+				if (consumoMedioHidrometro[0] > consumoHistorico
+						.getNumeroConsumoFaturadoMes().intValue()) {
+					// Consumo a ser cobrado no mês será o já calculado
+					consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(
+							consumoMedioHidrometro[0]));
+					// Seta o tipo de consumo
 					consumoTipo.setId(ConsumoTipo.MEDIA_HIDROMETRO);
 				} else {
-					consumoHistorico.setNumeroConsumoFaturadoMes(consumoHistorico.getNumeroConsumoFaturadoMes());
+					consumoHistorico
+							.setNumeroConsumoFaturadoMes(consumoHistorico
+									.getNumeroConsumoFaturadoMes());
+
 				}
 
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoComleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.MENOR_ENTRE_CONSUMO_MEDIO_HIDROMETRO_CONSUMO_MEDIDO.intValue()) {
-
-				if (consumoMedioHidrometro[0] < consumoHistorico.getNumeroConsumoFaturadoMes().intValue()) {
-					consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(consumoMedioHidrometro[0]));
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoComleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.MENOR_ENTRE_CONSUMO_MEDIO_HIDROMETRO_CONSUMO_MEDIDO
+					.intValue()) {
+				// Caso o consumo médio hidrômetro seja menor que o consumo
+				// medido
+				if (consumoMedioHidrometro[0] < consumoHistorico
+						.getNumeroConsumoFaturadoMes().intValue()) {
+					// Consumo a ser cobrado no mês será o consumo médio do
+					// hidrômetro
+					consumoHistorico.setNumeroConsumoFaturadoMes(new Integer(
+							consumoMedioHidrometro[0]));
+					// Seta o tipo de consumo
 					consumoTipo.setId(ConsumoTipo.MEDIA_HIDROMETRO);
 				} else {
-					consumoHistorico.setNumeroConsumoFaturadoMes(medicaoHistorico.getNumeroConsumoMes());
+					consumoHistorico
+							.setNumeroConsumoFaturadoMes(medicaoHistorico
+									.getNumeroConsumoMes());
+
 				}
 
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeConsumoComleitura().getId().intValue() 
-					== LeituraAnormalidadeConsumo.NAO_MEDIDO.intValue()) {
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeConsumoComleitura().getId()
+					.intValue() == LeituraAnormalidadeConsumo.NAO_MEDIDO
+					.intValue()) {
 
-				Short indicadorNaoMedidoTarifa = sistemaParametro.getIndicadorNaoMedidoTarifa();
+				Short IndicadorNaoMedidoTarifa = sistemaParametro
+						.getIndicadorNaoMedidoTarifa();
 				Integer consumo = new Integer(0);
-				
-				if (indicadorNaoMedidoTarifa.compareTo(ConstantesSistema.SIM) == 0) {
-				
+				if (IndicadorNaoMedidoTarifa.compareTo(ConstantesSistema.SIM) == 0) {
+					// Consumo a ser cobrado no mês será o consumo para ligação
+					// não medida
+					// por tarifa
 					consumo = this.obterConsumoMinimoLigacao(imovel, null);
 					consumoHistorico.setNumeroConsumoFaturadoMes(consumo);
-				
-				} else if (indicadorNaoMedidoTarifa.compareTo(ConstantesSistema.NAO) == 0) {
+				} else if (IndicadorNaoMedidoTarifa
+						.compareTo(ConstantesSistema.NAO) == 0) {
+					/*
+					 * RM 954 – Alteração para adequação da implantação da
+					 * COSAMA. Cálculo do consumo não medido por ponto de
+					 * utilização ou número de moradores. Mariana Victor em
+					 * 23/05/2011 - Analista: Rosana Carvalho
+					 */
+					if (sistemaParametro.getCodigoTipoCalculoNaoMedido() != null
+							&& sistemaParametro.getCodigoTipoCalculoNaoMedido()
+									.equals(new Integer(1))) {
 
-					if (sistemaParametro.getCodigoTipoCalculoNaoMedido() != null 
-							&& sistemaParametro.getCodigoTipoCalculoNaoMedido().equals(new Integer(1))) {
-
-						consumo = this.obterConsumoNaoMedidoSemTarifa(imovel.getId(), sistemaParametro.getAnoMesFaturamento());
+						// Consumo a ser cobrado no mês será o consumo para
+						// ligação não medida
+						// sem ser por tarifa
+						consumo = this.obterConsumoNaoMedidoSemTarifa(imovel.getId(),
+								sistemaParametro.getAnoMesFaturamento());
 						consumoHistorico.setNumeroConsumoFaturadoMes(consumo);
 
 					} else if (sistemaParametro.getCodigoTipoCalculoNaoMedido() != null
-							&& (sistemaParametro.getCodigoTipoCalculoNaoMedido().equals(new Integer(2)) 
-									|| sistemaParametro.getCodigoTipoCalculoNaoMedido().equals(new Integer(3)))) {
+							&& (sistemaParametro
+									.getCodigoTipoCalculoNaoMedido().equals(
+											new Integer(2)) || sistemaParametro
+									.getCodigoTipoCalculoNaoMedido().equals(
+											new Integer(3)))) {
 
-						consumo = this.obterConsumoNaoMedidoPorParametro(imovel.getId(), sistemaParametro.getAnoMesFaturamento(), null);
+						/**
+						 * Colocado por Mariana Victor em 23/05/2011 - Analista:
+						 * Rosana Carvalho [UC0000] - Obter Consumo Não Medido
+						 * Por Parâmetro
+						 */
+						consumo = this.obterConsumoNaoMedidoPorParametro(
+								imovel.getId(),
+								sistemaParametro.getAnoMesFaturamento(), null);
 						consumoHistorico.setNumeroConsumoFaturadoMes(consumo);
 					}
 				}
 
+				// Seta o tipo de consumo
 				consumoTipo.setId(ConsumoTipo.ESTIMADO);
 			}
-			
-			if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeLeituraComleitura().getId().intValue() 
-					== LeituraAnormalidadeLeitura.ANTERIOR_MAIS_MEDIA.intValue()) {
-			
-				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior + consumoMedioHidrometro[0]);
-
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeLeituraComleitura().getId().intValue() 
-					== LeituraAnormalidadeLeitura.ANTERIOR.intValue()) {
-
+			// Caso a leitura anormalidade leitura com leitura
+			// seja igual a leitura anormaliade leitura ->
+			// <<anterior mais média>>
+			if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeLeituraComleitura().getId()
+					.intValue() == LeituraAnormalidadeLeitura.ANTERIOR_MAIS_MEDIA
+					.intValue()) {
+				// Seta a leitura atual de faturamento
+				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior
+						+ consumoMedioHidrometro[0]);
+				// <<anterior>>
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeLeituraComleitura().getId()
+					.intValue() == LeituraAnormalidadeLeitura.ANTERIOR
+					.intValue()) {
+				// Seta a leitura atual de faturamento
 				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior);
-			
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeLeituraComleitura().getId().intValue() 
-					== LeituraAnormalidadeLeitura.ANTERIOR_MAIS_CONSUMO.intValue()) {
+				// <<anterior mais consumo>>
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeLeituraComleitura().getId()
+					.intValue() == LeituraAnormalidadeLeitura.ANTERIOR_MAIS_CONSUMO
+					.intValue()) {
 
-				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior + consumoHistorico.getNumeroConsumoFaturadoMes().intValue());
-
-			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento().getLeituraAnormalidadeLeituraComleitura().getId().intValue() 
-					== LeituraAnormalidadeLeitura.INFORMADA.intValue()) {
-				
-				medicaoHistorico.setLeituraAtualFaturamento(medicaoHistorico.getLeituraAtualFaturamento());
+				medicaoHistorico.setLeituraAtualFaturamento(leituraAnterior
+						+ consumoHistorico.getNumeroConsumoFaturadoMes()
+								.intValue());
+				// <<leitura informada>>
+			} else if (medicaoHistorico.getLeituraAnormalidadeFaturamento()
+					.getLeituraAnormalidadeLeituraComleitura().getId()
+					.intValue() == LeituraAnormalidadeLeitura.INFORMADA
+					.intValue()) {
+				medicaoHistorico.setLeituraAtualFaturamento(medicaoHistorico
+						.getLeituraAtualFaturamento());
 			}
 
-			if (consumoHistorico.getNumeroConsumoFaturadoMes() != null && anormalidade.getNumeroFatorComLeitura() != null) {
+			// 1.2.3. O sistema deverá aplicar o fator definido com leitura no
+			// sistema ao consumo apurado de acordo com o
+			// definido na anormalidade especificada (LTAN_NNFATORCOMLEITURA da
+			// tabela LEITURA_ANORMALIDADE
+			// com LTAN_ID = anormalidade informada).
+			if (consumoHistorico.getNumeroConsumoFaturadoMes() != null
+					&& leituraAnormalidade.getNumeroFatorComLeitura() != null) {
 
-				BigDecimal consumoFaturadoMesComLeitura = new BigDecimal(consumoHistorico.getNumeroConsumoFaturadoMes());
+				BigDecimal consumoFaturadoMesComLeitura = new BigDecimal(
+						consumoHistorico.getNumeroConsumoFaturadoMes());
 
-				consumoFaturadoMesComLeitura = anormalidade.getNumeroFatorComLeitura().multiply(consumoFaturadoMesComLeitura);
+				consumoFaturadoMesComLeitura = leituraAnormalidade
+						.getNumeroFatorComLeitura().multiply(
+								consumoFaturadoMesComLeitura);
 
-				consumoHistorico.setNumeroConsumoFaturadoMes(consumoFaturadoMesComLeitura.intValue());
+				consumoHistorico
+						.setNumeroConsumoFaturadoMes(consumoFaturadoMesComLeitura
+								.intValue());
 
 			}
 		}
 
+		// Atualiza o consumo histórico
 		if (consumoTipo.getId() != null) {
 			consumoHistorico.setConsumoTipo(consumoTipo);
 		}
@@ -37171,7 +37405,20 @@ public class ControladorMicromedicao implements SessionBean {
 		}
 	}
 
-	public int[] obterVolumeMedioAguaEsgoto(Integer idImovel, Integer anoMesreferencia, Integer idLigacaoTipo, boolean houveInstalacaoHidrometro) 
+	/**
+	 * [UCXXXX] - Obter Volume Medio Agua ou Esgoto RM4548
+	 * 
+	 * @author Ivan Sergio
+	 * @data 13/12/2010
+	 * 
+	 * @param idImovel
+	 * @param faturamentoGrupo
+	 * @param idLigacaoTipo
+	 * @return houveIntslacaoHidrometro
+	 * @throws ControladorException
+	 */			
+	public int[] obterVolumeMedioAguaEsgoto(Integer idImovel,
+			Integer anoMesreferencia, Integer idLigacaoTipo, boolean houveInstalacaoHidrometro)
 			throws ControladorException {
 
 		int[] retorno = new int[2];
@@ -37192,18 +37439,31 @@ public class ControladorMicromedicao implements SessionBean {
 			throw new ControladorException("erro.sistema", e);
 		}
 
+		// Seta a Referencia Final
 		amReferenciaFinal = Util.subtrairMesDoAnoMes(anoMesreferencia, 1);
-		amReferenciaInicial = Util.subtrairMesDoAnoMes(amReferenciaFinal, sistemaParametro.getMesesMediaConsumo());
 
-		Integer numeroMesesMaximoCalculoMedia = sistemaParametro.getNumeroMesesMaximoCalculoMedia().intValue();
+		// Seta a Referencia Inicial
+		amReferenciaInicial = Util.subtrairMesDoAnoMes(amReferenciaFinal,
+				sistemaParametro.getMesesMediaConsumo());
 
-		Integer amReferenciaInicialMaximo = Util.subtrairMesDoAnoMes(amReferenciaInicial, numeroMesesMaximoCalculoMedia);
+		// Recupera o numero maximo de meses para o calculo da media
+		Integer numeroMesesMaximoCalculoMedia = sistemaParametro
+				.getNumeroMesesMaximoCalculoMedia().intValue();
 
-		int quantidadeMesesPeriodoInformado = Util.retornaQuantidadeMeses(amReferenciaFinal, amReferenciaInicial);
+		// Seta o novo periodo inicial
+		Integer amReferenciaInicialMaximo = Util.subtrairMesDoAnoMes(
+				amReferenciaInicial, numeroMesesMaximoCalculoMedia);
+
+		// Verifica a quantidade de meses do intervalo
+		int quantidadeMesesPeriodoInformado = Util.retornaQuantidadeMeses(
+				amReferenciaFinal, amReferenciaInicial);
 		int quantidadeMesesConsiderados = 0;
 
 		try {
-			dadosConsumo = this.repositorioMicromedicao.obterVolumeMedioAguaOuEsgoto(idImovel, amReferenciaInicialMaximo, amReferenciaFinal, idLigacaoTipo);
+			dadosConsumo = this.repositorioMicromedicao
+					.obterVolumeMedioAguaOuEsgoto(idImovel,
+							amReferenciaInicialMaximo, amReferenciaFinal,
+							idLigacaoTipo);
 		} catch (ErroRepositorioException e) {
 			throw new ControladorException("erro.sistema", e);
 		}
@@ -37215,7 +37475,8 @@ public class ControladorMicromedicao implements SessionBean {
 			Boolean retroagir = false;
 			Boolean fimCalculo = false;
 
-			while (!fimCalculo && (quantidadeMesesRetroagidos <= numeroMesesMaximoCalculoMedia)
+			while (!fimCalculo
+					&& (quantidadeMesesRetroagidos <= numeroMesesMaximoCalculoMedia)
 					&& (quantidadeMesesConsiderados < quantidadeMesesPeriodoInformado)) {
 				if (amReferenciaFinal.equals(referencia)) {
 					consumo += (Integer) dados[1];
@@ -37236,7 +37497,8 @@ public class ControladorMicromedicao implements SessionBean {
 					if (retroagir) {
 						quantidadeMesesRetroagidos++;
 					}
-					amReferenciaFinal = Util.subtrairMesDoAnoMes(amReferenciaFinal, 1);
+					amReferenciaFinal = Util.subtrairMesDoAnoMes(
+							amReferenciaFinal, 1);
 				} else {
 					fimCalculo = true;
 				}
@@ -37252,7 +37514,8 @@ public class ControladorMicromedicao implements SessionBean {
 			 * que não tenhão consumo histórico, será colocado como média o seu
 			 * consumo mínimo.
 			 */
-			Integer idConsumoTarifa = this.getControladorImovel().recuperarIdConsumoTarifa(idImovel);
+			Integer idConsumoTarifa = this.getControladorImovel()
+					.recuperarIdConsumoTarifa(idImovel);
 
 			ConsumoTarifa consumoTarifa = new ConsumoTarifa();
 			consumoTarifa.setId(idConsumoTarifa);
@@ -40913,7 +41176,7 @@ public class ControladorMicromedicao implements SessionBean {
 	
 			if (consumoLigacaoImovelCondominio != null) {
 				consumoImovelCondomino = consumoLigacaoImovelCondominio;
-		}
+			}
 		
 		/*
 		 * O consumo de água a ser rateado vai ser igual ao consumo da ligação
@@ -40933,21 +41196,7 @@ public class ControladorMicromedicao implements SessionBean {
 		return consumoASerRateado;
 	}
 	
-	/**
-	 * TODO : COSANPA
-	 * Pamela Gatinho - 31/05/2012
-	 * 
-	 * Metodo que calcula a soma do consumo de todos os micros, de acordo
-	 * com o tipo de ligacao informada
-	 * 
-	 * @param idImovelCondominio
-	 * @param anoMesFaturamento
-	 * @param ligacaoTipo
-	 * @return
-	 * @throws ErroRepositorioException
-	 */
-	private int obterConsumoLigacaoImoveisVinculados(Integer idImovelCondominio, Integer anoMesFaturamento, Integer ligacaoTipo) 
-		throws ErroRepositorioException {
+	private int obterConsumoLigacaoImoveisVinculados(Integer idImovelCondominio, Integer anoMesFaturamento, Integer ligacaoTipo) throws ErroRepositorioException {
 		
 		int consumoImoveisVinculados = 0;
 		
@@ -40985,19 +41234,10 @@ public class ControladorMicromedicao implements SessionBean {
 		return consumoImoveisVinculados;
 	}
 	
-	/**
-	 * TODO : COSANPA
-	 * Pamela Gatinho - 31/05/2012
-	 * Refatoracao do metodo efetuarRateioDeConsumo
-	 * 
-	 * @param dadosImovelVinculado
-	 * @return Imovel
-	 */
 	private Imovel converterImovelVinculado(Object[] dadosImovelVinculado) {
 
 		Integer idImovelVinculado = (Integer) dadosImovelVinculado[0];
 		
-		// Obtem quantidade de economias
 		Short quantidadeEconomia = (Short) dadosImovelVinculado[1];
 		Integer idSituacaoLigacaoAguaImovelVinculado = (Integer) dadosImovelVinculado[2];
 		Short indFatSitLigacaoAguaImovelVinculado = (Short) dadosImovelVinculado[8];
@@ -41046,20 +41286,6 @@ public class ControladorMicromedicao implements SessionBean {
 		return imovelVinculado;
 	}
 	
-	
-
-	/**
-	 * TODO : COSANPA 
-	 * Pamela Gatinho - 31/05/2012
-	 * 
-	 * Metodo que soma a quantidade de economias de
-	 * todos os imóveis micros do condomínio
-	 * 
-	 * @param idImovelCondominio
-	 * @param anoMesFaturamento
-	 * @return quantidadeEconomias
-	 * @throws ErroRepositorioException 
-	 */
 	public int obterQuantidadeEconomiasCondominio (Integer idImovelCondominio, Integer anoMesFaturamento) {
 		int quantidadeEconomias = 0;
 
@@ -41072,19 +41298,12 @@ public class ControladorMicromedicao implements SessionBean {
 		
 			Iterator iteratorImoveisVinculados = imoveisVinculadosArrayObject.iterator();
 			
-			//Para cada imovel vinculado ao condominio
 			while (iteratorImoveisVinculados.hasNext()) {
 				
-				// Recupera os dados do imóvel vinculado
 				Object[] dadosImovelVinculado = (Object[]) iteratorImoveisVinculados.next();
-				
-				// Obtem o objeto imovel
 				Imovel imovelVinculado = this.converterImovelVinculado(dadosImovelVinculado);
 				
-//				if (getControladorImovel().isFaturamentoAguaAtivo(imovelVinculado)
-//						|| getControladorImovel().isFaturamentoEsgotoAtivo(imovelVinculado)) {
-					quantidadeEconomias = quantidadeEconomias + imovelVinculado.getQuantidadeEconomias();
-//				}
+				quantidadeEconomias = quantidadeEconomias + imovelVinculado.getQuantidadeEconomias();
 			}
 		
 		} catch (ErroRepositorioException e) {
