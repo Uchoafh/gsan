@@ -41622,6 +41622,8 @@ public class ControladorMicromedicao implements SessionBean {
 	
 	public void incluirMedicaoHistoricoFaturamentoSeletivo(ImovelFaturamentoSeletivo imovelFaturamentoSeletivo) throws Exception {
 		
+		SistemaParametro sistemaParametro = getControladorUtil().pesquisarParametrosDoSistema();
+		
 		LigacaoAgua ligacaoAgua = this.obterLigacaoAgua(imovelFaturamentoSeletivo.getIdImovel());
 		Imovel imovel = getControladorImovel().pesquisarImovel(imovelFaturamentoSeletivo.getIdImovel());
 		MedicaoTipo medicaoTipo = new MedicaoTipo(MedicaoTipo.LIGACAO_AGUA);
@@ -41629,7 +41631,7 @@ public class ControladorMicromedicao implements SessionBean {
 		FaturamentoGrupo grupo = getControladorImovel().pesquisarGrupoImovel(ligacaoAgua.getId());
 		Integer anoMesAnterior = Util.subtrairMesDoAnoMes(new Integer(grupo.getAnoMesReferencia()).intValue(), 1);
 		
-		MedicaoHistorico medicaoAnterior = this.pesquisarMedicaoHistoricoAnterior(ligacaoAgua.getId(),anoMesAnterior, medicaoTipo.getId());
+		//MedicaoHistorico medicaoAnterior = this.pesquisarMedicaoHistoricoAnterior(ligacaoAgua.getId(),anoMesAnterior, medicaoTipo.getId());
 		
 		boolean houveIntslacaoHidrometro = this.verificarInstalacaoSubstituicaoHidrometro(ligacaoAgua.getId(),medicaoTipo);
 		
@@ -41638,15 +41640,17 @@ public class ControladorMicromedicao implements SessionBean {
 		
 		MedicaoHistorico medicaoHistorico = new MedicaoHistorico();
 		
+		medicaoHistorico = verificarExistenciaHistoricoMedicao(grupo,medicaoHistorico, imovel, medicaoTipo, sistemaParametro);
+		
 		SimpleDateFormat dataFormatada = new SimpleDateFormat("dd/MM/yyyy");
 		Date dataLeituraInformada = dataFormatada.parse(imovelFaturamentoSeletivo.getDataLeitura());
 		
 		medicaoHistorico.setAnoMesReferencia(grupo.getAnoMesReferencia());
 		medicaoHistorico.setConsumoMedioHidrometro(consumoMedioHidrometro[0]);
-		medicaoHistorico.setDataLeituraAnteriorFaturamento(medicaoAnterior.getDataLeituraAtualFaturamento());
-		medicaoHistorico.setLeituraAnteriorFaturamento(medicaoAnterior.getLeituraAtualFaturamento());
-		medicaoHistorico.setLeituraAnteriorInformada(medicaoAnterior.getLeituraAnteriorInformada());
-		medicaoHistorico.setLeituraSituacaoAnterior(medicaoAnterior.getLeituraSituacaoAtual());
+		//medicaoHistorico.setDataLeituraAnteriorFaturamento(medicaoAnterior.getDataLeituraAtualFaturamento());
+		//medicaoHistorico.setLeituraAnteriorFaturamento(medicaoAnterior.getLeituraAtualFaturamento());
+		//medicaoHistorico.setLeituraAnteriorInformada(medicaoAnterior.getLeituraAnteriorInformada());
+		//medicaoHistorico.setLeituraSituacaoAnterior(medicaoAnterior.getLeituraSituacaoAtual());
 		medicaoHistorico.setDataLeituraAtualInformada(dataLeituraInformada);
 		medicaoHistorico.setHidrometroInstalacaoHistorico(ligacaoAgua.getHidrometroInstalacaoHistorico());
 		medicaoHistorico.setLeituraSituacaoAtual(new LeituraSituacao(LeituraSituacao.REALIZADA));

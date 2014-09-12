@@ -79,11 +79,9 @@ import gcom.relatorio.faturamento.conta.RelatorioContasCanceladasRetificadasHelp
 import gcom.seguranca.acesso.usuario.Usuario;
 import gcom.util.ControladorException;
 import gcom.util.ErroRepositorioException;
-import gcom.util.FachadaException;
 
 import java.io.BufferedReader;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -5677,11 +5675,11 @@ public interface IControladorFaturamento {
 	
 	public Integer countFaturasClienteResponsaveis(String anoMesReferencia) throws ControladorException;
 	
-	public void faturarImoveisSeletivo(Collection<ImovelFaturamentoSeletivo> colecaoImoveis) throws ControladorException;
-
 	public Conta incluirDebitoContaRetificadaPagamentosDiferenca2Reais(Integer idConta, DebitoACobrar debito) throws Exception;
 	
 	public Conta incluirCreditoContaRetificadaPagamentosDiferenca2Reais(Integer idConta, CreditoARealizar credito) throws Exception;
 	
+	public Collection pesquisarClienteContaECliente(Integer idConta, String cnpjEmpresa) throws ControladorException;
+
 	public void faturarImovelSeletivo(ImovelFaturamentoSeletivo imovelFaturamentoSeletivo) throws ControladorException;
 }

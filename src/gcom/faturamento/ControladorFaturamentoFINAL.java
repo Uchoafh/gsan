@@ -2213,41 +2213,46 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 					gerarDebitoCobradoHelper.setGerarImpostosDeduzidosContaHelper(gerarImpostosDeduzidosContaHelper);
 
-					Conta conta = this.gerarConta(imovel, anoMesFaturamento,
+					boolean contaNova = false;
+
+					Conta conta = this.obterContaImovel(imovel.getId(), anoMesFaturamento);
+
+					if (conta!= null) {
+						contaNova = true;
+					}
+					conta = this.gerarConta(imovel, anoMesFaturamento,
 							sistemaParametro, faturamentoAtivCronRota,
 							helperValoresAguaEsgoto, gerarDebitoCobradoHelper,
 							gerarCreditoRealizadoHelper,
 							gerarImpostosDeduzidosContaHelper,
 							faturamentoGrupo, faturamentoAntecipado,
-							preFaturamento);
+							preFaturamento, contaNova, conta);
 
-					GerarContaCategoriaHelper gerarContaCategoriaHelper = this.gerarContaCategoria(conta, colecaoCategoriaOUSubcategoria,
-									helperValoresAguaEsgoto.getColecaoCalcularValoresAguaEsgotoHelper(), sistemaParametro);
-
-					// INSERINDO CONTA_CATEGORIA NA BASE
-					if (gerarContaCategoriaHelper.getColecaoContaCategoria() != null
-							&& !gerarContaCategoriaHelper.getColecaoContaCategoria().isEmpty()) {
-						this.getControladorBatch().inserirColecaoObjetoParaBatch(gerarContaCategoriaHelper.getColecaoContaCategoria());
+					if (contaNova) {
+						GerarContaCategoriaHelper gerarContaCategoriaHelper = this.gerarContaCategoria(conta, colecaoCategoriaOUSubcategoria,
+								helperValoresAguaEsgoto.getColecaoCalcularValoresAguaEsgotoHelper(), sistemaParametro);
+						
+						// INSERINDO CONTA_CATEGORIA NA BASE
+						if (gerarContaCategoriaHelper.getColecaoContaCategoria() != null
+								&& !gerarContaCategoriaHelper.getColecaoContaCategoria().isEmpty()) {
+							this.getControladorBatch().inserirColecaoObjetoParaBatch(gerarContaCategoriaHelper.getColecaoContaCategoria());
+						}
+						
+						// INSERINDO CONTA_CATEGORIA_CONSUMO_FAIXA
+						if (gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa() != null
+								&& !gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa().isEmpty()) {
+							
+							this.getControladorBatch().inserirColecaoObjetoParaBatch(gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa());
+						}
+						this.inserirClienteConta(conta, imovel);
+						this.inserirContaImpostosDeduzidos(conta,gerarImpostosDeduzidosContaHelper);
+						this.inserirDebitoCobrado(gerarDebitoCobradoHelper.getMapDebitosCobrados(),conta);
+						this.inserirCreditoRealizado(gerarCreditoRealizadoHelper.getMapCreditoRealizado(), conta);
+						this.gerarContaImpressao(conta, faturamentoGrupo, imovel,faturamentoAtivCronRota.getRota());
 					}
 
-					// INSERINDO CONTA_CATEGORIA_CONSUMO_FAIXA
-					if (gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa() != null
-							&& !gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa().isEmpty()) {
-
-						this.getControladorBatch().inserirColecaoObjetoParaBatch(gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa());
-					}
-
-					this.inserirClienteConta(conta, imovel);
-					this.inserirContaImpostosDeduzidos(conta,gerarImpostosDeduzidosContaHelper);
-					this.inserirDebitoCobrado(gerarDebitoCobradoHelper.getMapDebitosCobrados(),conta);
-					
 					this.atualizarDebitoACobrarFaturamento(gerarDebitoCobradoHelper.getColecaoDebitoACobrar());
-
-					this.inserirCreditoRealizado(gerarCreditoRealizadoHelper.getMapCreditoRealizado(), conta);
-
 					this.atualizarCreditoARealizar(gerarCreditoRealizadoHelper.getColecaoCreditoARealizar());
-
-					this.gerarContaImpressao(conta, faturamentoGrupo, imovel,faturamentoAtivCronRota.getRota());
 
 					if (imovel.getIndicadorDebitoConta().equals(ConstantesSistema.SIM) && conta.getContaMotivoRevisao() == null) {
 						this.gerarMovimentoDebitoAutomatico(imovel, conta, faturamentoGrupo);
@@ -2899,7 +2904,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			boolean preFaturar,
 			Collection<ValorPorTipoRegistroHelper> colecaoValoresPorTipoDebito,
 			Collection<ValorPorTipoRegistroHelper> colecaoValoresPorTipoCredito,
-			BigDecimal valorImpostos) {
+ BigDecimal valorImpostos) {
 
 		// se tiver categoria e valores agua e esgoto, para os dados de
 		// quantidades e valores faturado de agua e esgoto
@@ -2911,112 +2916,67 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			// SF009 - Adiconar na coleção para gerar o resumo faturamento
 			// simulação
 			boolean adcionar = true;
-			if (colecaoResumoFaturamentoSimulacao != null
-					&& !colecaoResumoFaturamentoSimulacao.isEmpty()) {
+			if (colecaoResumoFaturamentoSimulacao != null && !colecaoResumoFaturamentoSimulacao.isEmpty()) {
 
-				Iterator iteratorColecaoResumoFaturamento = colecaoResumoFaturamentoSimulacao
-						.iterator();
+				Iterator iteratorColecaoResumoFaturamento = colecaoResumoFaturamentoSimulacao.iterator();
 
 				boolean achou = true;
 
 				while (iteratorColecaoResumoFaturamento.hasNext() && achou) {
 
 					// resumo faturamento simulçao na coleção
-					resumoFaturamentoSimulacaoHelperNaColecao = (ResumoFaturamentoSimulacaoHelper) iteratorColecaoResumoFaturamento
-							.next();
+					resumoFaturamentoSimulacaoHelperNaColecao = (ResumoFaturamentoSimulacaoHelper) iteratorColecaoResumoFaturamento.next();
 
-					resumoFaturamentoSimulacaoNaColecao = resumoFaturamentoSimulacaoHelperNaColecao
-							.getResumoFaturamentoSimulacao();
+					resumoFaturamentoSimulacaoNaColecao = resumoFaturamentoSimulacaoHelperNaColecao.getResumoFaturamentoSimulacao();
 
-					if (resumoFaturamentoSimulacaoNaColecao
-							.getAnoMesReferencia().intValue() == anoMesReferencia
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getFaturamentoGrupo().getId().intValue() == faturamentoAtivCronRota
-									.getRota().getFaturamentoGrupo().getId()
+					if (resumoFaturamentoSimulacaoNaColecao.getAnoMesReferencia().intValue() == anoMesReferencia
+							&& resumoFaturamentoSimulacaoNaColecao.getFaturamentoGrupo().getId().intValue() == faturamentoAtivCronRota.getRota()
+									.getFaturamentoGrupo().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getLocalidade().getId().intValue() == imovel.getLocalidade().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getQuadra().getId().intValue() == imovel.getQuadra().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getLigacaoAguaSituacao().getId().intValue() == imovel.getLigacaoAguaSituacao().getId()
 									.intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getLocalidade().getId().intValue() == imovel
-									.getLocalidade().getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao.getQuadra()
-									.getId().intValue() == imovel.getQuadra()
-									.getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getLigacaoAguaSituacao().getId()
-									.intValue() == imovel
-									.getLigacaoAguaSituacao().getId()
+							&& resumoFaturamentoSimulacaoNaColecao.getLigacaoEsgotoSituacao().getId().intValue() == imovel.getLigacaoEsgotoSituacao().getId()
 									.intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getLigacaoEsgotoSituacao().getId()
-									.intValue() == imovel
-									.getLigacaoEsgotoSituacao().getId()
-									.intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getCategoria().getId().intValue() == categoria
+							&& resumoFaturamentoSimulacaoNaColecao.getCategoria().getId().intValue() == categoria.getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getImovelPerfil().getId().intValue() == imovel.getImovelPerfil().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getIndicadorDebitoConta().shortValue() == imovel.getIndicadorDebitoConta().shortValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getGerenciaRegional().getId().intValue() == imovel.getLocalidade().getGerenciaRegional()
 									.getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getImovelPerfil().getId().intValue() == imovel
-									.getImovelPerfil().getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getIndicadorDebitoConta().shortValue() == imovel
-									.getIndicadorDebitoConta().shortValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getGerenciaRegional().getId().intValue() == imovel
-									.getLocalidade().getGerenciaRegional()
-									.getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getSetorComercial().getId().intValue() == imovel
-									.getSetorComercial().getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao.getRota()
-									.getId().intValue() == imovel.getQuadra()
-									.getRota().getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getLocalidade().getUnidadeNegocio()
-									.getId().intValue() == imovel
-									.getLocalidade().getUnidadeNegocio()
-									.getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getSetorComercial().getId().intValue() == imovel.getSetorComercial().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getRota().getId().intValue() == imovel.getQuadra().getRota().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getLocalidade().getUnidadeNegocio().getId().intValue() == imovel.getLocalidade()
+									.getUnidadeNegocio().getId().intValue()
 
 					) {
 						EsferaPoder esferaPoder = null;
 
-						if (imovel.getClienteImoveis() != null
-								&& !imovel.getClienteImoveis().isEmpty()) {
+						if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
 
-							Cliente clienteImovel = (Cliente) imovel
-									.getClienteImoveis().iterator().next();
+							Cliente clienteImovel = (Cliente) imovel.getClienteImoveis().iterator().next();
 
-							esferaPoder = clienteImovel.getClienteTipo()
-									.getEsferaPoder();
+							esferaPoder = clienteImovel.getClienteTipo().getEsferaPoder();
 						}
 
-						if (resumoFaturamentoSimulacaoNaColecao
-								.getEsferaPoder() != null
-								&& esferaPoder != null) {
+						if (resumoFaturamentoSimulacaoNaColecao.getEsferaPoder() != null && esferaPoder != null) {
 
-							if (resumoFaturamentoSimulacaoNaColecao
-									.getEsferaPoder().getId().intValue() == esferaPoder
-									.getId().intValue()) {
+							if (resumoFaturamentoSimulacaoNaColecao.getEsferaPoder().getId().intValue() == esferaPoder.getId().intValue()) {
 
 								if (primeiraCategoria) {
 
 									// ATUALIZA A QUANTIDADE DE CONTAS ****
-									resumoFaturamentoSimulacaoNaColecao
-											.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao
-													.getQuantidadeContas() + 1);
+									resumoFaturamentoSimulacaoNaColecao.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao.getQuantidadeContas() + 1);
 								}
 								achou = false;
 								adcionar = false;
 							}
 						}
 
-						if (resumoFaturamentoSimulacaoNaColecao
-								.getEsferaPoder() == null
-								&& esferaPoder == null) {
+						if (resumoFaturamentoSimulacaoNaColecao.getEsferaPoder() == null && esferaPoder == null) {
 
 							if (primeiraCategoria) {
 								// ATUALIZA A QUANTIDADE DE CONTAS ****
-								resumoFaturamentoSimulacaoNaColecao
-										.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao
-												.getQuantidadeContas() + 1);
+								resumoFaturamentoSimulacaoNaColecao.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao.getQuantidadeContas() + 1);
 							}
 							achou = false;
 							adcionar = false;
@@ -3028,81 +2988,50 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				// acumula se tiver algum igual
 				if (!adcionar) {
 
-					int qtdEconomias = resumoFaturamentoSimulacaoNaColecao
-							.getQuantidadeEconomia().intValue();
+					int qtdEconomias = resumoFaturamentoSimulacaoNaColecao.getQuantidadeEconomia().intValue();
 
-					if (subCategoria.getId().intValue() != Subcategoria.SUBCATEGORIA_ZERO
-							.getId().intValue()) {
-						qtdEconomias = qtdEconomias
-								+ subCategoria.getQuantidadeEconomias()
-										.intValue();
+					if (subCategoria.getId().intValue() != Subcategoria.SUBCATEGORIA_ZERO.getId().intValue()) {
+						qtdEconomias = qtdEconomias + subCategoria.getQuantidadeEconomias().intValue();
 					} else {
-						qtdEconomias = qtdEconomias
-								+ categoria.getQuantidadeEconomiasCategoria()
-										.intValue();
+						qtdEconomias = qtdEconomias + categoria.getQuantidadeEconomiasCategoria().intValue();
 					}
 
 					// acumula os dados dos dados do resumo ja existente
 					// quantidade economia
-					resumoFaturamentoSimulacaoNaColecao
-							.setQuantidadeEconomia((short) qtdEconomias);
+					resumoFaturamentoSimulacaoNaColecao.setQuantidadeEconomia((short) qtdEconomias);
 
 					// valor agua
-					if (calcularValoresAguaEsgotoHelper
-							.getValorFaturadoAguaCategoria() != null) {
-						resumoFaturamentoSimulacaoNaColecao
-								.setValorAgua(resumoFaturamentoSimulacaoNaColecao
-										.getValorAgua()
-										.add(calcularValoresAguaEsgotoHelper
-												.getValorFaturadoAguaCategoria()));
+					if (calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria() != null) {
+						resumoFaturamentoSimulacaoNaColecao.setValorAgua(resumoFaturamentoSimulacaoNaColecao.getValorAgua().add(
+								calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria()));
 					}
 
 					// consumo agua
-					if (calcularValoresAguaEsgotoHelper
-							.getConsumoFaturadoAguaCategoria() != null) {
+					if (calcularValoresAguaEsgotoHelper.getConsumoFaturadoAguaCategoria() != null) {
 
-						resumoFaturamentoSimulacaoNaColecao
-								.setConsumoAgua(new Integer(
-										resumoFaturamentoSimulacaoNaColecao
-												.getConsumoAgua().intValue()
-												+ calcularValoresAguaEsgotoHelper
-														.getConsumoFaturadoAguaCategoria()
-														.intValue()));
+						resumoFaturamentoSimulacaoNaColecao.setConsumoAgua(new Integer(resumoFaturamentoSimulacaoNaColecao.getConsumoAgua().intValue()
+								+ calcularValoresAguaEsgotoHelper.getConsumoFaturadoAguaCategoria().intValue()));
 					}
 
 					// valor esgoto
-					if (calcularValoresAguaEsgotoHelper
-							.getValorFaturadoEsgotoCategoria() != null) {
+					if (calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria() != null) {
 
-						resumoFaturamentoSimulacaoNaColecao
-								.setValorEsgoto(resumoFaturamentoSimulacaoNaColecao
-										.getValorEsgoto()
-										.add(calcularValoresAguaEsgotoHelper
-												.getValorFaturadoEsgotoCategoria()));
+						resumoFaturamentoSimulacaoNaColecao.setValorEsgoto(resumoFaturamentoSimulacaoNaColecao.getValorEsgoto().add(
+								calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria()));
 					}
 
 					// consumo esgoto
-					if (calcularValoresAguaEsgotoHelper
-							.getConsumoFaturadoEsgotoCategoria() != null) {
+					if (calcularValoresAguaEsgotoHelper.getConsumoFaturadoEsgotoCategoria() != null) {
 
-						resumoFaturamentoSimulacaoNaColecao
-								.setConsumoEsgoto(new Integer(
-										resumoFaturamentoSimulacaoNaColecao
-												.getConsumoEsgoto().intValue()
-												+ calcularValoresAguaEsgotoHelper
-														.getConsumoFaturadoEsgotoCategoria()
-														.intValue()));
+						resumoFaturamentoSimulacaoNaColecao.setConsumoEsgoto(new Integer(resumoFaturamentoSimulacaoNaColecao.getConsumoEsgoto().intValue()
+								+ calcularValoresAguaEsgotoHelper.getConsumoFaturadoEsgotoCategoria().intValue()));
 					}
 
 					// valor debitos
 					if (valorTotalDebitos != null) {
-						resumoFaturamentoSimulacaoNaColecao
-								.setValorDebitos(resumoFaturamentoSimulacaoNaColecao
-										.getValorDebitos().add(
-												valorTotalDebitos));
+						resumoFaturamentoSimulacaoNaColecao.setValorDebitos(resumoFaturamentoSimulacaoNaColecao.getValorDebitos().add(valorTotalDebitos));
 
-						if (colecaoValoresPorTipoDebito != null
-								&& !colecaoValoresPorTipoDebito.isEmpty()) {
+						if (colecaoValoresPorTipoDebito != null && !colecaoValoresPorTipoDebito.isEmpty()) {
 
 							Collection<ResumoFaturamentoSimulacaoDebito> colecaoDebitos = resumoFaturamentoSimulacaoHelperNaColecao
 									.getResumoFaturamentoSimulacaoDebito();
@@ -3111,20 +3040,11 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								boolean encontrou = false;
 								for (ResumoFaturamentoSimulacaoDebito resumoFaturamentoSimulacaoDebito : colecaoDebitos) {
 
-									if (resumoFaturamentoSimulacaoDebito
-											.getComp_id()
-											.getDebitoTipo()
-											.getId()
-											.compareTo(
-													valorPorTipoRegistroHelper
-															.getDebitoTipo()
-															.getId()) == 0) {
+									if (resumoFaturamentoSimulacaoDebito.getComp_id().getDebitoTipo().getId()
+											.compareTo(valorPorTipoRegistroHelper.getDebitoTipo().getId()) == 0) {
 
-										resumoFaturamentoSimulacaoDebito
-												.setValor(resumoFaturamentoSimulacaoDebito
-														.getValor()
-														.add(valorPorTipoRegistroHelper
-																.getValor()));
+										resumoFaturamentoSimulacaoDebito.setValor(resumoFaturamentoSimulacaoDebito.getValor().add(
+												valorPorTipoRegistroHelper.getValor()));
 										encontrou = true;
 										continue labelDebitos;
 									}
@@ -3135,32 +3055,21 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 									ResumoFaturamentoSimulacaoDebitoPK comp_id = new ResumoFaturamentoSimulacaoDebitoPK();
 
-									resumoFaturamentoSimulacaoDebitoInserir
-											.setComp_id(comp_id);
+									resumoFaturamentoSimulacaoDebitoInserir.setComp_id(comp_id);
 
-									resumoFaturamentoSimulacaoDebitoInserir
-											.getComp_id().setDebitoTipo(
-													valorPorTipoRegistroHelper
-															.getDebitoTipo());
-									resumoFaturamentoSimulacaoDebitoInserir
-											.setValor(valorPorTipoRegistroHelper
-													.getValor());
+									resumoFaturamentoSimulacaoDebitoInserir.getComp_id().setDebitoTipo(valorPorTipoRegistroHelper.getDebitoTipo());
+									resumoFaturamentoSimulacaoDebitoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-									colecaoDebitos
-											.add(resumoFaturamentoSimulacaoDebitoInserir);
+									colecaoDebitos.add(resumoFaturamentoSimulacaoDebitoInserir);
 								}
 							}
 						}
 					}
 					// valor creditos
 					if (valorTotalCreditos != null) {
-						resumoFaturamentoSimulacaoNaColecao
-								.setValorCreditos(resumoFaturamentoSimulacaoNaColecao
-										.getValorCreditos().add(
-												valorTotalCreditos));
+						resumoFaturamentoSimulacaoNaColecao.setValorCreditos(resumoFaturamentoSimulacaoNaColecao.getValorCreditos().add(valorTotalCreditos));
 
-						if (colecaoValoresPorTipoCredito != null
-								&& !colecaoValoresPorTipoCredito.isEmpty()) {
+						if (colecaoValoresPorTipoCredito != null && !colecaoValoresPorTipoCredito.isEmpty()) {
 
 							Collection<ResumoFaturamentoSimulacaoCredito> colecaoCreditos = resumoFaturamentoSimulacaoHelperNaColecao
 									.getResumoFaturamentoSimulacaoCredito();
@@ -3169,20 +3078,11 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								boolean encontrou = false;
 								for (ResumoFaturamentoSimulacaoCredito resumoFaturamentoSimulacaoCredito : colecaoCreditos) {
 
-									if (resumoFaturamentoSimulacaoCredito
-											.getComp_id()
-											.getCreditoTipo()
-											.getId()
-											.compareTo(
-													valorPorTipoRegistroHelper
-															.getCreditoTipo()
-															.getId()) == 0) {
+									if (resumoFaturamentoSimulacaoCredito.getComp_id().getCreditoTipo().getId()
+											.compareTo(valorPorTipoRegistroHelper.getCreditoTipo().getId()) == 0) {
 
-										resumoFaturamentoSimulacaoCredito
-												.setValor(resumoFaturamentoSimulacaoCredito
-														.getValor()
-														.add(valorPorTipoRegistroHelper
-																.getValor()));
+										resumoFaturamentoSimulacaoCredito.setValor(resumoFaturamentoSimulacaoCredito.getValor().add(
+												valorPorTipoRegistroHelper.getValor()));
 										encontrou = true;
 										continue labelCreditos;
 									}
@@ -3193,72 +3093,47 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 									ResumoFaturamentoSimulacaoCreditoPK comp_id = new ResumoFaturamentoSimulacaoCreditoPK();
 
-									resumoFaturamentoSimulacaoCreditoInserir
-											.setComp_id(comp_id);
+									resumoFaturamentoSimulacaoCreditoInserir.setComp_id(comp_id);
 
-									resumoFaturamentoSimulacaoCreditoInserir
-											.getComp_id().setCreditoTipo(
-													valorPorTipoRegistroHelper
-															.getCreditoTipo());
-									resumoFaturamentoSimulacaoCreditoInserir
-											.setValor(valorPorTipoRegistroHelper
-													.getValor());
+									resumoFaturamentoSimulacaoCreditoInserir.getComp_id().setCreditoTipo(valorPorTipoRegistroHelper.getCreditoTipo());
+									resumoFaturamentoSimulacaoCreditoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-									colecaoCreditos
-											.add(resumoFaturamentoSimulacaoCreditoInserir);
+									colecaoCreditos.add(resumoFaturamentoSimulacaoCreditoInserir);
 								}
 							}
 						}
 					}
 					// Valor de Impostos
 					if (valorImpostos != null) {
-						resumoFaturamentoSimulacaoNaColecao
-								.setValorImposto(resumoFaturamentoSimulacaoNaColecao
-										.getValorImposto().add(valorImpostos));
+						resumoFaturamentoSimulacaoNaColecao.setValorImposto(resumoFaturamentoSimulacaoNaColecao.getValorImposto().add(valorImpostos));
 
 					}
 				} else {
-					ResumoFaturamentoSimulacao resumoFaturamentoSimulacao = criarObjetoResumoFaturamentoSimulacao(
-							anoMesReferencia, faturamentoAtivCronRota, imovel,
-							categoria, subCategoria,
-							gerarAtiviadadeGrupoFaturamento,
-							calcularValoresAguaEsgotoHelper
-									.getValorFaturadoAguaCategoria(),
-							calcularValoresAguaEsgotoHelper
-									.getConsumoFaturadoAguaCategoria(),
-							calcularValoresAguaEsgotoHelper
-									.getValorFaturadoEsgotoCategoria(),
-							calcularValoresAguaEsgotoHelper
-									.getConsumoFaturadoEsgotoCategoria(),
-							valorTotalDebitos, valorTotalCreditos,
-							primeiraCategoria, preFaturar, valorImpostos);
+					ResumoFaturamentoSimulacao resumoFaturamentoSimulacao = criarObjetoResumoFaturamentoSimulacao(anoMesReferencia, faturamentoAtivCronRota,
+							imovel, categoria, subCategoria, gerarAtiviadadeGrupoFaturamento, calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria(),
+							calcularValoresAguaEsgotoHelper.getConsumoFaturadoAguaCategoria(),
+							calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria(),
+							calcularValoresAguaEsgotoHelper.getConsumoFaturadoEsgotoCategoria(), valorTotalDebitos, valorTotalCreditos, primeiraCategoria,
+							preFaturar, valorImpostos);
 
 					ResumoFaturamentoSimulacaoHelper helper = new ResumoFaturamentoSimulacaoHelper();
 
 					helper.setResumoFaturamentoSimulacao(resumoFaturamentoSimulacao);
 
 					Collection<ResumoFaturamentoSimulacaoDebito> colecaoDebitos = new ArrayList();
-					if (colecaoValoresPorTipoDebito != null
-							&& !colecaoValoresPorTipoDebito.isEmpty()) {
+					if (colecaoValoresPorTipoDebito != null && !colecaoValoresPorTipoDebito.isEmpty()) {
 						for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoDebito) {
 
 							ResumoFaturamentoSimulacaoDebito resumoFaturamentoSimulacaoDebitoInserir = new ResumoFaturamentoSimulacaoDebito();
 
 							ResumoFaturamentoSimulacaoDebitoPK comp_id = new ResumoFaturamentoSimulacaoDebitoPK();
 
-							resumoFaturamentoSimulacaoDebitoInserir
-									.setComp_id(comp_id);
+							resumoFaturamentoSimulacaoDebitoInserir.setComp_id(comp_id);
 
-							resumoFaturamentoSimulacaoDebitoInserir
-									.getComp_id().setDebitoTipo(
-											valorPorTipoRegistroHelper
-													.getDebitoTipo());
-							resumoFaturamentoSimulacaoDebitoInserir
-									.setValor(valorPorTipoRegistroHelper
-											.getValor());
+							resumoFaturamentoSimulacaoDebitoInserir.getComp_id().setDebitoTipo(valorPorTipoRegistroHelper.getDebitoTipo());
+							resumoFaturamentoSimulacaoDebitoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-							colecaoDebitos
-									.add(resumoFaturamentoSimulacaoDebitoInserir);
+							colecaoDebitos.add(resumoFaturamentoSimulacaoDebitoInserir);
 
 						}
 					}
@@ -3267,8 +3142,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 					Collection<ResumoFaturamentoSimulacaoCredito> colecaoCreditos = new ArrayList();
 
-					if (colecaoValoresPorTipoCredito != null
-							&& !colecaoValoresPorTipoCredito.isEmpty()) {
+					if (colecaoValoresPorTipoCredito != null && !colecaoValoresPorTipoCredito.isEmpty()) {
 
 						for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoCredito) {
 
@@ -3276,19 +3150,12 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 							ResumoFaturamentoSimulacaoCreditoPK comp_id = new ResumoFaturamentoSimulacaoCreditoPK();
 
-							resumoFaturamentoSimulacaoCreditoInserir
-									.setComp_id(comp_id);
+							resumoFaturamentoSimulacaoCreditoInserir.setComp_id(comp_id);
 
-							resumoFaturamentoSimulacaoCreditoInserir
-									.getComp_id().setCreditoTipo(
-											valorPorTipoRegistroHelper
-													.getCreditoTipo());
-							resumoFaturamentoSimulacaoCreditoInserir
-									.setValor(valorPorTipoRegistroHelper
-											.getValor());
+							resumoFaturamentoSimulacaoCreditoInserir.getComp_id().setCreditoTipo(valorPorTipoRegistroHelper.getCreditoTipo());
+							resumoFaturamentoSimulacaoCreditoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-							colecaoCreditos
-									.add(resumoFaturamentoSimulacaoCreditoInserir);
+							colecaoCreditos.add(resumoFaturamentoSimulacaoCreditoInserir);
 						}
 					}
 
@@ -3303,46 +3170,30 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				// categoria, será adicionado um resumo faturamento
 			} else {
 				adcionar = true;
-				ResumoFaturamentoSimulacao resumoFaturamentoSimulacao = criarObjetoResumoFaturamentoSimulacao(
-						anoMesReferencia, faturamentoAtivCronRota, imovel,
-						categoria, subCategoria,
-						gerarAtiviadadeGrupoFaturamento,
-						calcularValoresAguaEsgotoHelper
-								.getValorFaturadoAguaCategoria(),
-						calcularValoresAguaEsgotoHelper
-								.getConsumoFaturadoAguaCategoria(),
-						calcularValoresAguaEsgotoHelper
-								.getValorFaturadoEsgotoCategoria(),
-						calcularValoresAguaEsgotoHelper
-								.getConsumoFaturadoEsgotoCategoria(),
-						valorTotalDebitos, valorTotalCreditos,
-						primeiraCategoria, preFaturar, valorImpostos);
+				ResumoFaturamentoSimulacao resumoFaturamentoSimulacao = criarObjetoResumoFaturamentoSimulacao(anoMesReferencia, faturamentoAtivCronRota,
+						imovel, categoria, subCategoria, gerarAtiviadadeGrupoFaturamento, calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria(),
+						calcularValoresAguaEsgotoHelper.getConsumoFaturadoAguaCategoria(), calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria(),
+						calcularValoresAguaEsgotoHelper.getConsumoFaturadoEsgotoCategoria(), valorTotalDebitos, valorTotalCreditos, primeiraCategoria,
+						preFaturar, valorImpostos);
 
 				ResumoFaturamentoSimulacaoHelper helper = new ResumoFaturamentoSimulacaoHelper();
 
 				helper.setResumoFaturamentoSimulacao(resumoFaturamentoSimulacao);
 
 				Collection<ResumoFaturamentoSimulacaoDebito> colecaoDebitos = new ArrayList();
-				if (colecaoValoresPorTipoDebito != null
-						&& !colecaoValoresPorTipoDebito.isEmpty()) {
+				if (colecaoValoresPorTipoDebito != null && !colecaoValoresPorTipoDebito.isEmpty()) {
 					for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoDebito) {
 
 						ResumoFaturamentoSimulacaoDebito resumoFaturamentoSimulacaoDebitoInserir = new ResumoFaturamentoSimulacaoDebito();
 
 						ResumoFaturamentoSimulacaoDebitoPK comp_id = new ResumoFaturamentoSimulacaoDebitoPK();
 
-						resumoFaturamentoSimulacaoDebitoInserir
-								.setComp_id(comp_id);
+						resumoFaturamentoSimulacaoDebitoInserir.setComp_id(comp_id);
 
-						resumoFaturamentoSimulacaoDebitoInserir.getComp_id()
-								.setDebitoTipo(
-										valorPorTipoRegistroHelper
-												.getDebitoTipo());
-						resumoFaturamentoSimulacaoDebitoInserir
-								.setValor(valorPorTipoRegistroHelper.getValor());
+						resumoFaturamentoSimulacaoDebitoInserir.getComp_id().setDebitoTipo(valorPorTipoRegistroHelper.getDebitoTipo());
+						resumoFaturamentoSimulacaoDebitoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-						colecaoDebitos
-								.add(resumoFaturamentoSimulacaoDebitoInserir);
+						colecaoDebitos.add(resumoFaturamentoSimulacaoDebitoInserir);
 
 					}
 				}
@@ -3351,8 +3202,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 				Collection<ResumoFaturamentoSimulacaoCredito> colecaoCreditos = new ArrayList();
 
-				if (colecaoValoresPorTipoCredito != null
-						&& !colecaoValoresPorTipoCredito.isEmpty()) {
+				if (colecaoValoresPorTipoCredito != null && !colecaoValoresPorTipoCredito.isEmpty()) {
 
 					for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoCredito) {
 
@@ -3360,18 +3210,12 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 						ResumoFaturamentoSimulacaoCreditoPK comp_id = new ResumoFaturamentoSimulacaoCreditoPK();
 
-						resumoFaturamentoSimulacaoCreditoInserir
-								.setComp_id(comp_id);
+						resumoFaturamentoSimulacaoCreditoInserir.setComp_id(comp_id);
 
-						resumoFaturamentoSimulacaoCreditoInserir.getComp_id()
-								.setCreditoTipo(
-										valorPorTipoRegistroHelper
-												.getCreditoTipo());
-						resumoFaturamentoSimulacaoCreditoInserir
-								.setValor(valorPorTipoRegistroHelper.getValor());
+						resumoFaturamentoSimulacaoCreditoInserir.getComp_id().setCreditoTipo(valorPorTipoRegistroHelper.getCreditoTipo());
+						resumoFaturamentoSimulacaoCreditoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-						colecaoCreditos
-								.add(resumoFaturamentoSimulacaoCreditoInserir);
+						colecaoCreditos.add(resumoFaturamentoSimulacaoCreditoInserir);
 					}
 				}
 
@@ -3388,98 +3232,57 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			// se existe dados na coleção
 			if (!colecaoResumoFaturamentoSimulacao.isEmpty()) {
 
-				Iterator iteratorColecaoResumoFaturamento = colecaoResumoFaturamentoSimulacao
-						.iterator();
+				Iterator iteratorColecaoResumoFaturamento = colecaoResumoFaturamentoSimulacao.iterator();
 				boolean achou = true;
 				while (iteratorColecaoResumoFaturamento.hasNext() && achou) {
 
 					// resumo faturamento simulçao na coleção
-					resumoFaturamentoSimulacaoHelperNaColecao = (ResumoFaturamentoSimulacaoHelper) iteratorColecaoResumoFaturamento
-							.next();
+					resumoFaturamentoSimulacaoHelperNaColecao = (ResumoFaturamentoSimulacaoHelper) iteratorColecaoResumoFaturamento.next();
 
-					resumoFaturamentoSimulacaoNaColecao = resumoFaturamentoSimulacaoHelperNaColecao
-							.getResumoFaturamentoSimulacao();
+					resumoFaturamentoSimulacaoNaColecao = resumoFaturamentoSimulacaoHelperNaColecao.getResumoFaturamentoSimulacao();
 
-					if (resumoFaturamentoSimulacaoNaColecao
-							.getAnoMesReferencia().intValue() == anoMesReferencia
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getFaturamentoGrupo().getId().intValue() == faturamentoAtivCronRota
-									.getRota().getFaturamentoGrupo().getId()
+					if (resumoFaturamentoSimulacaoNaColecao.getAnoMesReferencia().intValue() == anoMesReferencia
+							&& resumoFaturamentoSimulacaoNaColecao.getFaturamentoGrupo().getId().intValue() == faturamentoAtivCronRota.getRota()
+									.getFaturamentoGrupo().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getLocalidade().getId().intValue() == imovel.getLocalidade().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getQuadra().getId().intValue() == imovel.getQuadra().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getLigacaoAguaSituacao().getId().intValue() == imovel.getLigacaoAguaSituacao().getId()
 									.intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getLocalidade().getId().intValue() == imovel
-									.getLocalidade().getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao.getQuadra()
-									.getId().intValue() == imovel.getQuadra()
-									.getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getLigacaoAguaSituacao().getId()
-									.intValue() == imovel
-									.getLigacaoAguaSituacao().getId()
+							&& resumoFaturamentoSimulacaoNaColecao.getLigacaoEsgotoSituacao().getId().intValue() == imovel.getLigacaoEsgotoSituacao().getId()
 									.intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getLigacaoEsgotoSituacao().getId()
-									.intValue() == imovel
-									.getLigacaoEsgotoSituacao().getId()
-									.intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getCategoria().getId().intValue() == categoria
+							&& resumoFaturamentoSimulacaoNaColecao.getCategoria().getId().intValue() == categoria.getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getImovelPerfil().getId().intValue() == imovel.getImovelPerfil().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getIndicadorDebitoConta().shortValue() == imovel.getIndicadorDebitoConta().shortValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getGerenciaRegional().getId().intValue() == imovel.getLocalidade().getGerenciaRegional()
 									.getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getImovelPerfil().getId().intValue() == imovel
-									.getImovelPerfil().getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getIndicadorDebitoConta().shortValue() == imovel
-									.getIndicadorDebitoConta().shortValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getGerenciaRegional().getId().intValue() == imovel
-									.getLocalidade().getGerenciaRegional()
-									.getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao
-									.getSetorComercial().getId().intValue() == imovel
-									.getSetorComercial().getId().intValue()
-							&& resumoFaturamentoSimulacaoNaColecao.getRota()
-									.getId().intValue() == imovel.getQuadra()
-									.getRota().getId().intValue()) {
+							&& resumoFaturamentoSimulacaoNaColecao.getSetorComercial().getId().intValue() == imovel.getSetorComercial().getId().intValue()
+							&& resumoFaturamentoSimulacaoNaColecao.getRota().getId().intValue() == imovel.getQuadra().getRota().getId().intValue()) {
 						EsferaPoder esferaPoder = null;
 
-						if (imovel.getClienteImoveis() != null
-								&& !imovel.getClienteImoveis().isEmpty()) {
+						if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
 
-							Cliente clienteImovel = (Cliente) imovel
-									.getClienteImoveis().iterator().next();
+							Cliente clienteImovel = (Cliente) imovel.getClienteImoveis().iterator().next();
 
-							esferaPoder = clienteImovel.getClienteTipo()
-									.getEsferaPoder();
+							esferaPoder = clienteImovel.getClienteTipo().getEsferaPoder();
 						}
 
-						if (resumoFaturamentoSimulacaoNaColecao
-								.getEsferaPoder() != null
-								&& esferaPoder != null) {
+						if (resumoFaturamentoSimulacaoNaColecao.getEsferaPoder() != null && esferaPoder != null) {
 
-							if (resumoFaturamentoSimulacaoNaColecao
-									.getEsferaPoder().getId().intValue() == esferaPoder
-									.getId().intValue()) {
+							if (resumoFaturamentoSimulacaoNaColecao.getEsferaPoder().getId().intValue() == esferaPoder.getId().intValue()) {
 
 								if (primeiraCategoria) {
 									// ATUALIZA A QUANTIDADE DE CONTAS ****
-									resumoFaturamentoSimulacaoNaColecao
-											.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao
-													.getQuantidadeContas() + 1);
+									resumoFaturamentoSimulacaoNaColecao.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao.getQuantidadeContas() + 1);
 								}
 								achou = false;
 								adcionar = false;
 							}
 						}
-						if (resumoFaturamentoSimulacaoNaColecao
-								.getEsferaPoder() == null
-								&& esferaPoder == null) {
+						if (resumoFaturamentoSimulacaoNaColecao.getEsferaPoder() == null && esferaPoder == null) {
 
 							if (primeiraCategoria) {
 								// ATUALIZA A QUANTIDADE DE CONTAS ****
-								resumoFaturamentoSimulacaoNaColecao
-										.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao
-												.getQuantidadeContas() + 1);
+								resumoFaturamentoSimulacaoNaColecao.setQuantidadeContas(resumoFaturamentoSimulacaoNaColecao.getQuantidadeContas() + 1);
 							}
 							achou = false;
 							adcionar = false;
@@ -3492,35 +3295,24 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				// verifica se é para acumular ou para inserir na coleção
 				if (!adcionar) {
 
-					int qtdEconomias = resumoFaturamentoSimulacaoNaColecao
-							.getQuantidadeEconomia().intValue();
+					int qtdEconomias = resumoFaturamentoSimulacaoNaColecao.getQuantidadeEconomia().intValue();
 
-					if (subCategoria.getId().intValue() != Subcategoria.SUBCATEGORIA_ZERO
-							.getId().intValue()) {
-						qtdEconomias = qtdEconomias
-								+ subCategoria.getQuantidadeEconomias()
-										.intValue();
+					if (subCategoria.getId().intValue() != Subcategoria.SUBCATEGORIA_ZERO.getId().intValue()) {
+						qtdEconomias = qtdEconomias + subCategoria.getQuantidadeEconomias().intValue();
 					} else {
-						qtdEconomias = qtdEconomias
-								+ categoria.getQuantidadeEconomiasCategoria()
-										.intValue();
+						qtdEconomias = qtdEconomias + categoria.getQuantidadeEconomiasCategoria().intValue();
 					}
 
 					// caso necessário acumulado no faturamento simulação
 					// if (indicePosicaoParaAcumular != -1) {
 					// acumula os dados dos dados do resumo ja existente
-					resumoFaturamentoSimulacaoNaColecao
-							.setQuantidadeEconomia((short) qtdEconomias);
+					resumoFaturamentoSimulacaoNaColecao.setQuantidadeEconomia((short) qtdEconomias);
 
 					// valor total debitos
 					if (valorTotalDebitos != null) {
-						resumoFaturamentoSimulacaoNaColecao
-								.setValorDebitos(resumoFaturamentoSimulacaoNaColecao
-										.getValorDebitos().add(
-												valorTotalDebitos));
+						resumoFaturamentoSimulacaoNaColecao.setValorDebitos(resumoFaturamentoSimulacaoNaColecao.getValorDebitos().add(valorTotalDebitos));
 
-						if (colecaoValoresPorTipoDebito != null
-								&& !colecaoValoresPorTipoDebito.isEmpty()) {
+						if (colecaoValoresPorTipoDebito != null && !colecaoValoresPorTipoDebito.isEmpty()) {
 
 							Collection<ResumoFaturamentoSimulacaoDebito> colecaoDebitos = resumoFaturamentoSimulacaoHelperNaColecao
 									.getResumoFaturamentoSimulacaoDebito();
@@ -3529,20 +3321,11 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								boolean encontrou = false;
 								for (ResumoFaturamentoSimulacaoDebito resumoFaturamentoSimulacaoDebito : colecaoDebitos) {
 
-									if (resumoFaturamentoSimulacaoDebito
-											.getComp_id()
-											.getDebitoTipo()
-											.getId()
-											.compareTo(
-													valorPorTipoRegistroHelper
-															.getDebitoTipo()
-															.getId()) == 0) {
+									if (resumoFaturamentoSimulacaoDebito.getComp_id().getDebitoTipo().getId()
+											.compareTo(valorPorTipoRegistroHelper.getDebitoTipo().getId()) == 0) {
 
-										resumoFaturamentoSimulacaoDebito
-												.setValor(resumoFaturamentoSimulacaoDebito
-														.getValor()
-														.add(valorPorTipoRegistroHelper
-																.getValor()));
+										resumoFaturamentoSimulacaoDebito.setValor(resumoFaturamentoSimulacaoDebito.getValor().add(
+												valorPorTipoRegistroHelper.getValor()));
 										encontrou = true;
 										continue labelDebitos;
 									}
@@ -3553,19 +3336,12 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 									ResumoFaturamentoSimulacaoDebitoPK comp_id = new ResumoFaturamentoSimulacaoDebitoPK();
 
-									resumoFaturamentoSimulacaoDebitoInserir
-											.setComp_id(comp_id);
+									resumoFaturamentoSimulacaoDebitoInserir.setComp_id(comp_id);
 
-									resumoFaturamentoSimulacaoDebitoInserir
-											.getComp_id().setDebitoTipo(
-													valorPorTipoRegistroHelper
-															.getDebitoTipo());
-									resumoFaturamentoSimulacaoDebitoInserir
-											.setValor(valorPorTipoRegistroHelper
-													.getValor());
+									resumoFaturamentoSimulacaoDebitoInserir.getComp_id().setDebitoTipo(valorPorTipoRegistroHelper.getDebitoTipo());
+									resumoFaturamentoSimulacaoDebitoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-									colecaoDebitos
-											.add(resumoFaturamentoSimulacaoDebitoInserir);
+									colecaoDebitos.add(resumoFaturamentoSimulacaoDebitoInserir);
 								}
 							}
 						}
@@ -3573,13 +3349,9 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 					// valor total creditos
 					if (valorTotalCreditos != null) {
-						resumoFaturamentoSimulacaoNaColecao
-								.setValorCreditos(resumoFaturamentoSimulacaoNaColecao
-										.getValorCreditos().add(
-												valorTotalCreditos));
+						resumoFaturamentoSimulacaoNaColecao.setValorCreditos(resumoFaturamentoSimulacaoNaColecao.getValorCreditos().add(valorTotalCreditos));
 
-						if (colecaoValoresPorTipoCredito != null
-								&& !colecaoValoresPorTipoCredito.isEmpty()) {
+						if (colecaoValoresPorTipoCredito != null && !colecaoValoresPorTipoCredito.isEmpty()) {
 
 							Collection<ResumoFaturamentoSimulacaoCredito> colecaoCreditos = resumoFaturamentoSimulacaoHelperNaColecao
 									.getResumoFaturamentoSimulacaoCredito();
@@ -3588,20 +3360,11 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 								boolean encontrou = false;
 								for (ResumoFaturamentoSimulacaoCredito resumoFaturamentoSimulacaoCredito : colecaoCreditos) {
 
-									if (resumoFaturamentoSimulacaoCredito
-											.getComp_id()
-											.getCreditoTipo()
-											.getId()
-											.compareTo(
-													valorPorTipoRegistroHelper
-															.getCreditoTipo()
-															.getId()) == 0) {
+									if (resumoFaturamentoSimulacaoCredito.getComp_id().getCreditoTipo().getId()
+											.compareTo(valorPorTipoRegistroHelper.getCreditoTipo().getId()) == 0) {
 
-										resumoFaturamentoSimulacaoCredito
-												.setValor(resumoFaturamentoSimulacaoCredito
-														.getValor()
-														.add(valorPorTipoRegistroHelper
-																.getValor()));
+										resumoFaturamentoSimulacaoCredito.setValor(resumoFaturamentoSimulacaoCredito.getValor().add(
+												valorPorTipoRegistroHelper.getValor()));
 										encontrou = true;
 										continue labelCreditos;
 									}
@@ -3612,19 +3375,12 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 									ResumoFaturamentoSimulacaoCreditoPK comp_id = new ResumoFaturamentoSimulacaoCreditoPK();
 
-									resumoFaturamentoSimulacaoCreditoInserir
-											.setComp_id(comp_id);
+									resumoFaturamentoSimulacaoCreditoInserir.setComp_id(comp_id);
 
-									resumoFaturamentoSimulacaoCreditoInserir
-											.getComp_id().setCreditoTipo(
-													valorPorTipoRegistroHelper
-															.getCreditoTipo());
-									resumoFaturamentoSimulacaoCreditoInserir
-											.setValor(valorPorTipoRegistroHelper
-													.getValor());
+									resumoFaturamentoSimulacaoCreditoInserir.getComp_id().setCreditoTipo(valorPorTipoRegistroHelper.getCreditoTipo());
+									resumoFaturamentoSimulacaoCreditoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-									colecaoCreditos
-											.add(resumoFaturamentoSimulacaoCreditoInserir);
+									colecaoCreditos.add(resumoFaturamentoSimulacaoCreditoInserir);
 								}
 							}
 						}
@@ -3632,13 +3388,9 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 					}
 
 				} else {
-					ResumoFaturamentoSimulacao resumoFaturamentoSimulacaoInserir = criarObjetoResumoFaturamentoSimulacao(
-							anoMesReferencia, faturamentoAtivCronRota, imovel,
-							categoria, subCategoria,
-							gerarAtiviadadeGrupoFaturamento, new BigDecimal(0),
-							new Integer(0), new BigDecimal(0), new Integer(0),
-							valorTotalDebitos, valorTotalCreditos,
-							primeiraCategoria, preFaturar, valorImpostos);
+					ResumoFaturamentoSimulacao resumoFaturamentoSimulacaoInserir = criarObjetoResumoFaturamentoSimulacao(anoMesReferencia,
+							faturamentoAtivCronRota, imovel, categoria, subCategoria, gerarAtiviadadeGrupoFaturamento, new BigDecimal(0), new Integer(0),
+							new BigDecimal(0), new Integer(0), valorTotalDebitos, valorTotalCreditos, primeiraCategoria, preFaturar, valorImpostos);
 
 					ResumoFaturamentoSimulacaoHelper helper = new ResumoFaturamentoSimulacaoHelper();
 
@@ -3646,27 +3398,19 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 					Collection<ResumoFaturamentoSimulacaoDebito> colecaoDebitos = new ArrayList();
 
-					if (colecaoValoresPorTipoDebito != null
-							&& !colecaoValoresPorTipoDebito.isEmpty()) {
+					if (colecaoValoresPorTipoDebito != null && !colecaoValoresPorTipoDebito.isEmpty()) {
 						for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoDebito) {
 
 							ResumoFaturamentoSimulacaoDebito resumoFaturamentoSimulacaoDebitoInserir = new ResumoFaturamentoSimulacaoDebito();
 
 							ResumoFaturamentoSimulacaoDebitoPK comp_id = new ResumoFaturamentoSimulacaoDebitoPK();
 
-							resumoFaturamentoSimulacaoDebitoInserir
-									.setComp_id(comp_id);
+							resumoFaturamentoSimulacaoDebitoInserir.setComp_id(comp_id);
 
-							resumoFaturamentoSimulacaoDebitoInserir
-									.getComp_id().setDebitoTipo(
-											valorPorTipoRegistroHelper
-													.getDebitoTipo());
-							resumoFaturamentoSimulacaoDebitoInserir
-									.setValor(valorPorTipoRegistroHelper
-											.getValor());
+							resumoFaturamentoSimulacaoDebitoInserir.getComp_id().setDebitoTipo(valorPorTipoRegistroHelper.getDebitoTipo());
+							resumoFaturamentoSimulacaoDebitoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-							colecaoDebitos
-									.add(resumoFaturamentoSimulacaoDebitoInserir);
+							colecaoDebitos.add(resumoFaturamentoSimulacaoDebitoInserir);
 
 						}
 					}
@@ -3675,8 +3419,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 					Collection<ResumoFaturamentoSimulacaoCredito> colecaoCreditos = new ArrayList();
 
-					if (colecaoValoresPorTipoCredito != null
-							&& !colecaoValoresPorTipoCredito.isEmpty()) {
+					if (colecaoValoresPorTipoCredito != null && !colecaoValoresPorTipoCredito.isEmpty()) {
 
 						for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoCredito) {
 
@@ -3684,19 +3427,12 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 							ResumoFaturamentoSimulacaoCreditoPK comp_id = new ResumoFaturamentoSimulacaoCreditoPK();
 
-							resumoFaturamentoSimulacaoCreditoInserir
-									.setComp_id(comp_id);
+							resumoFaturamentoSimulacaoCreditoInserir.setComp_id(comp_id);
 
-							resumoFaturamentoSimulacaoCreditoInserir
-									.getComp_id().setCreditoTipo(
-											valorPorTipoRegistroHelper
-													.getCreditoTipo());
-							resumoFaturamentoSimulacaoCreditoInserir
-									.setValor(valorPorTipoRegistroHelper
-											.getValor());
+							resumoFaturamentoSimulacaoCreditoInserir.getComp_id().setCreditoTipo(valorPorTipoRegistroHelper.getCreditoTipo());
+							resumoFaturamentoSimulacaoCreditoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-							colecaoCreditos
-									.add(resumoFaturamentoSimulacaoCreditoInserir);
+							colecaoCreditos.add(resumoFaturamentoSimulacaoCreditoInserir);
 						}
 					}
 
@@ -3712,13 +3448,9 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 				adcionar = true;
 
-				ResumoFaturamentoSimulacao resumoFaturamentoSimulacaoInserir = criarObjetoResumoFaturamentoSimulacao(
-						anoMesReferencia, faturamentoAtivCronRota, imovel,
-						categoria, subCategoria,
-						gerarAtiviadadeGrupoFaturamento, new BigDecimal(0),
-						new Integer(0), new BigDecimal(0), new Integer(0),
-						valorTotalDebitos, valorTotalCreditos,
-						primeiraCategoria, preFaturar, valorImpostos);
+				ResumoFaturamentoSimulacao resumoFaturamentoSimulacaoInserir = criarObjetoResumoFaturamentoSimulacao(anoMesReferencia, faturamentoAtivCronRota,
+						imovel, categoria, subCategoria, gerarAtiviadadeGrupoFaturamento, new BigDecimal(0), new Integer(0), new BigDecimal(0), new Integer(0),
+						valorTotalDebitos, valorTotalCreditos, primeiraCategoria, preFaturar, valorImpostos);
 
 				ResumoFaturamentoSimulacaoHelper helper = new ResumoFaturamentoSimulacaoHelper();
 
@@ -3726,26 +3458,19 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 				Collection<ResumoFaturamentoSimulacaoDebito> colecaoDebitos = new ArrayList();
 
-				if (colecaoValoresPorTipoDebito != null
-						&& !colecaoValoresPorTipoDebito.isEmpty()) {
+				if (colecaoValoresPorTipoDebito != null && !colecaoValoresPorTipoDebito.isEmpty()) {
 					for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoDebito) {
 
 						ResumoFaturamentoSimulacaoDebito resumoFaturamentoSimulacaoDebitoInserir = new ResumoFaturamentoSimulacaoDebito();
 
 						ResumoFaturamentoSimulacaoDebitoPK comp_id = new ResumoFaturamentoSimulacaoDebitoPK();
 
-						resumoFaturamentoSimulacaoDebitoInserir
-								.setComp_id(comp_id);
+						resumoFaturamentoSimulacaoDebitoInserir.setComp_id(comp_id);
 
-						resumoFaturamentoSimulacaoDebitoInserir.getComp_id()
-								.setDebitoTipo(
-										valorPorTipoRegistroHelper
-												.getDebitoTipo());
-						resumoFaturamentoSimulacaoDebitoInserir
-								.setValor(valorPorTipoRegistroHelper.getValor());
+						resumoFaturamentoSimulacaoDebitoInserir.getComp_id().setDebitoTipo(valorPorTipoRegistroHelper.getDebitoTipo());
+						resumoFaturamentoSimulacaoDebitoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-						colecaoDebitos
-								.add(resumoFaturamentoSimulacaoDebitoInserir);
+						colecaoDebitos.add(resumoFaturamentoSimulacaoDebitoInserir);
 
 					}
 				}
@@ -3754,8 +3479,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 				Collection<ResumoFaturamentoSimulacaoCredito> colecaoCreditos = new ArrayList();
 
-				if (colecaoValoresPorTipoCredito != null
-						&& !colecaoValoresPorTipoCredito.isEmpty()) {
+				if (colecaoValoresPorTipoCredito != null && !colecaoValoresPorTipoCredito.isEmpty()) {
 
 					for (ValorPorTipoRegistroHelper valorPorTipoRegistroHelper : colecaoValoresPorTipoCredito) {
 
@@ -3763,18 +3487,12 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 						ResumoFaturamentoSimulacaoCreditoPK comp_id = new ResumoFaturamentoSimulacaoCreditoPK();
 
-						resumoFaturamentoSimulacaoCreditoInserir
-								.setComp_id(comp_id);
+						resumoFaturamentoSimulacaoCreditoInserir.setComp_id(comp_id);
 
-						resumoFaturamentoSimulacaoCreditoInserir.getComp_id()
-								.setCreditoTipo(
-										valorPorTipoRegistroHelper
-												.getCreditoTipo());
-						resumoFaturamentoSimulacaoCreditoInserir
-								.setValor(valorPorTipoRegistroHelper.getValor());
+						resumoFaturamentoSimulacaoCreditoInserir.getComp_id().setCreditoTipo(valorPorTipoRegistroHelper.getCreditoTipo());
+						resumoFaturamentoSimulacaoCreditoInserir.setValor(valorPorTipoRegistroHelper.getValor());
 
-						colecaoCreditos
-								.add(resumoFaturamentoSimulacaoCreditoInserir);
+						colecaoCreditos.add(resumoFaturamentoSimulacaoCreditoInserir);
 					}
 				}
 
@@ -3809,37 +3527,28 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 	 * @param valorImpostos
 	 * @return
 	 */
-	protected ResumoFaturamentoSimulacao criarObjetoResumoFaturamentoSimulacao(
-			Integer anoMesReferencia,
+	protected ResumoFaturamentoSimulacao criarObjetoResumoFaturamentoSimulacao(Integer anoMesReferencia,
 			FaturamentoAtivCronRota faturamentoAtivCronRota, Imovel imovel,
 			Categoria categoria, Subcategoria subCategoria,
 			boolean gerarAtiviadadeGrupoFaturamento, BigDecimal valorAgua,
 			Integer consumoAgua, BigDecimal valorEsgoto, Integer consumoEsgoto,
 			BigDecimal valorTotalDebitos, BigDecimal valorTotalCreditos,
-			boolean primeiraCategoria, boolean preFaturar,
-			BigDecimal valorImpostos) {
+			boolean primeiraCategoria, boolean preFaturar, BigDecimal valorImpostos) {
 
 		ResumoFaturamentoSimulacao resumoFaturamentoSimulacao = new ResumoFaturamentoSimulacao();
 
 		resumoFaturamentoSimulacao.setAnoMesReferencia(anoMesReferencia);
-		resumoFaturamentoSimulacao.setFaturamentoGrupo(faturamentoAtivCronRota
-				.getRota().getFaturamentoGrupo());
+		resumoFaturamentoSimulacao.setFaturamentoGrupo(faturamentoAtivCronRota.getRota().getFaturamentoGrupo());
 		resumoFaturamentoSimulacao.setLocalidade(imovel.getLocalidade());
 		resumoFaturamentoSimulacao.setQuadra(imovel.getQuadra());
-		resumoFaturamentoSimulacao.setCodigoSetorComercial(imovel
-				.getSetorComercial().getCodigo());
-		resumoFaturamentoSimulacao.setNumeroQuadra(imovel.getQuadra()
-				.getNumeroQuadra());
-		resumoFaturamentoSimulacao.setLigacaoAguaSituacao(imovel
-				.getLigacaoAguaSituacao());
-		resumoFaturamentoSimulacao.setLigacaoEsgotoSituacao(imovel
-				.getLigacaoEsgotoSituacao());
+		resumoFaturamentoSimulacao.setCodigoSetorComercial(imovel.getSetorComercial().getCodigo());
+		resumoFaturamentoSimulacao.setNumeroQuadra(imovel.getQuadra().getNumeroQuadra());
+		resumoFaturamentoSimulacao.setLigacaoAguaSituacao(imovel.getLigacaoAguaSituacao());
+		resumoFaturamentoSimulacao.setLigacaoEsgotoSituacao(imovel.getLigacaoEsgotoSituacao());
 		resumoFaturamentoSimulacao.setCategoria(categoria);
 		resumoFaturamentoSimulacao.setImovelPerfil(imovel.getImovelPerfil());
-		resumoFaturamentoSimulacao.setIndicadorDebitoConta(imovel
-				.getIndicadorDebitoConta());
-		resumoFaturamentoSimulacao.setUnidadeNegocio(imovel.getLocalidade()
-				.getUnidadeNegocio());
+		resumoFaturamentoSimulacao.setIndicadorDebitoConta(imovel.getIndicadorDebitoConta());
+		resumoFaturamentoSimulacao.setUnidadeNegocio(imovel.getLocalidade().getUnidadeNegocio());
 
 		if (primeiraCategoria) {
 			resumoFaturamentoSimulacao.setQuantidadeContas(1);
@@ -3847,10 +3556,8 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			resumoFaturamentoSimulacao.setQuantidadeContas(0);
 		}
 
-		resumoFaturamentoSimulacao.setGerenciaRegional(imovel.getLocalidade()
-				.getGerenciaRegional());
-		resumoFaturamentoSimulacao
-				.setSetorComercial(imovel.getSetorComercial());
+		resumoFaturamentoSimulacao.setGerenciaRegional(imovel.getLocalidade().getGerenciaRegional());
+		resumoFaturamentoSimulacao.setSetorComercial(imovel.getSetorComercial());
 
 		resumoFaturamentoSimulacao.setRota(faturamentoAtivCronRota.getRota());
 
@@ -3861,22 +3568,18 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		// indicador Real.
 		if (!preFaturar) {
 			if (gerarAtiviadadeGrupoFaturamento) {
-				resumoFaturamentoSimulacao
-						.setIndicadorSimulacao(new Integer(2));
+				resumoFaturamentoSimulacao.setIndicadorSimulacao(new Integer(2));
 			} else {
-				resumoFaturamentoSimulacao
-						.setIndicadorSimulacao(new Integer(1));
+				resumoFaturamentoSimulacao.setIndicadorSimulacao(new Integer(1));
 			}
 		} else {
 			resumoFaturamentoSimulacao.setIndicadorSimulacao(new Integer(3));
 		}
 
 		// esfera do poder
-		if (imovel.getClienteImoveis() != null
-				&& !imovel.getClienteImoveis().isEmpty()) {
+		if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
 
-			Cliente cliente = (Cliente) imovel.getClienteImoveis().iterator()
-					.next();
+			Cliente cliente = (Cliente) imovel.getClienteImoveis().iterator().next();
 
 			EsferaPoder esferaPoder = cliente.getClienteTipo().getEsferaPoder();
 			resumoFaturamentoSimulacao.setEsferaPoder(esferaPoder);
@@ -3885,13 +3588,10 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		resumoFaturamentoSimulacao.setSubCategoria(subCategoria);
 
 		// Caso seja subcategoria zero pega a quantidade da categoria.
-		if (subCategoria.getId().intValue() == Subcategoria.SUBCATEGORIA_ZERO
-				.getId().intValue()) {
-			resumoFaturamentoSimulacao.setQuantidadeEconomia(categoria
-					.getQuantidadeEconomiasCategoria().shortValue());
+		if (subCategoria.getId().intValue() == Subcategoria.SUBCATEGORIA_ZERO.getId().intValue()) {
+			resumoFaturamentoSimulacao.setQuantidadeEconomia(categoria.getQuantidadeEconomiasCategoria().shortValue());
 		} else {
-			resumoFaturamentoSimulacao.setQuantidadeEconomia(subCategoria
-					.getQuantidadeEconomias().shortValue());
+			resumoFaturamentoSimulacao.setQuantidadeEconomia(subCategoria.getQuantidadeEconomias().shortValue());
 		}
 
 		// valor agua
@@ -66798,7 +66498,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 						helperValoresAguaEsgoto, gerarDebitoCobradoHelper,
 						gerarCreditoRealizadoHelper,
 						gerarImpostosDeduzidosContaHelper, faturamentoGrupo,
-						faturamentoAntecipado, preFaturamento);
+						faturamentoAntecipado, preFaturamento, false, null);
 
 				GerarContaCategoriaHelper gerarContaCategoriaHelper = this
 						.gerarContaCategoriaValoresZerados(conta,
@@ -68095,32 +67795,41 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			GerarCreditoRealizadoHelper helperCredito,
 			GerarImpostosDeduzidosContaHelper gerarImpostosDeduzidosContaHelper,
 			FaturamentoGrupo faturamentoGrupo, boolean faturamentoAntecipado,
-			boolean preFaturamento) throws ControladorException {
+			boolean preFaturamento, boolean contaNova, Conta conta) throws ControladorException {
 
-		// CONTA GERAL
-		ContaGeral contaGeral = new ContaGeral();
-		contaGeral.setIndicadorHistorico(ConstantesSistema.NAO);
-		contaGeral.setUltimaAlteracao(new Date());
-
-		// INSERINDO CONTA_GERAL NA BASE
-		Integer idContaGeral = (Integer) getControladorUtil().inserir(contaGeral);
-		contaGeral.setId(idContaGeral);
-
-		// CONTA
-		Conta conta = new Conta();
-		conta.setImovel(imovel);
-		conta.setReferencia(anoMesFaturamento);
-		conta.setLigacaoAguaSituacao(imovel.getLigacaoAguaSituacao());
-		conta.setLigacaoEsgotoSituacao(imovel.getLigacaoEsgotoSituacao());
-		conta.setMotivoNaoEntregaDocumento(null);
-		conta.setLocalidade(imovel.getLocalidade());
-		conta.setQuadraConta(imovel.getQuadra());
-		conta.setSubLote(imovel.getSubLote());
-		conta.setLote(imovel.getLote());
-		conta.setCodigoSetorComercial(imovel.getSetorComercial().getCodigo());
-		conta.setQuadra(imovel.getQuadra().getNumeroQuadra());
-		conta.setDigitoVerificadorConta(new Short(String.valueOf(Util.calculoRepresentacaoNumericaCodigoBarrasModulo10(anoMesFaturamento))));
-		conta.setIndicadorCobrancaMulta((short) 2);
+		if (conta == null) {
+			contaNova = true;
+			
+			// CONTA GERAL
+			ContaGeral contaGeral = new ContaGeral();
+			contaGeral.setIndicadorHistorico(ConstantesSistema.NAO);
+			contaGeral.setUltimaAlteracao(new Date());
+			
+			// INSERINDO CONTA_GERAL NA BASE
+			Integer idContaGeral = (Integer) getControladorUtil().inserir(contaGeral);
+			contaGeral.setId(idContaGeral);
+			
+			// CONTA
+			conta = new Conta();
+			conta.setImovel(imovel);
+			conta.setReferencia(anoMesFaturamento);
+			conta.setLigacaoAguaSituacao(imovel.getLigacaoAguaSituacao());
+			conta.setLigacaoEsgotoSituacao(imovel.getLigacaoEsgotoSituacao());
+			conta.setMotivoNaoEntregaDocumento(null);
+			conta.setLocalidade(imovel.getLocalidade());
+			conta.setQuadraConta(imovel.getQuadra());
+			conta.setSubLote(imovel.getSubLote());
+			conta.setLote(imovel.getLote());
+			conta.setCodigoSetorComercial(imovel.getSetorComercial().getCodigo());
+			conta.setQuadra(imovel.getQuadra().getNumeroQuadra());
+			conta.setDigitoVerificadorConta(new Short(String.valueOf(Util.calculoRepresentacaoNumericaCodigoBarrasModulo10(anoMesFaturamento))));
+			conta.setIndicadorCobrancaMulta((short) 2);
+			
+			conta.setContaGeral(contaGeral);
+			conta.setId(contaGeral.getId());
+			conta.setFaturamentoGrupo(faturamentoGrupo);
+			conta.setRota(faturamentoAtivCronRota.getRota());
+		} 
 
 		if (faturamentoAntecipado) {
 			conta.setDataVencimentoConta(this.determinarVencimentoContaAntecipado(imovel, anoMesFaturamento));
@@ -68193,17 +67902,14 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		conta.setPercentualEsgoto(helperValoresAguaEsgoto.getPercentualEsgoto());
 		conta.setPercentualColeta(helperValoresAguaEsgoto.getPercentualColetaEsgoto());
 		conta.setDataInclusao(null);
-
 		conta.setContaMotivoCancelamento(null);
 		conta.setContaMotivoRetificacao(null);
 		conta.setContaMotivoInclusao(null);
 		conta.setFuncionarioEntrega(null);
-
 		conta.setDataRetificacao(null);
 		conta.setDataCancelamento(null);
 		conta.setDataEmissao(new Date());
 		conta.setReferenciaBaixaContabil(null);
-
 		conta.setFaturamentoTipo(imovel.getFaturamentoTipo());
 		conta.setConsumoTarifa(imovel.getConsumoTarifa());
 		conta.setRegistroAtendimento(null);
@@ -68226,10 +67932,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		}
 
 		conta.setUltimaAlteracao(new Date());
-		conta.setContaGeral(contaGeral);
-		conta.setId(contaGeral.getId());
-		conta.setFaturamentoGrupo(faturamentoGrupo);
-		conta.setRota(faturamentoAtivCronRota.getRota());
+		
 
 		Object[] leiturasAnteriorEAtual = getControladorMicromedicao().obterLeituraAnteriorEAtualFaturamentoMedicaoHistorico(imovel.getId(), anoMesFaturamento);
 
@@ -68250,7 +67953,11 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		conta.setNumeroBoleto(this.verificarGeracaoBoleto(sistemaParametro, conta));
 
-		this.getControladorUtil().inserir(conta);
+		if (contaNova) {
+			this.getControladorUtil().inserir(conta);
+		} else {
+			this.getControladorUtil().atualizar(conta);
+		}
 
 		return conta;
 	}
@@ -68377,27 +68084,15 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 	 * @return GerarContaCategoriaHelper
 	 * @throws ControladorException
 	 */
-	public GerarContaCategoriaHelper gerarContaCategoria(Conta conta,
-			Collection colecaoCategoriaOUSubcategoria,
-			Collection colecaoCalcularValoresAguaEsgotoHelper,
+	public GerarContaCategoriaHelper gerarContaCategoria(Conta conta, Collection colecaoCategoriaOUSubcategoria, Collection colecaoCalcularValoresAguaEsgotoHelper,
 			SistemaParametro sistemaParametro) throws ControladorException {
 
 		GerarContaCategoriaHelper helper = new GerarContaCategoriaHelper();
 
-		// Verificando se a empresa fatura por CATEGORIA ou SUBCATEGORIA
-		if (sistemaParametro.getIndicadorTarifaCategoria().equals(
-				SistemaParametro.INDICADOR_TARIFA_CATEGORIA)) {
-
-			// GERANDO POR CATEGORIA
-			helper = this.gerarContaCategoriaPorCategoria(conta,
-					colecaoCategoriaOUSubcategoria,
-					colecaoCalcularValoresAguaEsgotoHelper);
+		if (sistemaParametro.getIndicadorTarifaCategoria().equals(SistemaParametro.INDICADOR_TARIFA_CATEGORIA)) {
+			helper = this.gerarContaCategoriaPorCategoria(conta, colecaoCategoriaOUSubcategoria, colecaoCalcularValoresAguaEsgotoHelper);
 		} else {
-
-			// GERANDO POR SUBCATEGORIA
-			helper = this.gerarContaCategoriaPorSubcategoria(conta,
-					colecaoCategoriaOUSubcategoria,
-					colecaoCalcularValoresAguaEsgotoHelper);
+			helper = this.gerarContaCategoriaPorSubcategoria(conta, colecaoCategoriaOUSubcategoria, colecaoCalcularValoresAguaEsgotoHelper);
 		}
 
 		return helper;
@@ -68417,10 +68112,8 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 	 * @return GerarContaCategoriaHelper
 	 * @throws ControladorException
 	 */
-	public GerarContaCategoriaHelper gerarContaCategoriaPorCategoria(
-			Conta conta, Collection colecaoCategorias,
-			Collection colecaoCalcularValoresAguaEsgotoHelper)
-			throws ControladorException {
+	public GerarContaCategoriaHelper gerarContaCategoriaPorCategoria(Conta conta, Collection colecaoCategorias, 
+			Collection colecaoCalcularValoresAguaEsgotoHelper) throws ControladorException {
 
 		GerarContaCategoriaHelper helper = new GerarContaCategoriaHelper();
 
@@ -68430,15 +68123,12 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		BigDecimal[] valoresAguaEsgotoRateioPorEconomia = new BigDecimal[2];
 
 		if (conta.getImovel().isImovelCondominio()) {
-			valoresAguaEsgotoRateioPorEconomia = this
-					.calcularValorRateioPorEconomia(conta.getImovel()
-							.getImovelCondominio().getId(),
-							conta.getFaturamentoGrupo());
+			valoresAguaEsgotoRateioPorEconomia = this.calcularValorRateioPorEconomia(conta.getImovel().getImovelCondominio().getId(),
+					conta.getFaturamentoGrupo());
 		}
 
 		if ((colecaoCategorias != null && !colecaoCategorias.isEmpty())
-				&& (colecaoCalcularValoresAguaEsgotoHelper != null && !colecaoCalcularValoresAguaEsgotoHelper
-						.isEmpty())) {
+				&& (colecaoCalcularValoresAguaEsgotoHelper != null && !colecaoCalcularValoresAguaEsgotoHelper.isEmpty())) {
 
 			ContaCategoria contaCategoria = null;
 			ContaCategoriaPK contaCategoriaPK = null;
@@ -68449,124 +68139,80 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			colecaoContaCategoriaConsumoFaixa = new ArrayList();
 
 			Iterator iteratorColecaoCategorias = colecaoCategorias.iterator();
-			Iterator iteratorColecaoCalcularValoresAguaEsgotoHelper = colecaoCalcularValoresAguaEsgotoHelper
-					.iterator();
+			Iterator iteratorColecaoCalcularValoresAguaEsgotoHelper = colecaoCalcularValoresAguaEsgotoHelper.iterator();
 
-			while (iteratorColecaoCategorias.hasNext()
-					&& iteratorColecaoCalcularValoresAguaEsgotoHelper.hasNext()) {
+			while (iteratorColecaoCategorias.hasNext() && iteratorColecaoCalcularValoresAguaEsgotoHelper.hasNext()) {
 
 				// CATEGORIA
 				categoria = (Categoria) iteratorColecaoCategorias.next();
 
 				// VALORES POR CATEGORIA
-				calcularValoresAguaEsgotoHelper = (CalcularValoresAguaEsgotoHelper) iteratorColecaoCalcularValoresAguaEsgotoHelper
-						.next();
+				calcularValoresAguaEsgotoHelper = (CalcularValoresAguaEsgotoHelper) iteratorColecaoCalcularValoresAguaEsgotoHelper.next();
 
 				contaCategoria = new ContaCategoria();
 				contaCategoriaPK = new ContaCategoriaPK();
 				contaCategoriaPK.setConta(conta);
 				contaCategoriaPK.setCategoria(categoria);
-				contaCategoriaPK
-						.setSubcategoria(Subcategoria.SUBCATEGORIA_ZERO);
+				contaCategoriaPK.setSubcategoria(Subcategoria.SUBCATEGORIA_ZERO);
 				contaCategoria.setComp_id(contaCategoriaPK);
-				contaCategoria.setQuantidadeEconomia(categoria
-						.getQuantidadeEconomiasCategoria().shortValue());
+				contaCategoria.setQuantidadeEconomia(categoria.getQuantidadeEconomiasCategoria().shortValue());
 				BigDecimal valorRateioAgua = new BigDecimal("0.00");
 				BigDecimal valorRateioEsgoto = new BigDecimal("0.00");
 
 				if (conta.getImovel().isImovelCondominio()) {
-					valorRateioAgua = valoresAguaEsgotoRateioPorEconomia[0]
-							.multiply(new BigDecimal(categoria
-									.getQuantidadeEconomiasCategoria()));
+					valorRateioAgua = valoresAguaEsgotoRateioPorEconomia[0].multiply(new BigDecimal(categoria.getQuantidadeEconomiasCategoria()));
 
-					valorRateioEsgoto = valoresAguaEsgotoRateioPorEconomia[1]
-							.multiply(new BigDecimal(categoria
-									.getQuantidadeEconomiasCategoria()));
+					valorRateioEsgoto = valoresAguaEsgotoRateioPorEconomia[1].multiply(new BigDecimal(categoria.getQuantidadeEconomiasCategoria()));
 
 				}
 
 				BigDecimal valorAgua = valorRateioAgua;
-				if (calcularValoresAguaEsgotoHelper
-						.getValorFaturadoAguaCategoria() != null)
-					valorAgua = calcularValoresAguaEsgotoHelper
-							.getValorFaturadoAguaCategoria().add(valorAgua);
+				if (calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria() != null)
+					valorAgua = calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria().add(valorAgua);
 
 				BigDecimal valorEsgoto = valorRateioEsgoto;
-				if (calcularValoresAguaEsgotoHelper
-						.getValorFaturadoEsgotoCategoria() != null)
-					valorEsgoto = calcularValoresAguaEsgotoHelper
-							.getValorFaturadoEsgotoCategoria().add(valorEsgoto);
+				if (calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria() != null)
+					valorEsgoto = calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria().add(valorEsgoto);
 
 				contaCategoria.setValorAgua(valorAgua);
 
-				contaCategoria.setConsumoAgua(calcularValoresAguaEsgotoHelper
-						.getConsumoFaturadoAguaCategoria());
+				contaCategoria.setConsumoAgua(calcularValoresAguaEsgotoHelper.getConsumoFaturadoAguaCategoria());
 				contaCategoria.setValorEsgoto(valorEsgoto);
-				contaCategoria.setConsumoEsgoto(calcularValoresAguaEsgotoHelper
-						.getConsumoFaturadoEsgotoCategoria());
-				contaCategoria
-						.setValorTarifaMinimaAgua(calcularValoresAguaEsgotoHelper
-								.getValorTarifaMinimaAguaCategoria());
-				contaCategoria
-						.setConsumoMinimoAgua(calcularValoresAguaEsgotoHelper
-								.getConsumoMinimoAguaCategoria());
-				contaCategoria
-						.setValorTarifaMinimaEsgoto(calcularValoresAguaEsgotoHelper
-								.getValorTarifaMinimaEsgotoCategoria());
-				contaCategoria
-						.setConsumoMinimoEsgoto(calcularValoresAguaEsgotoHelper
-								.getConsumoMinimoEsgotoCategoria());
+				contaCategoria.setConsumoEsgoto(calcularValoresAguaEsgotoHelper.getConsumoFaturadoEsgotoCategoria());
+				contaCategoria.setValorTarifaMinimaAgua(calcularValoresAguaEsgotoHelper.getValorTarifaMinimaAguaCategoria());
+				contaCategoria.setConsumoMinimoAgua(calcularValoresAguaEsgotoHelper.getConsumoMinimoAguaCategoria());
+				contaCategoria.setValorTarifaMinimaEsgoto(calcularValoresAguaEsgotoHelper.getValorTarifaMinimaEsgotoCategoria());
+				contaCategoria.setConsumoMinimoEsgoto(calcularValoresAguaEsgotoHelper.getConsumoMinimoEsgotoCategoria());
 				contaCategoria.setUltimaAlteracao(new Date());
 
 				colecaoContaCategoria.add(contaCategoria);
 
 				// CONTA_CATEGORIA_CONSUMO_FAIXA
-				Collection colecaoFaixaTarifaConsumo = calcularValoresAguaEsgotoHelper
-						.getFaixaTarifaConsumo();
+				Collection colecaoFaixaTarifaConsumo = calcularValoresAguaEsgotoHelper.getFaixaTarifaConsumo();
 
-				if (colecaoFaixaTarifaConsumo != null
-						&& !colecaoFaixaTarifaConsumo.isEmpty()) {
+				if (colecaoFaixaTarifaConsumo != null && !colecaoFaixaTarifaConsumo.isEmpty()) {
 
-					Iterator iteratorColecaoFaixaTarifaConsumo = colecaoFaixaTarifaConsumo
-							.iterator();
+					Iterator iteratorColecaoFaixaTarifaConsumo = colecaoFaixaTarifaConsumo.iterator();
 
 					ContaCategoriaConsumoFaixa contaCategoriaConsumoFaixa = null;
 					CalcularValoresAguaEsgotoFaixaHelper calcularValoresAguaEsgotoFaixaHelper = null;
 
 					while (iteratorColecaoFaixaTarifaConsumo.hasNext()) {
 
-						calcularValoresAguaEsgotoFaixaHelper = (CalcularValoresAguaEsgotoFaixaHelper) iteratorColecaoFaixaTarifaConsumo
-								.next();
+						calcularValoresAguaEsgotoFaixaHelper = (CalcularValoresAguaEsgotoFaixaHelper) iteratorColecaoFaixaTarifaConsumo.next();
 
 						contaCategoriaConsumoFaixa = new ContaCategoriaConsumoFaixa();
-						contaCategoriaConsumoFaixa
-								.setContaCategoria(contaCategoria);
-						contaCategoriaConsumoFaixa
-								.setValorAgua(calcularValoresAguaEsgotoFaixaHelper
-										.getValorFaturadoAguaFaixa());
-						contaCategoriaConsumoFaixa
-								.setConsumoAgua(calcularValoresAguaEsgotoFaixaHelper
-										.getConsumoFaturadoAguaFaixa());
-						contaCategoriaConsumoFaixa
-								.setValorEsgoto(calcularValoresAguaEsgotoFaixaHelper
-										.getValorFaturadoEsgotoFaixa());
-						contaCategoriaConsumoFaixa
-								.setConsumoEsgoto(calcularValoresAguaEsgotoFaixaHelper
-										.getConsumoFaturadoEsgotoFaixa());
-						contaCategoriaConsumoFaixa
-								.setConsumoFaixaInicio(calcularValoresAguaEsgotoFaixaHelper
-										.getLimiteInicialConsumoFaixa());
-						contaCategoriaConsumoFaixa
-								.setConsumoFaixaFim(calcularValoresAguaEsgotoFaixaHelper
-										.getLimiteFinalConsumoFaixa());
-						contaCategoriaConsumoFaixa
-								.setValorTarifaFaixa(calcularValoresAguaEsgotoFaixaHelper
-										.getValorTarifaFaixa());
-						contaCategoriaConsumoFaixa
-								.setUltimaAlteracao(new Date());
+						contaCategoriaConsumoFaixa.setContaCategoria(contaCategoria);
+						contaCategoriaConsumoFaixa.setValorAgua(calcularValoresAguaEsgotoFaixaHelper.getValorFaturadoAguaFaixa());
+						contaCategoriaConsumoFaixa.setConsumoAgua(calcularValoresAguaEsgotoFaixaHelper.getConsumoFaturadoAguaFaixa());
+						contaCategoriaConsumoFaixa.setValorEsgoto(calcularValoresAguaEsgotoFaixaHelper.getValorFaturadoEsgotoFaixa());
+						contaCategoriaConsumoFaixa.setConsumoEsgoto(calcularValoresAguaEsgotoFaixaHelper.getConsumoFaturadoEsgotoFaixa());
+						contaCategoriaConsumoFaixa.setConsumoFaixaInicio(calcularValoresAguaEsgotoFaixaHelper.getLimiteInicialConsumoFaixa());
+						contaCategoriaConsumoFaixa.setConsumoFaixaFim(calcularValoresAguaEsgotoFaixaHelper.getLimiteFinalConsumoFaixa());
+						contaCategoriaConsumoFaixa.setValorTarifaFaixa(calcularValoresAguaEsgotoFaixaHelper.getValorTarifaFaixa());
+						contaCategoriaConsumoFaixa.setUltimaAlteracao(new Date());
 
-						colecaoContaCategoriaConsumoFaixa
-								.add(contaCategoriaConsumoFaixa);
+						colecaoContaCategoriaConsumoFaixa.add(contaCategoriaConsumoFaixa);
 
 					}
 				}
@@ -68578,8 +68224,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		} else if (colecaoCategorias != null && !colecaoCategorias.isEmpty()) {
 
 			// GERAR CONTA CATEGORIA COM VALORES ZERADOS
-			helper = this.gerarContaCategoriaValoresZeradosPorCategoria(conta,
-					colecaoCategorias);
+			helper = this.gerarContaCategoriaValoresZeradosPorCategoria(conta, colecaoCategorias);
 		}
 
 		return helper;

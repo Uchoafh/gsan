@@ -185,7 +185,6 @@ import gcom.util.MergeProperties;
 import gcom.util.Util;
 import gcom.util.ZipUtil;
 import gcom.util.email.ServicosEmail;
-import gcom.util.filtro.ColecaoUtil;
 import gcom.util.filtro.ParametroNaoNulo;
 import gcom.util.filtro.ParametroNulo;
 import gcom.util.filtro.ParametroSimples;
@@ -220,11 +219,6 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.ejb.EJBException;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
 
 import org.hibernate.LazyInitializationException;
 import org.jboss.logging.Logger;
@@ -16302,7 +16296,7 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		
 		if (ligacaoAgua != null) {
 			
-			this.prepararFaturamentoImovel(FaturamentoAtividade.FATURAR_GRUPO, rota, imovel.getId());
+			//this.prepararFaturamentoImovel(FaturamentoAtividade.FATURAR_GRUPO, rota, imovel.getId());
 			
 			MedicaoTipo medicaoTipo = new MedicaoTipo(MedicaoTipo.LIGACAO_AGUA);
 			Collection colecaoResumoFaturamento = new ArrayList();
@@ -16310,11 +16304,11 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 			FaturamentoGrupo grupo = getControladorImovel().pesquisarGrupoImovel(ligacaoAgua.getId());
 			
 			FaturamentoAtivCronRota cronogramaFaturamentoRota = this.pesquisarFaturamentoAtivCronRotaPara(
-					rota.getId(), FaturamentoAtividade.FATURAR_GRUPO, grupo.getId(), grupo.getAnoMesReferencia()); 
+					rota.getId(), FaturamentoAtividade.EFETUAR_LEITURA, grupo.getId(), grupo.getAnoMesReferencia()); 
 			
 			this.getControladorMicromedicao().consistirLeiturasCalcularConsumosImoveis(rota.getFaturamentoGrupo(), idsImoveis);
 			
-			this.faturarImovel(grupo.getAnoMesReferencia(), FaturamentoAtividade.FATURAR_GRUPO.intValue(), 
+			this.faturarImovel(grupo.getAnoMesReferencia(), FaturamentoAtividade.EFETUAR_LEITURA.intValue(), 
 					sistemaParametro, cronogramaFaturamentoRota, colecaoResumoFaturamento, imovel, false, grupo);
 			
 			if (colecaoResumoFaturamento != null && !colecaoResumoFaturamento.isEmpty()) {
@@ -16524,4 +16518,11 @@ public class ControladorFaturamento extends ControladorFaturamentoFINAL {
 		
 	}
 	
+	public Collection pesquisarClienteContaECliente(Integer idConta, String cnpjEmpresa) throws ControladorException {
+		try{
+		  return repositorioFaturamento.pesquisarClienteContaECliente(idConta, cnpjEmpresa);
+		} catch (ErroRepositorioException ex) {
+	        throw new ControladorException("erro.sistema", ex);
+	    }
+	}
 }

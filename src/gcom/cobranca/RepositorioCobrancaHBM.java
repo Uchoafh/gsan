@@ -1966,6 +1966,7 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 						CobrancaDocumentoItem item = (CobrancaDocumentoItem) lista.get(0);
 						
 						CobrancaDocumentoItemHistorico cobrancaDocumentoItemHistorico = new CobrancaDocumentoItemHistorico(
+								item.getId(),
 								item.getValorItemCobrado(),
 								item.getUltimaAlteracao(),
 								item.getDebitoACobrarGeral(),
@@ -2145,6 +2146,7 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 						CobrancaDocumentoItem item = (CobrancaDocumentoItem) lista.get(0);
 						
 						CobrancaDocumentoItemHistorico cobrancaDocumentoItemHistorico = new CobrancaDocumentoItemHistorico(
+								item.getId(),
 								item.getValorItemCobrado(),
 								item.getUltimaAlteracao(),
 								item.getDebitoACobrarGeral(),
@@ -2255,6 +2257,7 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 						CobrancaDocumentoItem item = (CobrancaDocumentoItem) lista.get(0);
 						
 						CobrancaDocumentoItemHistorico cobrancaDocumentoItemHistorico = new CobrancaDocumentoItemHistorico(
+								item.getId(),
 								item.getValorItemCobrado(),
 								item.getUltimaAlteracao(),
 								item.getDebitoACobrarGeral(),
@@ -5015,7 +5018,7 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 					+ "inner join imov.localidade localidade " + "inner join imov.setorComercial setor "
 					+ "left join imov.clienteImoveis ci with ( ci.clienteRelacaoTipo.id = 2 and ci.dataFimRelacao is null ) "
 					+ "left join ci.cliente devedor " + "left join ci.cliente " + "left join devedor.clienteTipo ct,"
-					+ "SistemaParametro sp " + "left join sp.clienteDiretorComercialCompesa cliDir " + "where parc.id = :idParcelamento";
+					+ "SistemaParametro sp " + "left join sp.clienteDiretorComercial cliDir " + "where parc.id = :idParcelamento";
 
 			retorno = session.createQuery(consulta).setInteger("idParcelamento", idParcelamento.intValue()).list();
 
@@ -27137,13 +27140,7 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 						item.getEsferaPoder(),
 						item.getFiscalizacaoSituacao(),
 						item.getMotivoEncerramento(),
-						item.getResolucaoDiretoria(),
-						item.getLigacaoAguaSituacao(),
-						item.getLigacaoEsgotoSituacao(),
-						item.getDataEmissaoPredecessor(),
-						item.getNumeroDocumentoFatura(),
-						item.getValorImpostos(),
-						item.getUsuario());
+						item.getResolucaoDiretoria());
 
 				session.save(cobrancaDocumentoHistorico);
 				session.flush();
