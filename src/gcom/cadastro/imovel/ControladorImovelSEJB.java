@@ -16670,4 +16670,12 @@ public class ControladorImovelSEJB implements SessionBean {
 			throw new ControladorException("erro.sistema", ex);
 		}
 	}
+	
+	public ImovelCobrancaSituacao obterImovelCobrancaSituacao(Integer idImovelSituacaoCobranca) throws ControladorException {
+		try {
+			return repositorioImovel.obterImovelCobrancaSituacao(idImovelSituacaoCobranca);
+		} catch (ErroRepositorioException ex) {
+			throw new ControladorException("erro.sistema", ex);
+		}
+	}
 }
