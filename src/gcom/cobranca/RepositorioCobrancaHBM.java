@@ -7,6 +7,7 @@ import gcom.arrecadacao.debitoautomatico.DebitoAutomatico;
 import gcom.arrecadacao.pagamento.GuiaPagamento;
 import gcom.atendimentopublico.ligacaoagua.LigacaoAguaSituacao;
 import gcom.atendimentopublico.ligacaoesgoto.LigacaoEsgotoSituacao;
+import gcom.atendimentopublico.ordemservico.FiscalizacaoSituacao;
 import gcom.atendimentopublico.ordemservico.OrdemServico;
 import gcom.atendimentopublico.ordemservico.ServicoTipo;
 import gcom.atendimentopublico.registroatendimento.AtendimentoMotivoEncerramento;
@@ -46,6 +47,7 @@ import gcom.cobranca.parcelamento.ParcelamentoQuantidadeReparcelamento;
 import gcom.cobranca.parcelamento.ParcelamentoSituacao;
 import gcom.faturamento.conta.Conta;
 import gcom.faturamento.conta.ContaMotivoCancelamento;
+import gcom.faturamento.conta.MotivoNaoEntregaDocumento;
 import gcom.faturamento.credito.CreditoARealizar;
 import gcom.faturamento.debito.DebitoACobrar;
 import gcom.faturamento.debito.DebitoCreditoSituacao;
@@ -62,6 +64,7 @@ import gcom.relatorio.cobranca.RelatorioAcompanhamentoAcoesCobrancaHelper;
 import gcom.relatorio.cobranca.RelatorioAnalisePerdasCreditosBean;
 import gcom.relatorio.cobranca.RelatorioBoletimMedicaoCobrancaHelper;
 import gcom.relatorio.cobranca.parcelamento.RelacaoParcelamentoRelatorioHelper;
+import gcom.seguranca.acesso.usuario.Usuario;
 import gcom.util.CollectionUtil;
 import gcom.util.ConstantesSistema;
 import gcom.util.ControladorException;
@@ -386,6 +389,59 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 		}
 
 		return retorno;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public int pesquisarQuantidadeContasVencidasPorImovel(Integer idImovel, int indicadorPagamento,
+			int indicadorConta, int indicadorDividaAtiva) throws ErroRepositorioException {
+
+		List<Integer> retorno = new ArrayList<Integer>();
+
+		Session session = HibernateUtil.getSession();
+		String consulta;
+
+		try {
+
+			consulta = " SELECT conta.cnta_amreferenciaconta as referencia "
+				+ " FROM faturamento.conta conta "
+				+ " LEFT JOIN arrecadacao.pagamento pagto on pagto.cnta_id = conta.cnta_id "
+				+ " WHERE conta.imov_id = :idImovel "
+				+ " and conta.dcst_idatual in (:situacaoNormal, :situacaoRetificada, :situacaoIncluida) "
+				+ " and conta.cnta_dtvencimentoconta < :vencimento "
+				+ " and (coalesce(conta.cnta_vlagua, 0) + coalesce(conta.cnta_vlesgoto, 0) + coalesce(conta.cnta_vldebitos, 0) - coalesce(conta.cnta_vlcreditos, 0) - coalesce(conta.cnta_vlimpostos, 0)) > 0.00 ";
+
+			if (indicadorConta == 2) {
+				consulta += "and conta.cnta_dtrevisao is null ";
+			}
+
+			if (indicadorDividaAtiva == 1) {
+				consulta += "and conta.cnta_amreferenciabaixacontabil is not null ";
+			} else if (indicadorDividaAtiva == 2) {
+				consulta += "and conta.cnta_amreferenciabaixacontabil is null ";
+			}
+
+			consulta += " GROUP BY conta.cnta_amreferenciaconta ";
+
+			if (indicadorPagamento == 1) {
+				consulta += " HAVING sum(coalesce(pagto.pgmt_vlpagamento, 0.00)) = 0";
+			}
+
+			retorno = (List<Integer>) session.createSQLQuery(consulta)
+					.addScalar("referencia", Hibernate.INTEGER)
+					.setInteger("idImovel", idImovel)
+					.setInteger("situacaoNormal", DebitoCreditoSituacao.NORMAL)
+					.setInteger("situacaoRetificada", DebitoCreditoSituacao.RETIFICADA)
+					.setInteger("situacaoIncluida", DebitoCreditoSituacao.INCLUIDA)
+					.setDate("vencimento", new Date()).list();
+
+		} catch (HibernateException e) {
+			e.printStackTrace();
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
+
+		return retorno.size();
 	}
 
 	/**
@@ -1899,8 +1955,33 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 				Iterator icolecaoDebitos = collectionIdDebito.iterator();
 
 				while (icolecaoDebitos.hasNext()) {
-
+					
 					String id = ((Integer) icolecaoDebitos.next()).toString();
+					List lista = session
+							.createQuery(" from CobrancaDocumentoItem cobrancaDocumentoItem where cobrancaDocumentoItem.debitoACobrarGeral.id = :debito ")
+							.setInteger("debito", new Integer(id).intValue())
+							.list();
+					
+					if(lista.size() > 0) {
+						CobrancaDocumentoItem item = (CobrancaDocumentoItem) lista.get(0);
+						
+						CobrancaDocumentoItemHistorico cobrancaDocumentoItemHistorico = new CobrancaDocumentoItemHistorico(
+								item.getValorItemCobrado(),
+								item.getUltimaAlteracao(),
+								item.getDebitoACobrarGeral(),
+								item.getCobrancaDocumento(),
+								item.getDocumentoTipo(),
+								item.getContaGeral(),
+								item.getGuiaPagamentoGeral(),
+								item.getCreditoARealizarGeral(),
+								item.getCobrancaDebitoSituacao(),
+								item.getValorAcrescimos());						
+						
+						session.save(cobrancaDocumentoItemHistorico);
+						session.flush();
+						session.clear();
+					}
+
 					consulta = "delete CobrancaDocumentoItem cobrancaDocumentoItem "
 							+ "where cobrancaDocumentoItem.debitoACobrarGeral.id = :debito ";
 
@@ -2055,6 +2136,31 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 				while (icolecaoCreditos.hasNext()) {
 
 					String id = ((Integer) icolecaoCreditos.next()).toString();
+					List lista = session
+							.createQuery(" from CobrancaDocumentoItem cobrancaDocumentoItem where cobrancaDocumentoItem.creditoARealizarGeral.id = :credito ")
+							.setInteger("credito", new Integer(id).intValue())
+							.list();
+					
+					if(lista.size() > 0) {
+						CobrancaDocumentoItem item = (CobrancaDocumentoItem) lista.get(0);
+						
+						CobrancaDocumentoItemHistorico cobrancaDocumentoItemHistorico = new CobrancaDocumentoItemHistorico(
+								item.getValorItemCobrado(),
+								item.getUltimaAlteracao(),
+								item.getDebitoACobrarGeral(),
+								item.getCobrancaDocumento(),
+								item.getDocumentoTipo(),
+								item.getContaGeral(),
+								item.getGuiaPagamentoGeral(),
+								item.getCreditoARealizarGeral(),
+								item.getCobrancaDebitoSituacao(),
+								item.getValorAcrescimos());	
+						
+						session.save(cobrancaDocumentoItemHistorico);
+						session.flush();
+						session.clear();
+					}
+					
 					consulta = "delete CobrancaDocumentoItem cobrancaDocumentoItem "
 							+ "where cobrancaDocumentoItem.creditoARealizarGeral.id = :credito ";
 
@@ -2140,6 +2246,31 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 				while (icolecaoGuias.hasNext()) {
 
 					String id = ((Integer) icolecaoGuias.next()).toString();
+					List lista = session
+							.createQuery(" from CobrancaDocumentoItem cobrancaDocumentoItem where cobrancaDocumentoItem.guiaPagamentoGeral.id = :guia ")
+							.setInteger("guia", new Integer(id).intValue())
+							.list();
+					
+					if(lista.size() > 0) {
+						CobrancaDocumentoItem item = (CobrancaDocumentoItem) lista.get(0);
+						
+						CobrancaDocumentoItemHistorico cobrancaDocumentoItemHistorico = new CobrancaDocumentoItemHistorico(
+								item.getValorItemCobrado(),
+								item.getUltimaAlteracao(),
+								item.getDebitoACobrarGeral(),
+								item.getCobrancaDocumento(),
+								item.getDocumentoTipo(),
+								item.getContaGeral(),
+								item.getGuiaPagamentoGeral(),
+								item.getCreditoARealizarGeral(),
+								item.getCobrancaDebitoSituacao(),
+								item.getValorAcrescimos());	
+						
+						session.save(cobrancaDocumentoItemHistorico);
+						session.flush();
+						session.clear();
+					}
+					
 					consulta = "delete CobrancaDocumentoItem cobrancaDocumentoItem "
 							+ "where cobrancaDocumentoItem.guiaPagamentoGeral.id = :guia ";
 
@@ -26920,6 +27051,111 @@ public class RepositorioCobrancaHBM implements IRepositorioCobranca {
 		}
 
 		return retorno;
+	}
+	
+	public void atualizarDocumentoDeCobrancaHistorico(Integer codigoImovel, Integer codigoParcelamento) throws ErroRepositorioException {
+		Session session = HibernateUtil.getSession();
+
+		String consulta;
+		List lista = null;
+
+		try {
+
+			consulta = " select cd.* as id from cobranca.cobranca_documento_item cdi "
+					 + " inner join faturamento.credito_a_realizar credito on credito.crar_id = cdi.crar_id "
+					 + " inner join cobranca.cobranca_documento cd on cd.cbdo_id = cdi.cbdo_id "
+					 + " where credito.parc_id = :codigoParcelamento and credito.imov_id = :codigoImovel ";
+			
+			lista = session.createSQLQuery(consulta)
+					.addEntity(CobrancaDocumento.class)
+					.setInteger("codigoImovel", codigoImovel)
+					.setInteger("codigoParcelamento", codigoParcelamento)
+					.list();
+			
+			if(lista.size() == 0) {
+				consulta = " select cd.* from cobranca.cobranca_documento_item cdi "
+						 + " inner join faturamento.debito_a_cobrar debito on debito.dbac_id = cdi.dbac_id "
+						 + " inner join cobranca.cobranca_documento cd on cd.cbdo_id = cdi.cbdo_id "
+						 + " where debito.parc_id = :codigoParcelamento and debito.imov_id = :codigoImovel ";
+				
+				lista = session.createSQLQuery(consulta)
+						.addEntity(CobrancaDocumento.class)
+						.setInteger("codigoImovel", codigoImovel.intValue())
+						.setInteger("codigoParcelamento", codigoParcelamento.intValue())
+						.list();
+			}			
+			
+			if(lista.size() == 0) {
+				consulta = consulta = " select cd.* from cobranca.cobranca_documento_item cdi "
+						 + " inner join faturamento.guia_pagamento guia on guia.gpag_id = cdi.gpag_id "
+						 + " inner join cobranca.cobranca_documento cd on cd.cbdo_id = cdi.cbdo_id "
+						 + " where guia.parc_id = :codigoParcelamento and guia.imov_id = :codigoImovel ";
+				
+				lista = session.createSQLQuery(consulta)
+						.addEntity(CobrancaDocumento.class)
+						.setInteger("codigoImovel", codigoImovel.intValue())
+						.setInteger("codigoParcelamento", codigoParcelamento.intValue())
+						.list();
+			}
+			
+			if (lista != null && !lista.isEmpty()) {
+
+				CobrancaDocumento item = (CobrancaDocumento) lista.get(0);
+				
+				CobrancaDocumentoHistorico cobrancaDocumentoHistorico = new CobrancaDocumentoHistorico(
+						item.getId(),
+						item.getNumeroSequenciaDocumento(),
+						item.getEmissao(),
+						item.getValorDesconto(),
+						item.getNumeroQuadra(),
+						item.getValorDocumento(),
+						item.getValorTaxa(),
+						item.getCodigoSetorComercial(),
+						item.getUltimaAlteracao(),
+						item.getDocumentoEmissaoForma(),
+						item.getCobrancaAcaoAtividadeComando(),
+						item.getImovel(),
+						item.getEmpresa(),
+						item.getDocumentoTipo(),
+						item.getImovelPerfil(),
+						item.getQuadra(),
+						item.getLocalidade(),
+						item.getCobrancaAcaoAtividadeCronograma(),
+						item.getMotivoNaoEntregaDocumento(),
+						item.getCobrancaCriterio(),
+						item.getCobrancaAcao(),
+						item.getValorAcrescimos(),
+						item.getDataSituacaoAcao(),
+						item.getDataSituacaoDebito(),
+						item.getSequencialImpressao(),
+						item.getIndicadorAntesApos(),
+						item.getIndicadorLimite(),
+						item.getCobrancaDebitoSituacao(),
+						item.getCobrancaAcaoSituacao(),
+						item.getCliente(),
+						item.getCategoria(),
+						item.getEsferaPoder(),
+						item.getFiscalizacaoSituacao(),
+						item.getMotivoEncerramento(),
+						item.getResolucaoDiretoria(),
+						item.getLigacaoAguaSituacao(),
+						item.getLigacaoEsgotoSituacao(),
+						item.getDataEmissaoPredecessor(),
+						item.getNumeroDocumentoFatura(),
+						item.getValorImpostos(),
+						item.getUsuario());
+
+				session.save(cobrancaDocumentoHistorico);
+				session.flush();
+				session.clear();
+			}
+		} catch (HibernateException e) {
+			// levanta a exceção para a próxima camada
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			// fecha a sessão
+			HibernateUtil.closeSession(session);
+		}
 	}
 
 }
