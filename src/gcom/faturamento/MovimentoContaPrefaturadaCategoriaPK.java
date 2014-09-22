@@ -8,28 +8,20 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
-/** @author Hibernate CodeGenerator */
 public class MovimentoContaPrefaturadaCategoriaPK implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-    /** identifier field */
-    private gcom.faturamento.MovimentoContaPrefaturada movimentoContaPrefaturada;
-
-    /** identifier field */
+    private MovimentoContaPrefaturada movimentoContaPrefaturada;
     private Categoria categoria;
-
-    /** identifier field */
     private Subcategoria subcategoria;
 
-    /** full constructor */
-    public MovimentoContaPrefaturadaCategoriaPK(gcom.faturamento.MovimentoContaPrefaturada movimentoContaPrefaturada, Categoria categoria, Subcategoria subcategoria) {
+    public MovimentoContaPrefaturadaCategoriaPK(MovimentoContaPrefaturada movimentoContaPrefaturada, Categoria categoria, Subcategoria subcategoria) {
         this.movimentoContaPrefaturada = movimentoContaPrefaturada;
         this.categoria = categoria;
         this.subcategoria = subcategoria;
     }
 
-    /** default constructor */
     public MovimentoContaPrefaturadaCategoriaPK() {
     }
 

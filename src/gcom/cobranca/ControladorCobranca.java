@@ -31036,9 +31036,10 @@ public class ControladorCobranca implements SessionBean {
 
 					Cliente cliente = new Cliente();
 					cliente.setClienteTipo(clienteTipo);
-					clientes.add(cliente);
-					imovel.setClienteImoveis(clientes);
 
+					clientes.add(new ClienteImovel(cliente, imovel));
+					imovel.setClienteImoveis(clientes);
+					
 					clientes = null;
 					esferaPoder = null;
 					clienteTipo = null;
@@ -31996,7 +31997,7 @@ public class ControladorCobranca implements SessionBean {
 					// pega a esfera do poder do imovel
 					EsferaPoder esferaPoder = null;
 					if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
-						Cliente cliente = (Cliente) imovel.getClienteImoveis().iterator().next();
+						Cliente cliente = ((ClienteImovel) imovel.getClienteImoveis().iterator().next()).getCliente();
 						esferaPoder = cliente.getClienteTipo().getEsferaPoder();
 					}
 					boolean igualdadeEsferaPoder = false;
@@ -37900,7 +37901,7 @@ public class ControladorCobranca implements SessionBean {
 							// pega a esfera do poder do imovel
 							EsferaPoder esferaPoder = null;
 							if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
-								Cliente cliente = (Cliente) imovel.getClienteImoveis().iterator().next();
+								Cliente cliente = ((ClienteImovel) imovel.getClienteImoveis().iterator().next()).getCliente();
 								esferaPoder = cliente.getClienteTipo().getEsferaPoder();
 							}
 							if (esferaPoder != null && !esferaPoder.equals("")) {

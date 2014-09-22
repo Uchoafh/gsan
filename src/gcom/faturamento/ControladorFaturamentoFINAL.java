@@ -2143,14 +2143,10 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 	 * [UC0113] - Faturar Grupo de Faturamento
 	 * [SB0001 - Determinar Faturamento para o Imóvel]
 	 */
-	@SuppressWarnings("unchecked")
-	public void determinarFaturamentoImovel(Imovel imovel,
-			boolean gerarAtividadeGrupoFaturamento,
-			FaturamentoAtivCronRota faturamentoAtivCronRota,
-			Collection colecaoResumoFaturamento,
-			SistemaParametro sistemaParametro, boolean faturamentoAntecipado,
-			Integer anoMesFaturamento, FaturamentoGrupo faturamentoGrupo)
-			throws ControladorException {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void determinarFaturamentoImovel(Imovel imovel, boolean gerarAtividadeGrupoFaturamento, FaturamentoAtivCronRota faturamentoAtivCronRota,
+			Collection colecaoResumoFaturamento, SistemaParametro sistemaParametro, boolean faturamentoAntecipado,
+			Integer anoMesFaturamento, FaturamentoGrupo faturamentoGrupo) throws ControladorException {
 
 		Collection colecaoCategorias = getControladorImovel().obterQuantidadeEconomiasCategoria(imovel);
 		Collection colecaoCategoriaOUSubcategoria = getControladorImovel().obterColecaoCategoriaOuSubcategoriaDoImovel(imovel);
@@ -2164,17 +2160,15 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		Integer consumoAgua = null;
 		ConsumoTipo consumoTipoAgua = null;
-
 		if (consumoHistoricoAgua != null) {
 			consumoAgua = consumoHistoricoAgua.getNumeroConsumoFaturadoMes();
 			consumoTipoAgua = consumoHistoricoAgua.getConsumoTipo();
 		}
 
-		ConsumoHistorico consumoHistoricoEsgoto = this.getControladorMicromedicao().obterConsumoHistoricoMedicaoIndividualizada(imovel,ligacaoTipoEsgoto, anoMesFaturamento);
+		ConsumoHistorico consumoHistoricoEsgoto = this.getControladorMicromedicao().obterConsumoHistoricoMedicaoIndividualizada(imovel, ligacaoTipoEsgoto, anoMesFaturamento);
 
 		Integer consumoEsgoto = null;
 		ConsumoTipo consumoTipoEsgoto = null;
-
 		if (consumoHistoricoEsgoto != null) {
 			consumoEsgoto = consumoHistoricoEsgoto.getNumeroConsumoFaturadoMes();
 			consumoTipoEsgoto = consumoHistoricoEsgoto.getConsumoTipo();
@@ -2183,33 +2177,30 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		if (permiteFaturarSituacaoEspecialFaturamento(imovel, anoMesFaturamento)) {
 
 			if (this.permiteFaturamentoParaAgua(imovel.getLigacaoAguaSituacao(), consumoAgua, consumoTipoAgua)
-					|| this.permiteFaturamentoParaEsgoto(imovel.getLigacaoEsgotoSituacao(), consumoEsgoto,consumoTipoEsgoto)) {
+					|| this.permiteFaturamentoParaEsgoto(imovel.getLigacaoEsgotoSituacao(), consumoEsgoto, consumoTipoEsgoto)) {
 
 				helperValoresAguaEsgoto = this.determinarValoresFaturamentoAguaEsgoto(imovel, anoMesFaturamento, colecaoCategoriaOUSubcategoria,
-								faturamentoGrupo, consumoHistoricoAgua, consumoHistoricoEsgoto);
+						faturamentoGrupo, consumoHistoricoAgua, consumoHistoricoEsgoto);
 			}
 
-			boolean gerarConta = this.verificarNaoGeracaoConta(imovel, helperValoresAguaEsgoto.getValorTotalAgua(), 
+			boolean gerarConta = this.verificarNaoGeracaoConta(imovel, helperValoresAguaEsgoto.getValorTotalAgua(),
 					helperValoresAguaEsgoto.getValorTotalEsgoto(), anoMesFaturamento, false);
 
 			if (gerarConta) {
 
 				boolean preFaturamento = false;
 
-				GerarDebitoCobradoHelper gerarDebitoCobradoHelper = this.gerarDebitoCobrado(imovel, anoMesFaturamento, 
-						sistemaParametro,gerarAtividadeGrupoFaturamento);
-				
-				GerarCreditoRealizadoHelper gerarCreditoRealizadoHelper = this.gerarCreditoRealizado(imovel, anoMesFaturamento,helperValoresAguaEsgoto,
+				GerarDebitoCobradoHelper gerarDebitoCobradoHelper = this.gerarDebitoCobrado(imovel, anoMesFaturamento, sistemaParametro,
+						gerarAtividadeGrupoFaturamento);
+
+				GerarCreditoRealizadoHelper gerarCreditoRealizadoHelper = this.gerarCreditoRealizado(imovel, anoMesFaturamento, helperValoresAguaEsgoto,
 						gerarDebitoCobradoHelper.getValorTotalDebito(), gerarAtividadeGrupoFaturamento, preFaturamento);
 
 				if (gerarAtividadeGrupoFaturamento) {
 
-					GerarImpostosDeduzidosContaHelper gerarImpostosDeduzidosContaHelper = this.gerarImpostosDeduzidosConta(imovel.getId(),
-									anoMesFaturamento, helperValoresAguaEsgoto.getValorTotalAgua(),
-									helperValoresAguaEsgoto.getValorTotalEsgoto(),
-									gerarDebitoCobradoHelper.getValorTotalDebito(),
-									gerarCreditoRealizadoHelper.getValorTotalCredito(),
-									preFaturamento);
+					GerarImpostosDeduzidosContaHelper gerarImpostosDeduzidosContaHelper = this.gerarImpostosDeduzidosConta(imovel.getId(), anoMesFaturamento,
+							helperValoresAguaEsgoto.getValorTotalAgua(), helperValoresAguaEsgoto.getValorTotalEsgoto(),
+							gerarDebitoCobradoHelper.getValorTotalDebito(), gerarCreditoRealizadoHelper.getValorTotalCredito(), preFaturamento);
 
 					gerarDebitoCobradoHelper.setGerarImpostosDeduzidosContaHelper(gerarImpostosDeduzidosContaHelper);
 
@@ -2217,38 +2208,34 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 					Conta conta = this.obterContaImovel(imovel.getId(), anoMesFaturamento);
 
-					if (conta!= null) {
+					System.out.println("conta!= null " + conta != null);
+					if (conta == null) {
 						contaNova = true;
 					}
-					conta = this.gerarConta(imovel, anoMesFaturamento,
-							sistemaParametro, faturamentoAtivCronRota,
-							helperValoresAguaEsgoto, gerarDebitoCobradoHelper,
-							gerarCreditoRealizadoHelper,
-							gerarImpostosDeduzidosContaHelper,
-							faturamentoGrupo, faturamentoAntecipado,
+					conta = this.gerarConta(imovel, anoMesFaturamento, sistemaParametro, faturamentoAtivCronRota, helperValoresAguaEsgoto,
+							gerarDebitoCobradoHelper, gerarCreditoRealizadoHelper, gerarImpostosDeduzidosContaHelper, faturamentoGrupo, faturamentoAntecipado,
 							preFaturamento, contaNova, conta);
 
 					if (contaNova) {
 						GerarContaCategoriaHelper gerarContaCategoriaHelper = this.gerarContaCategoria(conta, colecaoCategoriaOUSubcategoria,
 								helperValoresAguaEsgoto.getColecaoCalcularValoresAguaEsgotoHelper(), sistemaParametro);
-						
+
 						// INSERINDO CONTA_CATEGORIA NA BASE
-						if (gerarContaCategoriaHelper.getColecaoContaCategoria() != null
-								&& !gerarContaCategoriaHelper.getColecaoContaCategoria().isEmpty()) {
+						if (gerarContaCategoriaHelper.getColecaoContaCategoria() != null && !gerarContaCategoriaHelper.getColecaoContaCategoria().isEmpty()) {
 							this.getControladorBatch().inserirColecaoObjetoParaBatch(gerarContaCategoriaHelper.getColecaoContaCategoria());
 						}
-						
+
 						// INSERINDO CONTA_CATEGORIA_CONSUMO_FAIXA
 						if (gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa() != null
 								&& !gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa().isEmpty()) {
-							
+
 							this.getControladorBatch().inserirColecaoObjetoParaBatch(gerarContaCategoriaHelper.getColecaoContaCategoriaConsumoFaixa());
 						}
 						this.inserirClienteConta(conta, imovel);
-						this.inserirContaImpostosDeduzidos(conta,gerarImpostosDeduzidosContaHelper);
-						this.inserirDebitoCobrado(gerarDebitoCobradoHelper.getMapDebitosCobrados(),conta);
+						this.inserirContaImpostosDeduzidos(conta, gerarImpostosDeduzidosContaHelper);
+						this.inserirDebitoCobrado(gerarDebitoCobradoHelper.getMapDebitosCobrados(), conta);
 						this.inserirCreditoRealizado(gerarCreditoRealizadoHelper.getMapCreditoRealizado(), conta);
-						this.gerarContaImpressao(conta, faturamentoGrupo, imovel,faturamentoAtivCronRota.getRota());
+						this.gerarContaImpressao(conta, faturamentoGrupo, imovel, faturamentoAtivCronRota.getRota());
 					}
 
 					this.atualizarDebitoACobrarFaturamento(gerarDebitoCobradoHelper.getColecaoDebitoACobrar());
@@ -2260,12 +2247,9 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				}
 
 				if (!gerarAtividadeGrupoFaturamento) {
-					GerarImpostosDeduzidosContaHelper gerarImpostosDeduzidosContaHelper = this.gerarImpostosDeduzidosConta(imovel.getId(),
-									anoMesFaturamento, helperValoresAguaEsgoto.getValorTotalAgua(),
-									helperValoresAguaEsgoto.getValorTotalEsgoto(),
-									gerarDebitoCobradoHelper.getValorTotalDebito(),
-									gerarCreditoRealizadoHelper.getValorTotalCredito(),
-									preFaturamento);
+					GerarImpostosDeduzidosContaHelper gerarImpostosDeduzidosContaHelper = this.gerarImpostosDeduzidosConta(imovel.getId(), anoMesFaturamento,
+							helperValoresAguaEsgoto.getValorTotalAgua(), helperValoresAguaEsgoto.getValorTotalEsgoto(),
+							gerarDebitoCobradoHelper.getValorTotalDebito(), gerarCreditoRealizadoHelper.getValorTotalCredito(), preFaturamento);
 
 					gerarDebitoCobradoHelper.setGerarImpostosDeduzidosContaHelper(gerarImpostosDeduzidosContaHelper);
 
@@ -2274,15 +2258,10 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 					if (faturamentoAntecipado) {
 						anoMesReferenciaResumoFaturamento = anoMesFaturamento;
 					}
-					
-					this.gerarResumoFaturamentoSimulacao(colecaoCategorias,
-							helperValoresAguaEsgoto.getColecaoCalcularValoresAguaEsgotoHelper(),
-							gerarDebitoCobradoHelper,
-							gerarCreditoRealizadoHelper,
-							colecaoResumoFaturamento, imovel,
-							gerarAtividadeGrupoFaturamento,
-							faturamentoAtivCronRota, faturamentoGrupo,
-							anoMesReferenciaResumoFaturamento, false);
+
+					this.gerarResumoFaturamentoSimulacao(colecaoCategorias, helperValoresAguaEsgoto.getColecaoCalcularValoresAguaEsgotoHelper(),
+							gerarDebitoCobradoHelper, gerarCreditoRealizadoHelper, colecaoResumoFaturamento, imovel, gerarAtividadeGrupoFaturamento,
+							faturamentoAtivCronRota, faturamentoGrupo, anoMesReferenciaResumoFaturamento, false);
 				}
 			}
 		}
@@ -2953,7 +2932,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 						if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
 
-							Cliente clienteImovel = (Cliente) imovel.getClienteImoveis().iterator().next();
+							Cliente clienteImovel = ((ClienteImovel) imovel.getClienteImoveis().iterator().next()).getCliente();
 
 							esferaPoder = clienteImovel.getClienteTipo().getEsferaPoder();
 						}
@@ -3261,7 +3240,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 						if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
 
-							Cliente clienteImovel = (Cliente) imovel.getClienteImoveis().iterator().next();
+							Cliente clienteImovel = ((ClienteImovel) imovel.getClienteImoveis().iterator().next()).getCliente();
 
 							esferaPoder = clienteImovel.getClienteTipo().getEsferaPoder();
 						}
@@ -3579,7 +3558,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		// esfera do poder
 		if (imovel.getClienteImoveis() != null && !imovel.getClienteImoveis().isEmpty()) {
 
-			Cliente cliente = (Cliente) imovel.getClienteImoveis().iterator().next();
+			Cliente cliente = ((ClienteImovel) imovel.getClienteImoveis().iterator().next()).getCliente();
 
 			EsferaPoder esferaPoder = cliente.getClienteTipo().getEsferaPoder();
 			resumoFaturamentoSimulacao.setEsferaPoder(esferaPoder);
@@ -8550,41 +8529,29 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 	 * @param tipoRetorno
 	 * @return valorTotalAguaOuEsgoto
 	 */
-	public BigDecimal calcularValorTotalAguaOuEsgotoPorCategoria(
-			Collection<CalcularValoresAguaEsgotoHelper> calcularValoresAguaEsgotoHelper,
-			String tipoRetorno) {
+	public BigDecimal calcularValorTotalAguaOuEsgotoPorCategoria(Collection<CalcularValoresAguaEsgotoHelper> calcularValoresAguaEsgotoHelper, String tipoRetorno) {
 
 		BigDecimal retorno = new BigDecimal("0.00");
 
-		if (calcularValoresAguaEsgotoHelper != null
-				&& !calcularValoresAguaEsgotoHelper.isEmpty()) {
+		if (calcularValoresAguaEsgotoHelper != null && !calcularValoresAguaEsgotoHelper.isEmpty()) {
 
-			Iterator calcularValoresAguaEsgotoHelperIt = calcularValoresAguaEsgotoHelper
-					.iterator();
+			Iterator calcularValoresAguaEsgotoHelperIt = calcularValoresAguaEsgotoHelper.iterator();
 			CalcularValoresAguaEsgotoHelper calcularValoresAguaEsgotoHelperObjeto = null;
 
 			while (calcularValoresAguaEsgotoHelperIt.hasNext()) {
 
-				calcularValoresAguaEsgotoHelperObjeto = (CalcularValoresAguaEsgotoHelper) calcularValoresAguaEsgotoHelperIt
-						.next();
+				calcularValoresAguaEsgotoHelperObjeto = (CalcularValoresAguaEsgotoHelper) calcularValoresAguaEsgotoHelperIt.next();
 
 				// Valor Faturado de Água
-				if (tipoRetorno
-						.equalsIgnoreCase(ConstantesSistema.CALCULAR_AGUA)) {
-					if (calcularValoresAguaEsgotoHelperObjeto
-							.getValorFaturadoAguaCategoria() != null) {
-						retorno = retorno
-								.add(calcularValoresAguaEsgotoHelperObjeto
-										.getValorFaturadoAguaCategoria());
+				if (tipoRetorno.equalsIgnoreCase(ConstantesSistema.CALCULAR_AGUA)) {
+					if (calcularValoresAguaEsgotoHelperObjeto.getValorFaturadoAguaCategoria() != null) {
+						retorno = retorno.add(calcularValoresAguaEsgotoHelperObjeto.getValorFaturadoAguaCategoria());
 					}
 				}
 				// Valor Faturado de Esgoto
 				else {
-					if (calcularValoresAguaEsgotoHelperObjeto
-							.getValorFaturadoEsgotoCategoria() != null) {
-						retorno = retorno
-								.add(calcularValoresAguaEsgotoHelperObjeto
-										.getValorFaturadoEsgotoCategoria());
+					if (calcularValoresAguaEsgotoHelperObjeto.getValorFaturadoEsgotoCategoria() != null) {
+						retorno = retorno.add(calcularValoresAguaEsgotoHelperObjeto.getValorFaturadoEsgotoCategoria());
 					}
 				}
 			}
@@ -25263,10 +25230,8 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		if (arrayImovel[0] != null) {
 			LigacaoAguaSituacao ligacaoAguaSituacao = new LigacaoAguaSituacao();
 			ligacaoAguaSituacao.setId((Integer) arrayImovel[0]);
-			ligacaoAguaSituacao
-					.setIndicadorFaturamentoSituacao((Short) arrayImovel[20]);
-			ligacaoAguaSituacao
-					.setConsumoMinimoFaturamento((Integer) arrayImovel[22]);
+			ligacaoAguaSituacao.setIndicadorFaturamentoSituacao((Short) arrayImovel[20]);
+			ligacaoAguaSituacao.setConsumoMinimoFaturamento((Integer) arrayImovel[22]);
 			imovel.setLigacaoAguaSituacao(ligacaoAguaSituacao);
 		}
 
@@ -25274,10 +25239,8 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		if (arrayImovel[1] != null) {
 			LigacaoEsgotoSituacao ligacaoEsgotoSituacao = new LigacaoEsgotoSituacao();
 			ligacaoEsgotoSituacao.setId((Integer) arrayImovel[1]);
-			ligacaoEsgotoSituacao
-					.setIndicadorFaturamentoSituacao((Short) arrayImovel[21]);
-			ligacaoEsgotoSituacao
-					.setVolumeMinimoFaturamento((Integer) arrayImovel[23]);
+			ligacaoEsgotoSituacao.setIndicadorFaturamentoSituacao((Short) arrayImovel[21]);
+			ligacaoEsgotoSituacao.setVolumeMinimoFaturamento((Integer) arrayImovel[23]);
 			imovel.setLigacaoEsgotoSituacao(ligacaoEsgotoSituacao);
 		}
 
@@ -25291,13 +25254,11 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		// localidade.id
 		Localidade localidade = null;
 		if (arrayImovel[3] != null) {
-			localidade = new Localidade();
-			localidade.setId((Integer) arrayImovel[3]);
+			localidade = new Localidade((Integer) arrayImovel[3]);
 			imovel.setLocalidade(localidade);
 
 			if (arrayImovel[28] != null) {
-				UnidadeNegocio unidadeNegocio = new UnidadeNegocio();
-				unidadeNegocio.setId((Integer) arrayImovel[28]);
+				UnidadeNegocio unidadeNegocio = new UnidadeNegocio((Integer) arrayImovel[28]);
 				imovel.getLocalidade().setUnidadeNegocio(unidadeNegocio);
 			}
 
@@ -25307,8 +25268,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		// quadra.id
 		if (arrayImovel[4] != null) {
-			quadra = new Quadra();
-			quadra.setId((Integer) arrayImovel[4]);
+			quadra = new Quadra((Integer) arrayImovel[4]);
 			imovel.setQuadra(quadra);
 		}
 
@@ -25334,28 +25294,24 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		// faturamentoTipo.id
 		if (arrayImovel[8] != null) {
-			FaturamentoTipo faturamentoTipo = new FaturamentoTipo();
-			faturamentoTipo.setId((Integer) arrayImovel[8]);
+			FaturamentoTipo faturamentoTipo = new FaturamentoTipo((Integer) arrayImovel[8]);
 			imovel.setFaturamentoTipo(faturamentoTipo);
 		}
 
 		// imovelPerfil.id
 		if (arrayImovel[9] != null) {
-			ImovelPerfil imovelPerfil = new ImovelPerfil();
-			imovelPerfil.setId((Integer) arrayImovel[9]);
+			ImovelPerfil imovelPerfil = new ImovelPerfil((Integer) arrayImovel[9]);
 			imovel.setImovelPerfil(imovelPerfil);
 		}
 
 		// imovel.indicadorDebitoConta
 		if (arrayImovel[10] != null) {
-			imovel.setIndicadorDebitoConta(((Short) arrayImovel[10])
-					.shortValue());
+			imovel.setIndicadorDebitoConta(((Short) arrayImovel[10]).shortValue());
 		}
 
 		// imovel.indicadorConta
 		if (arrayImovel[11] != null) {
-			ImovelContaEnvio imovelContaEnvio = new ImovelContaEnvio();
-			imovelContaEnvio.setId((Integer) arrayImovel[11]);
+			ImovelContaEnvio imovelContaEnvio = new ImovelContaEnvio((Integer) arrayImovel[11]);
 			imovel.setImovelContaEnvio(imovelContaEnvio);
 		}
 
@@ -25374,8 +25330,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			if (localidade == null) {
 				localidade = new Localidade();
 			}
-			GerenciaRegional gerenciaRegional = new GerenciaRegional();
-			gerenciaRegional.setId((Integer) arrayImovel[14]);
+			GerenciaRegional gerenciaRegional = new GerenciaRegional((Integer) arrayImovel[14]);
 			localidade.setGerenciaRegional(gerenciaRegional);
 			imovel.setLocalidade(localidade);
 		}
@@ -25410,7 +25365,8 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			clienteTipo.setEsferaPoder(esferaPoder);
 			Cliente cliente = new Cliente();
 			cliente.setClienteTipo(clienteTipo);
-			clientes.add(cliente);
+			clientes.add(new ClienteImovel(cliente, imovel));
+			
 			imovel.setClienteImoveis(clientes);
 
 		}
@@ -25431,13 +25387,11 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			faturamentoSituacaoTipo.setId((Integer) arrayImovel[24]);
 
 			if (arrayImovel[26] != null) {
-				faturamentoSituacaoTipo
-						.setIndicadorParalisacaoFaturamento((Short) arrayImovel[26]);
+				faturamentoSituacaoTipo.setIndicadorParalisacaoFaturamento((Short) arrayImovel[26]);
 			}
 
 			if (arrayImovel[27] != null) {
-				faturamentoSituacaoTipo
-						.setIndicadorValidoAgua((Short) arrayImovel[27]);
+				faturamentoSituacaoTipo.setIndicadorValidoAgua((Short) arrayImovel[27]);
 			}
 
 			imovel.setFaturamentoSituacaoTipo(faturamentoSituacaoTipo);
@@ -25453,8 +25407,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			LigacaoAgua ligacaoAgua = new LigacaoAgua();
 			HidrometroInstalacaoHistorico hidrometroInstalacaoHistorico = new HidrometroInstalacaoHistorico();
 			hidrometroInstalacaoHistorico.setId((Integer) arrayImovel[29]);
-			ligacaoAgua
-					.setHidrometroInstalacaoHistorico(hidrometroInstalacaoHistorico);
+			ligacaoAgua.setHidrometroInstalacaoHistorico(hidrometroInstalacaoHistorico);
 			imovel.setLigacaoAgua(ligacaoAgua);
 		}
 
@@ -25469,8 +25422,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		if (arrayImovel[31] != null) {
 			try {
 
-				Imovel imovelCondominio = getControladorImovel()
-						.pesquisarImovel((Integer) arrayImovel[31]);
+				Imovel imovelCondominio = getControladorImovel().pesquisarImovel((Integer) arrayImovel[31]);
 
 				imovel.setImovelCondominio(imovelCondominio);
 
@@ -66402,8 +66354,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			Collection colecaoCategoriasOUSubCategorias,
 			FaturamentoGrupo faturamentoGrupo,
 			ConsumoHistorico consumoHistoricoAgua,
-			ConsumoHistorico consumoHistoricoEsgoto)
-			throws ControladorException {
+			ConsumoHistorico consumoHistoricoEsgoto) throws ControladorException {
 
 		DeterminarValoresFaturamentoAguaEsgotoHelper helper = new DeterminarValoresFaturamentoAguaEsgotoHelper();
 
@@ -66413,29 +66364,18 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			helper.setConsumoHistoricoAgua(consumoHistoricoAgua);
 
 			if (consumoHistoricoAgua.getIndicadorFaturamento() != null) {
-
-				// INDICADOR_FATURAMENTO_AGUA
-				helper.setIndicadorFaturamentoAgua(consumoHistoricoAgua
-						.getIndicadorFaturamento());
+				helper.setIndicadorFaturamentoAgua(consumoHistoricoAgua.getIndicadorFaturamento());
 			}
 
 			if (consumoHistoricoAgua.getNumeroConsumoFaturadoMes() != null) {
-
-				// CONSUMO_FATURADO_AGUA
-				helper.setConsumoFaturadoAgua(consumoHistoricoAgua
-						.getNumeroConsumoFaturadoMes());
+				helper.setConsumoFaturadoAgua(consumoHistoricoAgua.getNumeroConsumoFaturadoMes());
 			}
 
 			if (consumoHistoricoAgua.getConsumoRateio() != null) {
-
-				// CONSUMO_RATEIO_AGUA
-				helper.setConsumoRateioAgua(consumoHistoricoAgua
-						.getConsumoRateio());
+				helper.setConsumoRateioAgua(consumoHistoricoAgua.getConsumoRateio());
 			}
 
 			if (consumoHistoricoAgua.getConsumoTipo() != null) {
-
-				// CONSUMO_TIPO_AGUA
 				helper.setConsumoTipoAgua(consumoHistoricoAgua.getConsumoTipo());
 			}
 		}
@@ -66446,52 +66386,33 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			helper.setConsumoHistoricoEsgoto(consumoHistoricoEsgoto);
 
 			if (consumoHistoricoEsgoto.getIndicadorFaturamento() != null) {
-
-				// INDICADOR_FATURAMENTO_ESGOTO
-				helper.setIndicadorFaturamentoEsgoto(consumoHistoricoEsgoto
-						.getIndicadorFaturamento());
+				helper.setIndicadorFaturamentoEsgoto(consumoHistoricoEsgoto.getIndicadorFaturamento());
 			}
 
 			if (consumoHistoricoEsgoto.getNumeroConsumoFaturadoMes() != null) {
-
-				// CONSUMO_FATURADO_ESGOTO
-				helper.setConsumoFaturadoEsgoto(consumoHistoricoEsgoto
-						.getNumeroConsumoFaturadoMes());
+				helper.setConsumoFaturadoEsgoto(consumoHistoricoEsgoto.getNumeroConsumoFaturadoMes());
 			}
 
 			if (consumoHistoricoEsgoto.getConsumoRateio() != null) {
-
-				// CONSUMO_RATEIO_ESGOTO
-				helper.setConsumoRateioEsgoto(consumoHistoricoEsgoto
-						.getConsumoRateio());
+				helper.setConsumoRateioEsgoto(consumoHistoricoEsgoto.getConsumoRateio());
 			}
 
 			if (consumoHistoricoEsgoto.getConsumoTipo() != null) {
-
-				// CONSUMO_TIPO_ESGOTO
-				helper.setConsumoTipoEsgoto(consumoHistoricoEsgoto
-						.getConsumoTipo());
+				helper.setConsumoTipoEsgoto(consumoHistoricoEsgoto.getConsumoTipo());
 			}
 		}
 
-		// [UC0105] - Obter Consumo Mínimo da Ligação
-		int consumoMinimoLigacao = getControladorMicromedicao()
-				.obterConsumoMinimoLigacao(imovel, null);
+		int consumoMinimoLigacao = getControladorMicromedicao().obterConsumoMinimoLigacao(imovel, null);
 
 		helper.setConsumoMinimoLigacao(consumoMinimoLigacao);
 
-		// DATA LEITURA ANTERIOR E DATA LEITURA ATUAL
-		Integer anoMesFaturamentoAnterior = Util.subtrairMesDoAnoMes(
-				anoMesFaturamento, 1);
+		Integer anoMesFaturamentoAnterior = Util.subtrairMesDoAnoMes(anoMesFaturamento, 1);
 
 		Date dataLeituraAnteriorFaturamento = null;
 		try {
 
-			dataLeituraAnteriorFaturamento = (Date) repositorioFaturamento
-					.pesquisarFaturamentoAtividadeCronogramaDataRealizacao(
-							faturamentoGrupo.getId(),
-							FaturamentoAtividade.EFETUAR_LEITURA,
-							anoMesFaturamentoAnterior);
+			dataLeituraAnteriorFaturamento = (Date) repositorioFaturamento.pesquisarFaturamentoAtividadeCronogramaDataRealizacao(faturamentoGrupo.getId(),
+					FaturamentoAtividade.EFETUAR_LEITURA, anoMesFaturamentoAnterior);
 
 			helper.setDataLeituraAnterior(dataLeituraAnteriorFaturamento);
 
@@ -66502,16 +66423,10 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		Date dataLeituraAtualFaturamento = null;
 		try {
-			dataLeituraAtualFaturamento = repositorioFaturamento
-					.pesquisarDataLeituraAtualMovimentoContaPreFaturada(
-							anoMesFaturamento, imovel.getId());
-			if (dataLeituraAtualFaturamento == null
-					|| dataLeituraAtualFaturamento.equals("")) {
-				dataLeituraAtualFaturamento = (Date) repositorioFaturamento
-						.pesquisarFaturamentoAtividadeCronogramaDataRealizacao(
-								faturamentoGrupo.getId(),
-								FaturamentoAtividade.EFETUAR_LEITURA,
-								anoMesFaturamento);
+			dataLeituraAtualFaturamento = repositorioFaturamento.pesquisarDataLeituraAtualMovimentoContaPreFaturada(anoMesFaturamento, imovel.getId());
+			if (dataLeituraAtualFaturamento == null || dataLeituraAtualFaturamento.equals("")) {
+				dataLeituraAtualFaturamento = (Date) repositorioFaturamento.pesquisarFaturamentoAtividadeCronogramaDataRealizacao(faturamentoGrupo.getId(),
+						FaturamentoAtividade.EFETUAR_LEITURA, anoMesFaturamento);
 			}
 
 			helper.setDataLeituraAtual(dataLeituraAtualFaturamento);
@@ -66522,108 +66437,60 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		}
 
 		// CASO O IMÓVEL SEJA PARA FATURAR ÁGUA
-		if (imovel.getLigacaoAguaSituacao().getIndicadorFaturamentoSituacao()
-				.equals(LigacaoAguaSituacao.FATURAMENTO_ATIVO)) {
+		if (imovel.getLigacaoAguaSituacao().getIndicadorFaturamentoSituacao().equals(LigacaoAguaSituacao.FATURAMENTO_ATIVO)) {
 
-			// MEDICAO_HISTORICO_AGUA
-			MedicaoHistorico medicaoHistoricoAgua = this
-					.getControladorMicromedicao()
-					.pesquisarMedicaoHistoricoTipoAgua(imovel.getId(),
-							anoMesFaturamento);
+			MedicaoHistorico medicaoHistoricoAgua = this.getControladorMicromedicao().pesquisarMedicaoHistoricoTipoAgua(imovel.getId(), anoMesFaturamento);
 
 			if (medicaoHistoricoAgua != null) {
 
-				// DATA_LEITURA_ANTERIOR
 				if (medicaoHistoricoAgua.getDataLeituraAnteriorFaturamento() != null) {
-
-					helper.setDataLeituraAnterior(medicaoHistoricoAgua
-							.getDataLeituraAnteriorFaturamento());
+					helper.setDataLeituraAnterior(medicaoHistoricoAgua.getDataLeituraAnteriorFaturamento());
 				}
 
-				// DATA_LEITURA_ATUAL
 				if (medicaoHistoricoAgua.getDataLeituraAtualFaturamento() != null) {
-
-					helper.setDataLeituraAtual(medicaoHistoricoAgua
-							.getDataLeituraAtualFaturamento());
+					helper.setDataLeituraAtual(medicaoHistoricoAgua.getDataLeituraAtualFaturamento());
 				}
 			}
 		}
 
 		// CASO O IMÓVEL SEJA PARA FATURAR ESGOTO
-		if (imovel.getLigacaoEsgotoSituacao().getIndicadorFaturamentoSituacao()
-				.equals(LigacaoEsgotoSituacao.FATURAMENTO_ATIVO)) {
+		if (imovel.getLigacaoEsgotoSituacao().getIndicadorFaturamentoSituacao().equals(LigacaoEsgotoSituacao.FATURAMENTO_ATIVO)) {
 
-			// MEDICAO_HISTORICO_POCO
-			MedicaoHistorico medicaoHistoricoPoco = this
-					.getControladorMicromedicao()
-					.pesquisarMedicaoHistoricoTipoPoco(imovel.getId(),
-							anoMesFaturamento);
+			MedicaoHistorico medicaoHistoricoPoco = this.getControladorMicromedicao().pesquisarMedicaoHistoricoTipoPoco(imovel.getId(), anoMesFaturamento);
 
 			if (medicaoHistoricoPoco != null) {
 
-				// DATA_LEITURA_ANTERIOR
 				if (medicaoHistoricoPoco.getDataLeituraAnteriorFaturamento() != null) {
-
-					helper.setDataLeituraAnterior(medicaoHistoricoPoco
-							.getDataLeituraAnteriorFaturamento());
+					helper.setDataLeituraAnterior(medicaoHistoricoPoco.getDataLeituraAnteriorFaturamento());
 				}
 
-				// DATA_LEITURA_ATUAL
 				if (medicaoHistoricoPoco.getDataLeituraAtualFaturamento() != null) {
-
-					helper.setDataLeituraAtual(medicaoHistoricoPoco
-							.getDataLeituraAtualFaturamento());
+					helper.setDataLeituraAtual(medicaoHistoricoPoco.getDataLeituraAtualFaturamento());
 				}
 			}
 
-			// PERCENTUAL DE ESGOTO
-			BigDecimal percentualEsgoto = this
-					.verificarPercentualEsgotoAlternativo(imovel,
-							helper.getConsumoFaturadoEsgoto());
-
+			BigDecimal percentualEsgoto = this.verificarPercentualEsgotoAlternativo(imovel, helper.getConsumoFaturadoEsgoto());
 			helper.setPercentualEsgoto(percentualEsgoto);
 
-			// PERCENTUAL COLETA DE ESGOTO
-			BigDecimal percentualColetaEsgoto = this
-					.obterPercentualColetaEsgotoImovel(imovel.getId());
-
+			BigDecimal percentualColetaEsgoto = this.obterPercentualColetaEsgotoImovel(imovel.getId());
 			helper.setPercentualColetaEsgoto(percentualColetaEsgoto);
 		}
 
-		/*
-		 * Caso NÃO existe cronograma para o anoMes informado ou seja a
-		 * dataLeituraAnteriorFaturamento ou a dataLeituraAtualFaturamento
-		 * estaja nula
-		 */
-		if (dataLeituraAnteriorFaturamento == null
-				|| dataLeituraAtualFaturamento == null) {
+		if (dataLeituraAnteriorFaturamento == null || dataLeituraAtualFaturamento == null) {
 
-			Date[] periodoLeitura = this.gerarPeriodoLeituraFaturamento(
-					dataLeituraAtualFaturamento,
-					dataLeituraAnteriorFaturamento, faturamentoGrupo,
+			Date[] periodoLeitura = this.gerarPeriodoLeituraFaturamento(dataLeituraAtualFaturamento, dataLeituraAnteriorFaturamento, faturamentoGrupo,
 					anoMesFaturamento, anoMesFaturamentoAnterior);
 
-			// DATA_LEITURA_ANTERIOR
 			helper.setDataLeituraAnterior(periodoLeitura[0]);
-
-			// DATA_LEITURA_ATUAL
 			helper.setDataLeituraAtual(periodoLeitura[1]);
 		}
 
 		// [UC0120] - Calcular Valores de Água e/ou Esgoto
-		Collection colecaoCalcularValoresAguaEsgotoHelper = calcularValoresAguaEsgoto(
-				anoMesFaturamento, imovel.getLigacaoAguaSituacao().getId(),
-				imovel.getLigacaoEsgotoSituacao().getId(),
-				helper.getIndicadorFaturamentoAgua(),
-				helper.getIndicadorFaturamentoEsgoto(),
-				colecaoCategoriasOUSubCategorias,
-				helper.getConsumoFaturadoAgua(),
-				helper.getConsumoFaturadoEsgoto(),
-				helper.getConsumoMinimoLigacao(),
-				helper.getDataLeituraAnterior(), helper.getDataLeituraAtual(),
-				helper.getPercentualEsgoto(),
-				imovel.getConsumoTarifa().getId(), helper.getConsumoTipoAgua(),
-				helper.getConsumoTipoEsgoto());
+		Collection colecaoCalcularValoresAguaEsgotoHelper = calcularValoresAguaEsgoto(anoMesFaturamento, imovel.getLigacaoAguaSituacao().getId(), imovel
+				.getLigacaoEsgotoSituacao().getId(), helper.getIndicadorFaturamentoAgua(), helper.getIndicadorFaturamentoEsgoto(),
+				colecaoCategoriasOUSubCategorias, helper.getConsumoFaturadoAgua(), helper.getConsumoFaturadoEsgoto(), helper.getConsumoMinimoLigacao(),
+				helper.getDataLeituraAnterior(), helper.getDataLeituraAtual(), helper.getPercentualEsgoto(), imovel.getConsumoTarifa().getId(),
+				helper.getConsumoTipoAgua(), helper.getConsumoTipoEsgoto());
 
 		helper.setColecaoCalcularValoresAguaEsgotoHelper(colecaoCalcularValoresAguaEsgotoHelper);
 
@@ -66631,11 +66498,9 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 		BigDecimal valorTotalAgua = ConstantesSistema.VALOR_ZERO;
 		BigDecimal valorTotalEsgoto = ConstantesSistema.VALOR_ZERO;
 
-		if (colecaoCalcularValoresAguaEsgotoHelper != null
-				&& !colecaoCalcularValoresAguaEsgotoHelper.isEmpty()) {
+		if (colecaoCalcularValoresAguaEsgotoHelper != null && !colecaoCalcularValoresAguaEsgotoHelper.isEmpty()) {
 
-			Iterator iteratorColecaoCalcularValoresAguaEsgotoHelper = colecaoCalcularValoresAguaEsgotoHelper
-					.iterator();
+			Iterator iteratorColecaoCalcularValoresAguaEsgotoHelper = colecaoCalcularValoresAguaEsgotoHelper.iterator();
 
 			while (iteratorColecaoCalcularValoresAguaEsgotoHelper.hasNext()) {
 
@@ -66647,18 +66512,14 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				 * valor de água ao valor total de água. Caso contrário soma
 				 * zero.
 				 */
-				if (calcularValoresAguaEsgotoHelper
-						.getValorFaturadoAguaCategoria() != null) {
+				if (calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria() != null) {
 
 					// VALOR_TOTAL_AGUA
-					valorTotalAgua = valorTotalAgua
-							.add(calcularValoresAguaEsgotoHelper
-									.getValorFaturadoAguaCategoria());
+					valorTotalAgua = valorTotalAgua.add(calcularValoresAguaEsgotoHelper.getValorFaturadoAguaCategoria());
 				} else {
 
 					// VALOR_TOTAL_AGUA
-					valorTotalAgua = valorTotalAgua
-							.add(ConstantesSistema.VALOR_ZERO);
+					valorTotalAgua = valorTotalAgua.add(ConstantesSistema.VALOR_ZERO);
 				}
 
 				/*
@@ -66666,18 +66527,14 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 				 * valor de esgoto ao valor total de esgoto. Caso contrário soma
 				 * zero.
 				 */
-				if (calcularValoresAguaEsgotoHelper
-						.getValorFaturadoEsgotoCategoria() != null) {
+				if (calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria() != null) {
 
 					// VALOR_TOTAL_ESGOTO
-					valorTotalEsgoto = valorTotalEsgoto
-							.add(calcularValoresAguaEsgotoHelper
-									.getValorFaturadoEsgotoCategoria());
+					valorTotalEsgoto = valorTotalEsgoto.add(calcularValoresAguaEsgotoHelper.getValorFaturadoEsgotoCategoria());
 				} else {
 
 					// VALOR_TOTAL_ESGOTO
-					valorTotalEsgoto = valorTotalEsgoto
-							.add(ConstantesSistema.VALOR_ZERO);
+					valorTotalEsgoto = valorTotalEsgoto.add(ConstantesSistema.VALOR_ZERO);
 				}
 			}
 		}
@@ -66772,106 +66629,54 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 	/**
 	 * [UC0113] Faturar Grupo de Faturamento
-	 * 
 	 * [SB0004] - Gerar os Débitos Cobrados
-	 * 
-	 * @author Raphael Rossiter
-	 * @date 28/03/2008
-	 * 
-	 * @param imovel
-	 * @param anoMesFaturamento
-	 * @param gerarAtividadeGrupoFaturamento
-	 * @return GerarDebitoCobradoHelper
-	 * @throws ControladorException
 	 */
-	public GerarDebitoCobradoHelper gerarDebitoCobrado(Imovel imovel,
-			Integer anoMesFaturamento, SistemaParametro sistemaParametro,
+	public GerarDebitoCobradoHelper gerarDebitoCobrado(Imovel imovel, Integer anoMesFaturamento, SistemaParametro sistemaParametro,
 			boolean gerarAtividadeGrupoFaturamento) throws ControladorException {
 
 		GerarDebitoCobradoHelper helper = new GerarDebitoCobradoHelper();
 
-		// Pesquisa os débitos a cobrar do imóvel.
-		Collection colecaoDebitosACobrar = this
-				.obterDebitoACobrarImovel(imovel.getId(),
-						DebitoCreditoSituacao.NORMAL, anoMesFaturamento);
+		Collection colecaoDebitosACobrar = this.obterDebitoACobrarImovel(imovel.getId(), DebitoCreditoSituacao.NORMAL, anoMesFaturamento);
 
 		BigDecimal valorTotalDebitos = ConstantesSistema.VALOR_ZERO;
 		List colecaoDebitosACobrarUpdate = new ArrayList();
 		Collection colecaoDebitosCobradoCategoria = null;
 
-		// Cria o map para armazenar os débitos cobrados junto com os débitos
-		// cobrados por categoria.
 		Map<DebitoCobrado, Collection<DebitoCobradoCategoria>> mapDebitosCobrados = null;
-		// Cria o map para armazenar os débitos a cobradar junto com os valores
-		// por tipo débito.
 		Map<DebitoTipo, BigDecimal> mapValoresPorTipoDebito = null;
 
-		/*
-		 * Caso o imóvel tenha débitos a cobrar gera os débitos cobrados
-		 */
 		if (colecaoDebitosACobrar != null && !colecaoDebitosACobrar.isEmpty()) {
 
-			Iterator iteratorColecaoDebitosACobrar = colecaoDebitosACobrar
-					.iterator();
+			Iterator iteratorColecaoDebitosACobrar = colecaoDebitosACobrar.iterator();
 
 			mapDebitosCobrados = new HashMap();
 			mapValoresPorTipoDebito = new HashMap<DebitoTipo, BigDecimal>();
 			DebitoACobrar debitoACobrar = null;
 			BigDecimal valorPrestacao = null;
 
-			// LAÇO PARA GERAR OS DÉBITOS COBRADOS E OS DÉBITOS COBRADOS POR
-			// CATEGORIA
 			while (iteratorColecaoDebitosACobrar.hasNext()) {
 
-				debitoACobrar = (DebitoACobrar) iteratorColecaoDebitosACobrar
-						.next();
+				debitoACobrar = (DebitoACobrar) iteratorColecaoDebitosACobrar.next();
 
-				// Calcula o valor da prestação
-				valorPrestacao = debitoACobrar.getValorDebito()
-						.divide(new BigDecimal(
-								debitoACobrar.getNumeroPrestacaoDebito()), 2,
-								BigDecimal.ROUND_DOWN);
+				valorPrestacao = debitoACobrar.getValorDebito().divide(new BigDecimal(debitoACobrar.getNumeroPrestacaoDebito()), 2, BigDecimal.ROUND_DOWN);
 
-				/*
-				 * Alterado por Vivianne Sousa em 20/12/2007 - Analista: Adriano
-				 * criação do bonus para parcelamento com RD especial
-				 */
 				Short numeroParcelaBonus = 0;
 				if (debitoACobrar.getNumeroParcelaBonus() != null) {
 					numeroParcelaBonus = debitoACobrar.getNumeroParcelaBonus();
 				}
 
-				// Caso seja a última prestação
-				if (debitoACobrar.getNumeroPrestacaoCobradas() == ((debitoACobrar
-						.getNumeroPrestacaoDebito() - numeroParcelaBonus) - 1)) {
+				if (debitoACobrar.getNumeroPrestacaoCobradas() == ((debitoACobrar.getNumeroPrestacaoDebito() - numeroParcelaBonus) - 1)) {
 
-					// Obtém o número de prestação débito
-					BigDecimal numeroPrestacaoDebito = new BigDecimal(
-							debitoACobrar.getNumeroPrestacaoDebito());
+					BigDecimal numeroPrestacaoDebito = new BigDecimal(debitoACobrar.getNumeroPrestacaoDebito());
+					BigDecimal multiplicacao = valorPrestacao.multiply(numeroPrestacaoDebito).setScale(2);
+					BigDecimal parte1 = debitoACobrar.getValorDebito().subtract(multiplicacao).setScale(2);
 
-					// Mutiplica o (valor da prestação * número da prestação
-					// debito) - numeroParcelaBonus
-
-					BigDecimal multiplicacao = valorPrestacao.multiply(
-							numeroPrestacaoDebito).setScale(2);
-
-					// Subtrai o valor do débito pelo resultado da multiplicação
-					BigDecimal parte1 = debitoACobrar.getValorDebito()
-							.subtract(multiplicacao).setScale(2);
-
-					// Calcula o valor da prestação
 					valorPrestacao = valorPrestacao.add(parte1).setScale(2);
 				}
 
-				// Acumula o valor da prestação no valor total dos debitos
 				valorTotalDebitos = valorTotalDebitos.add(valorPrestacao);
 
-				// Se a atividade é faturar grupo de faturamento gera os débitos
-				// cobrados
 				if (gerarAtividadeGrupoFaturamento) {
-
-					// GERANDO O DÉBITO COBRADO
-					// -----------------------------------------------------------------------------------------
 					DebitoCobrado debitoCobrado = new DebitoCobrado();
 
 					DebitoACobrarGeral debitoACobrarGeral = new DebitoACobrarGeral();
@@ -66880,180 +66685,88 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 					debitoCobrado.setDebitoACobrarGeral(debitoACobrarGeral);
 					debitoCobrado.setDebitoTipo(debitoACobrar.getDebitoTipo());
 					debitoCobrado.setUltimaAlteracao(new Date());
-					debitoCobrado.setLancamentoItemContabil(debitoACobrar
-							.getLancamentoItemContabil());
+					debitoCobrado.setLancamentoItemContabil(debitoACobrar.getLancamentoItemContabil());
 					debitoCobrado.setLocalidade(debitoACobrar.getLocalidade());
 					debitoCobrado.setQuadra(debitoACobrar.getQuadra());
-					debitoCobrado.setCodigoSetorComercial(debitoACobrar
-							.getCodigoSetorComercial());
-					debitoCobrado.setNumeroQuadra(debitoACobrar
-							.getNumeroQuadra());
+					debitoCobrado.setCodigoSetorComercial(debitoACobrar.getCodigoSetorComercial());
+					debitoCobrado.setNumeroQuadra(debitoACobrar.getNumeroQuadra());
 					debitoCobrado.setNumeroLote(debitoACobrar.getNumeroLote());
-					debitoCobrado.setNumeroSubLote(debitoACobrar
-							.getNumeroSubLote());
-					debitoCobrado.setAnoMesReferenciaDebito(debitoACobrar
-							.getAnoMesReferenciaDebito());
-					debitoCobrado.setAnoMesCobrancaDebito(debitoACobrar
-							.getAnoMesCobrancaDebito());
+					debitoCobrado.setNumeroSubLote(debitoACobrar.getNumeroSubLote());
+					debitoCobrado.setAnoMesReferenciaDebito(debitoACobrar.getAnoMesReferenciaDebito());
+					debitoCobrado.setAnoMesCobrancaDebito(debitoACobrar.getAnoMesCobrancaDebito());
 					debitoCobrado.setValorPrestacao(valorPrestacao);
-					debitoCobrado.setNumeroPrestacao(debitoACobrar
-							.getNumeroPrestacaoDebito());
-					debitoCobrado.setFinanciamentoTipo(debitoACobrar
-							.getFinanciamentoTipo());
+					debitoCobrado.setNumeroPrestacao(debitoACobrar.getNumeroPrestacaoDebito());
+					debitoCobrado.setFinanciamentoTipo(debitoACobrar.getFinanciamentoTipo());
 
 					debitoCobrado.setNumeroParcelaBonus(numeroParcelaBonus);
 
-					// Incrementa o nº de prestação cobradas
-					int numeroPrestacaoCobradas = debitoACobrar
-							.getNumeroPrestacaoCobradas() + 1;
-					debitoCobrado
-							.setNumeroPrestacaoDebito((short) numeroPrestacaoCobradas);
-					// ----------------------------------------------------------------------------------------
+					int numeroPrestacaoCobradas = debitoACobrar.getNumeroPrestacaoCobradas() + 1;
+					debitoCobrado.setNumeroPrestacaoDebito((short) numeroPrestacaoCobradas);
 
-					// Pesquisa os debitos a cobrar categoria do debito a cobrar
-					Collection colecaoDebitoACobrarCategoria = this
-							.obterDebitoACobrarCategoria(debitoACobrar.getId());
+					Collection colecaoDebitoACobrarCategoria = this.obterDebitoACobrarCategoria(debitoACobrar.getId());
 
-					// Carregando as categorias do debitoACobrarCategoria
-					Iterator colecaoDebitoACobrarCategoriaIterator = colecaoDebitoACobrarCategoria
-							.iterator();
+					Iterator colecaoDebitoACobrarCategoriaIterator = colecaoDebitoACobrarCategoria.iterator();
 
 					Collection colecaoCategoriasObterValor = new ArrayList();
 
 					while (colecaoDebitoACobrarCategoriaIterator.hasNext()) {
 
-						DebitoACobrarCategoria debitoACobrarCategoria = (DebitoACobrarCategoria) colecaoDebitoACobrarCategoriaIterator
-								.next();
+						DebitoACobrarCategoria debitoACobrarCategoria = (DebitoACobrarCategoria) colecaoDebitoACobrarCategoriaIterator.next();
 
-						Categoria categoria = new Categoria();
-						categoria.setId(debitoACobrarCategoria.getCategoria()
-								.getId());
-						categoria
-								.setQuantidadeEconomiasCategoria(debitoACobrarCategoria
-										.getQuantidadeEconomia());
+						Categoria categoria = new Categoria(debitoACobrarCategoria.getCategoria().getId());
+						categoria.setQuantidadeEconomiasCategoria(debitoACobrarCategoria.getQuantidadeEconomia());
 
 						colecaoCategoriasObterValor.add(categoria);
 					}
 
-					// [UC0185] Obter Valor por Categoria
-					Collection colecaoCategoriasCalculadasValor = getControladorImovel()
-							.obterValorPorCategoria(
-									colecaoCategoriasObterValor, valorPrestacao);
+					Collection colecaoCategoriasCalculadasValor = getControladorImovel().obterValorPorCategoria(colecaoCategoriasObterValor, valorPrestacao);
 
-					// GERANDO O DÉBITO COBRADO CATEGORIA
-					// -------------------------------------------------------------------------------------------
 					DebitoCobradoCategoria debitoCobradoCategoria = null;
 					DebitoCobradoCategoriaPK debitoCobradoCategoriaPK = null;
 
-					Iterator colecaoCategoriasCalculadasValorIterator = colecaoCategoriasCalculadasValor
-							.iterator();
-					Iterator colecaoCategoriasObterValorIterator = colecaoCategoriasObterValor
-							.iterator();
+					Iterator colecaoCategoriasCalculadasValorIterator = colecaoCategoriasCalculadasValor.iterator();
+					Iterator colecaoCategoriasObterValorIterator = colecaoCategoriasObterValor.iterator();
 
 					colecaoDebitosCobradoCategoria = new ArrayList();
 
-					// LAÇO PARA GERAR OS DÉBITOS COBRADOS POR CATEGORIA
-					while (colecaoCategoriasCalculadasValorIterator.hasNext()
-							&& colecaoCategoriasObterValorIterator.hasNext()) {
+					while (colecaoCategoriasCalculadasValorIterator.hasNext() && colecaoCategoriasObterValorIterator.hasNext()) {
 
-						// Cria o débito a cobrar por categoria e adiciona a
-						// coleção.
 						debitoCobradoCategoria = new DebitoCobradoCategoria();
 
-						// VALOR POR CATEGORIA
-						BigDecimal valorPorCategoria = (BigDecimal) colecaoCategoriasCalculadasValorIterator
-								.next();
+						BigDecimal valorPorCategoria = (BigDecimal) colecaoCategoriasCalculadasValorIterator.next();
 
-						// CATEGORIA
-						Categoria categoria = (Categoria) colecaoCategoriasObterValorIterator
-								.next();
+						Categoria categoria = (Categoria) colecaoCategoriasObterValorIterator.next();
 
-						debitoCobradoCategoria
-								.setValorCategoria(valorPorCategoria);
+						debitoCobradoCategoria.setValorCategoria(valorPorCategoria);
 
 						debitoCobradoCategoriaPK = new DebitoCobradoCategoriaPK();
-						debitoCobradoCategoriaPK.setCategoriaId(categoria
-								.getId());
-						debitoCobradoCategoriaPK
-								.setDebitoCobradoId(debitoCobrado.getId());
-
-						debitoCobradoCategoria
-								.setComp_id(debitoCobradoCategoriaPK);
+						debitoCobradoCategoriaPK.setCategoriaId(categoria.getId());
+						debitoCobradoCategoriaPK.setDebitoCobradoId(debitoCobrado.getId());
+						debitoCobradoCategoria.setComp_id(debitoCobradoCategoriaPK);
 						debitoCobradoCategoria.setDebitoCobrado(debitoCobrado);
 						debitoCobradoCategoria.setCategoria(categoria);
-						debitoCobradoCategoria.setQuantidadeEconomia(categoria
-								.getQuantidadeEconomiasCategoria());
+						debitoCobradoCategoria.setQuantidadeEconomia(categoria.getQuantidadeEconomiasCategoria());
 
-						// INSERINDO O debitoCobradoCategoria NA COLEÇÃO DE
-						// RETORNO
-						colecaoDebitosCobradoCategoria
-								.add(debitoCobradoCategoria);
+						colecaoDebitosCobradoCategoria.add(debitoCobradoCategoria);
 					}
 
-					/*
-					 * Adiciona no map o relacionamento entre o débito a cobrar
-					 * e os débitos a cobrar por categoria.
-					 */
-					mapDebitosCobrados.put(debitoCobrado,
-							colecaoDebitosCobradoCategoria);
+					mapDebitosCobrados.put(debitoCobrado, colecaoDebitosCobradoCategoria);
 
-					/*
-					 * Adiciona no map o relacionamento entre o débito cobrado e
-					 * o auto de infração
-					 */
+					debitoACobrar.setNumeroPrestacaoCobradas(new Integer(debitoACobrar.getNumeroPrestacaoCobradas() + 1).shortValue());
+					debitoACobrar.setAnoMesReferenciaPrestacao(anoMesFaturamento);
 
-					/**
-					 * Alteração feita por Bruno Barros dia 08 de Janeiro de
-					 * 2009 Solicitante: Nelson Carvalho Descrição da
-					 * solicitação: Não mais gerar o vinculo de debito cobrado a
-					 * um auto de infração quando o débito a cobrar de origem
-					 * estiver vinculado ao mesmo.
-					 */
-
-					/*
-					 * Atualiza o nº de prestações cobradas do débito a cobrar e
-					 * adicona o objeto a coleção de débitos a cobrar que vai
-					 * ser atualizados.
-					 */
-					debitoACobrar.setNumeroPrestacaoCobradas(new Integer(
-							debitoACobrar.getNumeroPrestacaoCobradas() + 1)
-							.shortValue());
-
-					// anoMes da prestação será o anaMes de referência da conta
-					debitoACobrar
-							.setAnoMesReferenciaPrestacao(anoMesFaturamento);
-
-					// INSERINDO O debitoACobrar NA COLEÇÃO DE RETORNO
 					colecaoDebitosACobrarUpdate.add(debitoACobrar);
 
-				}// fim se atividade grupo faturamento
+				}
 
-				/*
-				 * Desenvolvedor: Hugo Amorim Analista:Jeferson Pedrosa Data:
-				 * 29/07/2010
-				 * 
-				 * [CRC4457] Colecionar os valores que compõem os totais de
-				 * débito e créditos nas tabelas
-				 * resumo_faturamento_simulado_detalhe_debito e
-				 * resumo_faturamento_simulado_detalhe_credito respectivamente.
-				 */
-				// Verifica se debito a cobrar já foi inserido, caso sim
-				// acumala os valores.
-				if (mapValoresPorTipoDebito.containsKey(debitoACobrar
-						.getDebitoTipo())) {
-					BigDecimal valor = mapValoresPorTipoDebito
-							.get(debitoACobrar.getDebitoTipo());
-					mapValoresPorTipoDebito.put(debitoACobrar.getDebitoTipo(),
-							Util.somaBigDecimal(valor, valorPrestacao));
+				if (mapValoresPorTipoDebito.containsKey(debitoACobrar.getDebitoTipo())) {
+					BigDecimal valor = mapValoresPorTipoDebito.get(debitoACobrar.getDebitoTipo());
+					mapValoresPorTipoDebito.put(debitoACobrar.getDebitoTipo(), Util.somaBigDecimal(valor, valorPrestacao));
+				} else {
+					mapValoresPorTipoDebito.put(debitoACobrar.getDebitoTipo(), valorPrestacao);
 				}
-				// Caso contrario inseri na coleção
-				// primeiro registro do tipo.
-				else {
-					mapValoresPorTipoDebito.put(debitoACobrar.getDebitoTipo(),
-							valorPrestacao);
-				}
-			}// fim do laço de debito a cobrar
-		}// fim gerar debitos cobrados
+			}
+		}
 
 		helper.setColecaoDebitoACobrar(colecaoDebitosACobrarUpdate);
 		helper.setMapDebitosCobrados(mapDebitosCobrados);
@@ -67510,6 +67223,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 			FaturamentoGrupo faturamentoGrupo, boolean faturamentoAntecipado,
 			boolean preFaturamento, boolean contaNova, Conta conta) throws ControladorException {
 
+		System.out.println("contaNova" + contaNova);
 		if (conta == null) {
 			contaNova = true;
 			
@@ -67666,6 +67380,7 @@ public class ControladorFaturamentoFINAL implements SessionBean {
 
 		conta.setNumeroBoleto(this.verificarGeracaoBoleto(sistemaParametro, conta));
 
+		System.out.println("contaNova" + contaNova);
 		if (contaNova) {
 			this.getControladorUtil().inserir(conta);
 		} else {

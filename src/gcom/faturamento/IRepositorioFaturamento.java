@@ -2870,6 +2870,8 @@ public interface IRepositorioFaturamento {
 
 	public MovimentoContaPrefaturada obterMovimentoImovel(Integer idImovel, Integer anoMesReferencia) throws ErroRepositorioException;
 
+	public MovimentoContaPrefaturada obterMovimentoImovel(Integer idImovel, Integer anoMesReferencia, Integer tipoMedicao) throws ErroRepositorioException;
+	
 	public Conta pesquisarContaParaPrescricao(Integer idConta) throws ErroRepositorioException;
 
 	public ExtratoQuitacao obterExtratoQuitacaoImovel(Integer idImovel, Integer anoReferencia) throws ErroRepositorioException;

@@ -38824,8 +38824,8 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 		try {
 			consulta = "SELECT facr "
 					+ "FROM FaturamentoAtivCronRota facr "
-					+ "INNER JOIN facr.rota rota "
-					+ "INNER JOIN rota.faturamentoGrupo faturamentoGrupo "
+					+ "INNER JOIN fetch facr.rota rota "
+					+ "INNER JOIN fetch rota.faturamentoGrupo faturamentoGrupo "
 					+ "INNER JOIN facr.faturamentoAtividadeCronograma ftac "
 					+ "INNER JOIN ftac.faturamentoAtividade ftat "
 					+ "INNER JOIN fetch ftac.faturamentoGrupoCronogramaMensal ftcm "
@@ -59350,6 +59350,39 @@ public class RepositorioFaturamentoHBM implements IRepositorioFaturamento {
 			HibernateUtil.closeSession(session);
 		}
 		// retorna a conta
+		return movimento;
+	}
+	
+	public MovimentoContaPrefaturada obterMovimentoImovel(Integer idImovel, Integer anoMesReferencia, Integer tipoMedicao) throws ErroRepositorioException {
+
+		MovimentoContaPrefaturada movimento = null;
+		StringBuilder consulta = new StringBuilder();
+		Session session = HibernateUtil.getSession();
+		
+		try {
+
+			consulta.append("SELECT movimento ")
+				.append("FROM MovimentoContaPrefaturada movimento  ")
+				.append("INNER JOIN FETCH movimento.imovel imovel ")
+				.append("INNER JOIN FETCH movimento.rota rota ")
+				.append("INNER JOIN FETCH movimento.faturamentoGrupo grupo ")
+				.append("INNER JOIN FETCH rota.faturamentoGrupo grupo ")
+				.append("LEFT JOIN FETCH movimento.movimentoContaPrefaturadaCategorias categorias ")
+				.append("WHERE movimento.anoMesReferenciaPreFaturamento = :anoMesReferencia ") 
+				.append("AND movimento.imovel.id = :imovel ")
+				.append("AND movimento.medicaoTipo.id = :tipoMedicao");
+			
+			movimento = (MovimentoContaPrefaturada)session.createQuery(consulta.toString())
+			.setInteger("anoMesReferencia", anoMesReferencia)
+			.setInteger("imovel",idImovel)
+			.setInteger("tipoMedicao",tipoMedicao)
+			.setMaxResults(1).uniqueResult();
+
+		} catch (HibernateException e) {
+			throw new ErroRepositorioException(e, "Erro no Hibernate");
+		} finally {
+			HibernateUtil.closeSession(session);
+		}
 		return movimento;
 	}
 	

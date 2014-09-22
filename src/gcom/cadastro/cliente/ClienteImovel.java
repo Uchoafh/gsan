@@ -14,57 +14,42 @@ import java.util.Date;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-/** @author Hibernate CodeGenerator */
 @ControleAlteracao()
 public class ClienteImovel extends ObjetoTransacao implements IClienteImovel {
 	private static final long serialVersionUID = 1L;
 
-	/** identifier field */
 	private Integer id;
 
-	/** persistent field */
 	@ControleAlteracao(funcionalidade={Imovel.ATRIBUTOS_IMOVEL_ATUALIZAR,Imovel.ATRIBUTOS_IMOVEL_REMOVER,
 			TarifaSocialDadoEconomia.ATRIBUTOS_MANTER_TARIFA_SOCIAL, Cliente.ATRIBUTOS_CLIENTE_ATUALIZAR,Cliente.OPERACAO_ATUALIZAR_DADOS_IMOVEL_ATUALIZACAO_CADASTRAL})
 	private Date dataInicioRelacao;
 
-	/** nullable persistent field */
 	@ControleAlteracao(funcionalidade={Imovel.ATRIBUTOS_IMOVEL_ATUALIZAR,Imovel.ATRIBUTOS_IMOVEL_REMOVER,
 			TarifaSocialDadoEconomia.ATRIBUTOS_MANTER_TARIFA_SOCIAL, Cliente.ATRIBUTOS_CLIENTE_ATUALIZAR,Cliente.OPERACAO_ATUALIZAR_DADOS_IMOVEL_ATUALIZACAO_CADASTRAL})
 	private Date dataFimRelacao;
 
-	/** nullable persistent field */
 	private Date ultimaAlteracao;
-
-	/** persistent field */
 	private Imovel imovel;
+	private Cliente cliente;
+	private ClienteRelacaoTipo clienteRelacaoTipo;
 
-	/**
-	 * persistent field
-	 */
 	@ControleAlteracao(funcionalidade={Imovel.ATRIBUTOS_IMOVEL_ATUALIZAR,Imovel.ATRIBUTOS_IMOVEL_REMOVER, Cliente.ATRIBUTOS_CLIENTE_ATUALIZAR,Cliente.OPERACAO_ATUALIZAR_DADOS_IMOVEL_ATUALIZACAO_CADASTRAL})
 	private Short indicadorNomeConta;
 
-	/** persistent field */
 	@ControleAlteracao(value=FiltroClienteImovel.CLIENTE_IMOVEL_FIM_RELACAO_MOTIVO,
 			funcionalidade={Imovel.ATRIBUTOS_IMOVEL_ATUALIZAR,Imovel.ATRIBUTOS_IMOVEL_REMOVER,
 			TarifaSocialDadoEconomia.ATRIBUTOS_MANTER_TARIFA_SOCIAL, Cliente.ATRIBUTOS_CLIENTE_ATUALIZAR,Cliente.OPERACAO_ATUALIZAR_DADOS_IMOVEL_ATUALIZACAO_CADASTRAL})
-	private gcom.cadastro.cliente.ClienteImovelFimRelacaoMotivo clienteImovelFimRelacaoMotivo;
+	private ClienteImovelFimRelacaoMotivo clienteImovelFimRelacaoMotivo;
 
-	/** persistent field */
-	private gcom.cadastro.cliente.Cliente cliente;
 
-	/** persistent field */
-	private gcom.cadastro.cliente.ClienteRelacaoTipo clienteRelacaoTipo;
-
-	/** full constructor */
 	public ClienteImovel(
 			Date dataInicioRelacao,
 			Date dataFimRelacao,
 			Date ultimaAlteracao,
 			Imovel imovel,
-			gcom.cadastro.cliente.ClienteImovelFimRelacaoMotivo clienteImovelFimRelacaoMotivo,
-			gcom.cadastro.cliente.Cliente cliente,
-			gcom.cadastro.cliente.ClienteRelacaoTipo clienteRelacaoTipo) {
+			ClienteImovelFimRelacaoMotivo clienteImovelFimRelacaoMotivo,
+			Cliente cliente,
+			ClienteRelacaoTipo clienteRelacaoTipo) {
 		this.dataInicioRelacao = dataInicioRelacao;
 		this.dataFimRelacao = dataFimRelacao;
 		this.ultimaAlteracao = ultimaAlteracao;
@@ -74,11 +59,14 @@ public class ClienteImovel extends ObjetoTransacao implements IClienteImovel {
 		this.clienteRelacaoTipo = clienteRelacaoTipo;
 	}
 
-	/** default constructor */
 	public ClienteImovel() {
 	}
 
-	/** minimal constructor */
+	public ClienteImovel(Cliente cliente, Imovel imovel) {
+		this.cliente = cliente;
+		this.imovel = imovel;
+	}
+	
 	public ClienteImovel(
 			Date dataInicioRelacao,
 			Imovel imovel,
@@ -179,11 +167,6 @@ public class ClienteImovel extends ObjetoTransacao implements IClienteImovel {
 				: true) && (this.getDataInicioRelacao().equals(castOther.getDataInicioRelacao())));
 	}
 
-	/**
-	 * Description of the Method
-	 * 
-	 * @return Description of the Return Value
-	 */
 	public int hashCode() {
 		return new HashCodeBuilder().append(getCliente()).append(
 				getClienteRelacaoTipo()).append(getDataInicioRelacao()).append(

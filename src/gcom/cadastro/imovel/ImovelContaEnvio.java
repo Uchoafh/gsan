@@ -9,70 +9,35 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-/** @author Hibernate CodeGenerator */
 public class ImovelContaEnvio extends ObjetoTransacao {
 	
 	private static final long serialVersionUID = 1L;
 
-    /** identifier field */
     private Integer id;
-
-    /** persistent field */
     private String descricao;
-
-    /** persistent field */
     private short indicadorUso;
-
-    /** persistent field */
     private Date ultimaAlteracao;
-
-    /** persistent field */
-    private Set imovels;
-    
-    /** persistent fiel */
     private Short indicadorClienteResponsavel;
     
-    /**
-     * Description of the Field
-     */
+    @SuppressWarnings("rawtypes")
+	private Set imovels;
+
     public final static Integer ENVIAR_CLIENTE_RESPONSAVEL = new Integer("1");
-
-    /**
-     * Description of the Field
-     */
     public final static Integer ENVIAR_IMOVEL = new Integer("2");
-
-    /**
-     * Description of the Field
-     */
     public final static Integer NAO_PAGAVEL_IMOVEL_PAGAVEL_RESPONSAVEL = new Integer("3");
-    
-    /**
-     * Description of the Field
-     */
     public final static Integer ENVIAR_CLIENTE_RESPONSAVEL_FINAL_GRUPO = new Integer("9");
-    
-    /**
-     * Description of the Field
-     */
     public final static Integer ENVIAR_PARA_EMAIL = new Integer("4");
-    
-    /**
-     * Description of the Field
-     */
     public final static Integer ENVIAR_PARA_IMOVEL_E_PARA_EMAIL = new Integer("5");
-    
     public final static Integer ENVIAR_CONTA_BRAILLE = new Integer("6");
-    
     public final static Integer ENVIAR_CONTA_BRAILLE_RESPONSAVEL = new Integer("7");
     
-    /** full constructor */
     public ImovelContaEnvio() {
     }
     
+    public ImovelContaEnvio(Integer id) {
+    	this.id = id;
+    }
     
-    /** full constructor */
     public ImovelContaEnvio(Integer icteId, String icteDscontaenvio, short icteIcuso, Date icteTmultimaalteracao, Set imovels) {
         this.id = icteId;
         this.descricao = icteDscontaenvio;

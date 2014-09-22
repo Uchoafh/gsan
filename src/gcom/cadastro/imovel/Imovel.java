@@ -83,7 +83,7 @@ public class Imovel extends ObjetoTransacao implements IImovel {
 	private Date ultimaAlteracao;
 	private Set<ImovelSubcategoria> imovelSubcategorias;
 	@SuppressWarnings("rawtypes")
-	private Set clienteImoveis;
+	private Set<ClienteImovel> clienteImoveis;
 	private Set<MedicaoHistorico> medicaoHistoricos;
 	private FaturamentoTipo faturamentoTipo;
 	private FaturamentoSituacaoMotivo faturamentoSituacaoMotivo;
@@ -1613,12 +1613,12 @@ public class Imovel extends ObjetoTransacao implements IImovel {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Set getClienteImoveis() {
+	public Set<ClienteImovel> getClienteImoveis() {
 		return clienteImoveis;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void setClienteImoveis(Set clienteImoveis) {
+	public void setClienteImoveis(Set<ClienteImovel> clienteImoveis) {
 		this.clienteImoveis = clienteImoveis;
 	}
 

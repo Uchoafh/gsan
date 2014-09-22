@@ -4,31 +4,20 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 
-/** @author Hibernate CodeGenerator */
 public class CalcularValoresAguaEsgotoHelper implements Serializable {
 	private static final long serialVersionUID = 1L;
+
 	private Integer idCategoria;
-	
 	private String descricaoCategoria;
-	
 	private Integer quantidadeEconomiasCategoria;
-	
 	private Integer idConsumoTarifaCategoria;
-
 	private BigDecimal valorFaturadoAguaCategoria;
-
 	private Integer consumoFaturadoAguaCategoria;
-
 	private BigDecimal valorFaturadoEsgotoCategoria;
-
 	private Integer consumoFaturadoEsgotoCategoria;
-
 	private BigDecimal valorTarifaMinimaAguaCategoria;
-
 	private Integer consumoMinimoAguaCategoria;
-
 	private BigDecimal valorTarifaMinimaEsgotoCategoria;
-
 	private Integer consumoMinimoEsgotoCategoria;
 
 	private Collection<CalcularValoresAguaEsgotoFaixaHelper> faixaTarifaConsumo;

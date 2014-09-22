@@ -4,31 +4,25 @@ import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-/** @author Hibernate CodeGenerator */
 public class FaturamentoTipo implements Serializable {
 	private static final long serialVersionUID = 1L;
-    /** identifier field */
+    
     private Integer id;
-
-    /** nullable persistent field */
     private String descricao;
-
-    /** nullable persistent field */
     private Short indicadorUso;
-
-    /** nullable persistent field */
     private Date ultimaAlteracao;
 
-    /** full constructor */
     public FaturamentoTipo(String descricao, Short indicadorUso, Date ultimaAlteracao) {
         this.descricao = descricao;
         this.indicadorUso = indicadorUso;
         this.ultimaAlteracao = ultimaAlteracao;
     }
 
-    /** default constructor */
     public FaturamentoTipo() {
+    }
+    
+    public FaturamentoTipo(Integer id) {
+    	this.id = id;
     }
 
     public Integer getId() {

@@ -640,8 +640,7 @@ public class UC0745GerarArquivoTextoFaturamento {
 					clienteImovel.setCliente(clienteResponsavel);
 					clienteImovel.setClienteRelacaoTipo(clienteRelacaoTipo);
 
-					clienteImovel
-							.setIndicadorNomeConta((Short) arrayImovel[73]);
+					clienteImovel.setIndicadorNomeConta((Short) arrayImovel[73]);
 
 					colecaoClienteImovel.add(clienteImovel);
 				}

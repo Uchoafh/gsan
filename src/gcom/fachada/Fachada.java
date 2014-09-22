@@ -44096,5 +44096,13 @@ public class Fachada {
 		}
 
 	}
+	
+	public void processarMovimentoContaPreFaturadaFaturamentoSeletivo(ImovelFaturamentoSeletivo imovelFaturamentoSeletivo) throws ControladorException {
+		try {
+			this.getControladorMicromedicao().processarMovimentoContaPreFaturadaFaturamentoSeletivo(imovelFaturamentoSeletivo);
+		} catch (Exception ex) {
+			throw new FachadaException(ex.getMessage(), ex);
+		}
+	}
 
 }

@@ -8,50 +8,28 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 
-/**
- * Retornar valores para faturamento de água e esgoto
- *
- * @author Raphael Rossiter
- * 
- * @date 27/03/2008
- */
 public class DeterminarValoresFaturamentoAguaEsgotoHelper {
 
 	private Short indicadorFaturamentoAgua;
-	
 	private Integer consumoFaturadoAgua;
-	
 	private Short indicadorFaturamentoEsgoto;
-	
 	private Integer consumoFaturadoEsgoto;
-	
 	private int consumoMinimoLigacao;
-	
 	private Date dataLeituraAnterior;
-	
 	private Date dataLeituraAtual;
-	
 	private BigDecimal percentualEsgoto;
-	
 	private BigDecimal valorTotalAgua;
-	
 	private BigDecimal valorTotalEsgoto;
-	
 	private Integer consumoRateioAgua;
-	
 	private Integer consumoRateioEsgoto;
-	
 	private ConsumoHistorico consumoHistoricoAgua;
-	
 	private ConsumoHistorico consumoHistoricoEsgoto;
-	
-	private Collection colecaoCalcularValoresAguaEsgotoHelper;
-	
 	private ConsumoTipo consumoTipoAgua;
-	
 	private ConsumoTipo consumoTipoEsgoto;
-	
 	private BigDecimal percentualColetaEsgoto;
+
+	@SuppressWarnings("rawtypes")
+	private Collection colecaoCalcularValoresAguaEsgotoHelper;
 	
 	public DeterminarValoresFaturamentoAguaEsgotoHelper(){
 		
@@ -180,10 +158,12 @@ public class DeterminarValoresFaturamentoAguaEsgotoHelper {
 		this.consumoRateioEsgoto = consumoRateioEsgoto;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Collection getColecaoCalcularValoresAguaEsgotoHelper() {
 		return colecaoCalcularValoresAguaEsgotoHelper;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void setColecaoCalcularValoresAguaEsgotoHelper(
 			Collection colecaoCalcularValoresAguaEsgotoHelper) {
 		this.colecaoCalcularValoresAguaEsgotoHelper = colecaoCalcularValoresAguaEsgotoHelper;

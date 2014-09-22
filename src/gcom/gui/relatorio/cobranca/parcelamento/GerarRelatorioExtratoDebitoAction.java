@@ -567,5 +567,23 @@ public class GerarRelatorioExtratoDebitoAction extends ExibidorProcessamentoTare
 		request.removeAttribute("consultarDebito");
 		request.removeAttribute("RD");
 		request.removeAttribute("parcelamentoPortal");
+		
+		imovel = null;
+		inscricao = "";    	
+		matricula = "";
+		nomeUsuario = "";
+		cpfCnpj = "";
+		enderecoImovel = "";
+		
+		colecaoContas =  null;
+		colecaoGuiasPagamento = null;
+		colecaoDebitosACobrar = null;
+		colecaoCreditoARealizar = null;
+		colecaoAntecipacaoDebitosDeParcelamento = null;
+		colecaoAntecipacaoCreditosDeParcelamento = null;
+		valorAcrescimosImpontualidade = BigDecimal.ZERO;
+		valorDocumento = BigDecimal.ZERO;
+		valorDesconto =  BigDecimal.ZERO;
+		valorDescontoCredito =  BigDecimal.ZERO;
 	}
 }

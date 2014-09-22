@@ -465,7 +465,7 @@ function passarComEnter(tecla, nomeCampoForm, posicao) {
 																				<input type="text" maxlength="10" tabindex="2"
 																				name="datas" size="10" 
 																				readonly="readonly" style="background-color:#EFEFEF; border:0; text-align:left; color: #000000;" 
-																				property="${imovel.dataLeitura}"value="<fmt:formatDate pattern="dd/MM/yyyy" value="${imovel.dadoMovimentacao.dataLeituraCampo}"/>"/>
+																				property="${imovel.dataLeitura}" value="<fmt:formatDate pattern="dd/MM/yyyy" value="${imovel.dadoMovimentacao.dataLeituraCampo}"/>"/>
 																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
 																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />							
 																			</c:when>
@@ -499,6 +499,13 @@ function passarComEnter(tecla, nomeCampoForm, posicao) {
 																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
 																			</c:when>
 																			<c:otherwise>
+																				<html:text name="imovel" property="dataLeitura" indexed="true" maxlength="10" tabindex="4" size="10"></html:text>
+																				
+																				<a href="javascript:abrirCalendarioReplicando('FaturamentoSeletivoActionForm','datas','<%=cont-1%>',1)">
+																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
+																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
+																				</a>
+																			<!--  
 																				<input type="text" maxlength="10" tabindex="2"
 																				name="datas" size="10" onkeyup="mascaraData(this,event)" 
 																				onkeypress="passarComEnter(event, 'leituras', '<%=cont%>');return isCampoNumerico(event);"
@@ -508,6 +515,7 @@ function passarComEnter(tecla, nomeCampoForm, posicao) {
 																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
 																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
 																				</a>
+																				-->
 																			</c:otherwise>
 																	</c:choose>
 																<%}%>

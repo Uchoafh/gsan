@@ -2681,4 +2681,6 @@ public interface IControladorMicromedicao {
 	public LigacaoAgua obterLigacaoAgua(Integer idLigacao) throws ControladorException;
 
 	public void incluirMedicaoHistoricoFaturamentoSeletivo(ImovelFaturamentoSeletivo imovelFaturamentoSeletivo) throws Exception;
+	
+	public void processarMovimentoContaPreFaturadaFaturamentoSeletivo(ImovelFaturamentoSeletivo imovelFaturamentoSeletivo) throws ControladorException;
 }

@@ -4179,7 +4179,7 @@ public interface IControladorFaturamento {
 	 */
 	 public void processarMovimentoContaPrefaturada(Rota rota,
 			Collection<MovimentoContaPrefaturada> colContaPreFaturada,
-			boolean efetuarRateio) throws ControladorException ;
+			boolean efetuarRateio, boolean isfaturamentoSeletivo) throws ControladorException ;
 	
 	/**
 	 * [UC1001] Emitir declaração de quitação anual de débitos
@@ -5647,6 +5647,8 @@ public interface IControladorFaturamento {
 	public StringBuilder obterNomeArquivoRetorno(ArquivoTextoRetornoIS arquivoRetorno);
 	
 	public MovimentoContaPrefaturada obterMovimentoImovel(Integer idImovel, Integer anoMesReferencia) throws ControladorException;
+	
+	public MovimentoContaPrefaturada obterMovimentoImovel(Integer idImovel, Integer anoMesReferencia, Integer tipomedicao) throws ControladorException;
 	
 	public ExtratoQuitacao obterExtratoQuitacaoImovel(Integer idImovel, Integer anoReferencia) throws ControladorException;
 	

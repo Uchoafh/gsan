@@ -4,50 +4,31 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-/** @author Hibernate CodeGenerator */
 public class MovimentoContaPrefaturadaCategoria implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-    /** identifier field */
-    private gcom.faturamento.MovimentoContaPrefaturadaCategoriaPK comp_id;
+    private MovimentoContaPrefaturadaCategoriaPK comp_id;
 
-    /** nullable persistent field */
     private BigDecimal valorFaturadoAgua;
-
-    /** nullable persistent field */
     private Integer consumoFaturadoAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorTarifaMinimaAgua;
-
-    /** nullable persistent field */
     private Integer consumoMinimoAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorFaturadoEsgoto;
-
-    /** nullable persistent field */
     private Integer consumoFaturadoEsgoto;
-
-    /** nullable persistent field */
     private BigDecimal valorTarifaMinimaEsgoto;
-
-    /** nullable persistent field */
     private Integer consumoMinimoEsgoto;
-
-    /** persistent field */
     private Date ultimaAlteracao;
+    
+    @SuppressWarnings("rawtypes")
+	private Set movimentoContaCategoriaConsumoFaixas;
 
-    /** persistent field */
-    private Set movimentoContaCategoriaConsumoFaixas;
-
-    /** full constructor */
+    @SuppressWarnings("rawtypes")
     public MovimentoContaPrefaturadaCategoria(gcom.faturamento.MovimentoContaPrefaturadaCategoriaPK comp_id, BigDecimal valorFaturadoAgua, Integer consumoFaturadoAgua, BigDecimal valorTarifaMinimaAgua, Integer consumoMinimoAgua, BigDecimal valorFaturadoEsgoto, Integer consumoFaturadoEsgoto, BigDecimal valorTarifaMinimaEsgoto, Integer consumoMinimoEsgoto, Date ultimaAlteracao, gcom.faturamento.MovimentoContaPrefaturada movimentoContaPrefaturada, Set movimentoContaCategoriaConsumoFaixas) {
         this.comp_id = comp_id;
         this.valorFaturadoAgua = valorFaturadoAgua;
@@ -61,11 +42,10 @@ public class MovimentoContaPrefaturadaCategoria implements Serializable {
         this.ultimaAlteracao = ultimaAlteracao;
     }
 
-    /** default constructor */
     public MovimentoContaPrefaturadaCategoria() {
     }
 
-    /** minimal constructor */
+    @SuppressWarnings("rawtypes")
     public MovimentoContaPrefaturadaCategoria(gcom.faturamento.MovimentoContaPrefaturadaCategoriaPK comp_id, Date ultimaAlteracao, Set movimentoContaCategoriaConsumoFaixas) {
         this.comp_id = comp_id;
         this.ultimaAlteracao = ultimaAlteracao;
@@ -172,10 +152,12 @@ public class MovimentoContaPrefaturadaCategoria implements Serializable {
             .toHashCode();
     }
     
+    @SuppressWarnings("rawtypes")
 	public Set getMovimentoContaCategoriaConsumoFaixas() {
 		return movimentoContaCategoriaConsumoFaixas;
 	}
 
+    @SuppressWarnings("rawtypes")
 	public void setMovimentoContaCategoriaConsumoFaixas(
 			Set movimentoContaCategoriaConsumoFaixas) {
 		this.movimentoContaCategoriaConsumoFaixas = movimentoContaCategoriaConsumoFaixas;

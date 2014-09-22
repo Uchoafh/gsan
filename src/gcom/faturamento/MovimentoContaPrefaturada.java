@@ -16,120 +16,51 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
-/** @author Hibernate CodeGenerator */
 public class MovimentoContaPrefaturada implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-    /** identifier field */
     private Integer id;
-
-    /** persistent field */
     private Integer anoMesReferenciaPreFaturamento;
-
-    /** nullable persistent field */
     private Integer leituraHidrometro;
-
-    /** persistent field */
     private Date dataHoraLeitura;
-
-    /** persistent field */
     private Short indicadorSituacaoLeitura;
-
-    /** nullable persistent field */
     private Integer leituraFaturamento;
-
-    /** nullable persistent field */
     private Integer consumoMedido;
-
-    /** nullable persistent field */
     private Integer consumoCobrado;
-
-    /** persistent field */
     private Date dataHoraGeracaoMovimento;
-
-    /** persistent field */
     private Short indicadorAtualizacaoFaturamento;
-
-    /** persistent field */
     private Date utlimaAlteracao;
-
-    /** persistent field */
     private Short indicadorEmissaoConta;
-    
-    /** persistent field */
     private Short indicadorGeracaoConta;
-
-    /** nullable persistent field */
     private Integer consumoRateioAgua;
-
-    /** nullable persistent field */
     private BigDecimal valorRateioAgua;
-    
-    /** nullable persistent field */
     private Integer consumoRateioEsgoto;
-
-    /** nullable persistent field */
     private BigDecimal valorRateioEsgoto;
-    
-    /** persistent field */
     private Imovel imovel;
-
-    /** persistent field */
-    private MedicaoTipo medicaoTipo;
-
-    /** persistent field */
-    private gcom.faturamento.FaturamentoGrupo faturamentoGrupo;
-
-    /** persistent field */
-    private Rota rota;
-
-    /** persistent field */
-    private LeituraAnormalidade leituraAnormalidadeFaturamento;
-
-    /** persistent field */
-    private ConsumoTipo consumoTipo;
-
-    /** persistent field */
-    private ConsumoAnormalidade consumoAnormalidade;
-
-    /** persistent field */
-    private Conta conta;
-
-    /** persistent field */
-    private Set movimentoContaPrefaturadaCategorias;
-
-    /** persistent field */
-    private Set movimentoContaImpostoDeduzidos;
-    
-    private MovimentoContaPrefaturada movimentoContaPreFaturadaEsgoto;
-    
-    /** persistent field */
-    private LeituraAnormalidade leituraAnormalidadeLeitura;
-    
-    /** persistent field */
     private Integer consumoImoveisVinculados;
-    
-    /** persistent field */
+    private Integer leituraHidrometroAnterior;
+    private Short indicadorRetransmissao;
+    private String latitude;
+    private String longitude;
+    private Short indicadorAlteracao;
+    private MedicaoTipo medicaoTipo;
+    private FaturamentoGrupo faturamentoGrupo;
+    private Rota rota;
+    private LeituraAnormalidade leituraAnormalidadeFaturamento;
+    private ConsumoTipo consumoTipo;
+    private ConsumoAnormalidade consumoAnormalidade;
+    private Conta conta;
+    private MovimentoContaPrefaturada movimentoContaPreFaturadaEsgoto;
+    private LeituraAnormalidade leituraAnormalidadeLeitura;
     private CobrancaDocumento cobrancaDocumento;
     
-    /** nullable persistent field */
-    private Integer leituraHidrometroAnterior;
+    @SuppressWarnings("rawtypes")
+	private Set movimentoContaPrefaturadaCategorias;
     
-	/**TODO:COSANPA
-	 * Data: 11/10/2011
-	 * Autor: Adriana Muniz
-	 * 
-	 * */
-    private Short indicadorRetransmissao;
+    @SuppressWarnings("rawtypes")
+    private Set movimentoContaImpostoDeduzidos;
     
-    private String latitude;
-    
-    private String longitude;
-
- /** persistent field */
-    private Short indicadorAlteracao;
 
     public MovimentoContaPrefaturada getMovimentoContaPreFaturadaEsgoto() {
 		return movimentoContaPreFaturadaEsgoto;
@@ -140,8 +71,8 @@ public class MovimentoContaPrefaturada implements Serializable {
 		this.movimentoContaPreFaturadaEsgoto = movimentoContaPreFaturadaEsgoto;
 	}
 
-	/** full constructor */
-    public MovimentoContaPrefaturada(Integer id, Integer anoMesReferenciaPreFaturamento, Integer leituraHidrometro, Date dataHoraLeitura, Short indicadorSituacaoLeitura, Integer leituraFaturamento, Integer consumoMedido, Integer consumoCobrado, Date dataHoraGeracaoMovimento, Short indicadorAtualizacaoFaturamento, Date utlimaAlteracao, Short indicadorEmissaoConta, Integer consumoRateioAgua, Integer consumoRateioEsgoto, Imovel imovel, MedicaoTipo medicaoTipo, gcom.faturamento.FaturamentoGrupo faturamentoGrupo, Rota rota, LeituraAnormalidade leituraAnormalidadeFaturamento, ConsumoTipo consumoTipo, ConsumoAnormalidade consumoAnormalidade, Conta conta, Set movimentoContaPrefaturadaCategorias, Set movimentoContaImpostoDeduzidos) {
+	@SuppressWarnings("rawtypes")
+	public MovimentoContaPrefaturada(Integer id, Integer anoMesReferenciaPreFaturamento, Integer leituraHidrometro, Date dataHoraLeitura, Short indicadorSituacaoLeitura, Integer leituraFaturamento, Integer consumoMedido, Integer consumoCobrado, Date dataHoraGeracaoMovimento, Short indicadorAtualizacaoFaturamento, Date utlimaAlteracao, Short indicadorEmissaoConta, Integer consumoRateioAgua, Integer consumoRateioEsgoto, Imovel imovel, MedicaoTipo medicaoTipo, gcom.faturamento.FaturamentoGrupo faturamentoGrupo, Rota rota, LeituraAnormalidade leituraAnormalidadeFaturamento, ConsumoTipo consumoTipo, ConsumoAnormalidade consumoAnormalidade, Conta conta, Set movimentoContaPrefaturadaCategorias, Set movimentoContaImpostoDeduzidos) {
         this.id = id;
         this.anoMesReferenciaPreFaturamento = anoMesReferenciaPreFaturamento;
         this.leituraHidrometro = leituraHidrometro;
@@ -168,11 +99,10 @@ public class MovimentoContaPrefaturada implements Serializable {
         this.movimentoContaImpostoDeduzidos = movimentoContaImpostoDeduzidos;
     }
 
-    /** default constructor */
     public MovimentoContaPrefaturada() {
     }
 
-    /** minimal constructor */
+    @SuppressWarnings("rawtypes")
     public MovimentoContaPrefaturada(Integer id, Integer anoMesReferenciaPreFaturamento, Date dataHoraLeitura, Short indicadorSituacaoLeitura, Date dataHoraGeracaoMovimento, Short indicadorAtualizacaoFaturamento, Date utlimaAlteracao, Short indicadorEmissaoConta, Imovel imovel, MedicaoTipo medicaoTipo, gcom.faturamento.FaturamentoGrupo faturamentoGrupo, Rota rota, LeituraAnormalidade leituraAnormalidadeFaturamento, ConsumoTipo consumoTipo, ConsumoAnormalidade consumoAnormalidade, Conta conta, Set movimentoContaPrefaturadaCategorias, Set movimentoContaImpostoDeduzidos) {
         this.id = id;
         this.anoMesReferenciaPreFaturamento = anoMesReferenciaPreFaturamento;
@@ -370,18 +300,22 @@ public class MovimentoContaPrefaturada implements Serializable {
         this.conta = conta;
     }
 
+    @SuppressWarnings("rawtypes")
     public Set getMovimentoContaPrefaturadaCategorias() {
         return this.movimentoContaPrefaturadaCategorias;
     }
 
+    @SuppressWarnings("rawtypes")
     public void setMovimentoContaPrefaturadaCategorias(Set movimentoContaPrefaturadaCategorias) {
         this.movimentoContaPrefaturadaCategorias = movimentoContaPrefaturadaCategorias;
     }
 
+    @SuppressWarnings("rawtypes")
     public Set getMovimentoContaImpostoDeduzidos() {
         return this.movimentoContaImpostoDeduzidos;
     }
 
+    @SuppressWarnings("rawtypes")
     public void setMovimentoContaImpostoDeduzidos(Set movimentoContaImpostoDeduzidos) {
         this.movimentoContaImpostoDeduzidos = movimentoContaImpostoDeduzidos;
     }

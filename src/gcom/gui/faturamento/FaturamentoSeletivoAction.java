@@ -50,7 +50,10 @@ public class FaturamentoSeletivoAction extends GcomAction {
 					if(imovelFaturamentoSeletivo.getDadoMovimentacao().getMatriculaImovel().toString().equals(imovelSelecionado)) {
 						imoveisParaFaturar.add(imovelFaturamentoSeletivo);
 						
-						logger.info("Imóvel: " + imovelFaturamentoSeletivo.getIdImovel() + " [" + imovelFaturamentoSeletivo.getLeitura() + "]"+ " [" + imovelFaturamentoSeletivo.getAnormalidade() + "]"+ " [" + imovelFaturamentoSeletivo.getDataLeitura() + "]");
+						logger.info("Imóvel: " + imovelFaturamentoSeletivo.getIdImovel() 
+								+ " [" + imovelFaturamentoSeletivo.getLeitura() +      "]"
+								+ " [" + imovelFaturamentoSeletivo.getAnormalidade() + "]"
+								+ " [" + imovelFaturamentoSeletivo.getDataLeitura() +  "]");
 					}
 				}
 			}
@@ -67,8 +70,9 @@ public class FaturamentoSeletivoAction extends GcomAction {
 		for (ImovelFaturamentoSeletivo imovel : colecaoImoveis) {
 			try {
 
-				fachada.incluirMedicaoHistoricoFaturamentoSeletivo(imovel);
-				fachada.faturarImovelSeletivo(imovel);
+				fachada.processarMovimentoContaPreFaturadaFaturamentoSeletivo(imovel);
+//				fachada.incluirMedicaoHistoricoFaturamentoSeletivo(imovel);
+//				fachada.faturarImovelSeletivo(imovel);
 			
 			} catch (Exception e) {
 				throw new ActionServletException("Erro ao faturar seletivamente imóvel " + imovel.getIdImovel(), e);
