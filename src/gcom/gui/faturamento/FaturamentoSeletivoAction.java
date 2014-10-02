@@ -26,9 +26,6 @@ public class FaturamentoSeletivoAction extends GcomAction {
 
         FaturamentoSeletivoActionForm form = (FaturamentoSeletivoActionForm) actionForm;
         
-        //FaturamentoSeletivoBO faturamentoSeletivo = new FaturamentoSeletivoBO(form);
-      //faturamentoSeletivo.faturar();
-
         this.faturar(form);
 
  		montarPaginaSucesso(httpServletRequest, "Imóveis selecionados faturados com sucesso.", "Faturar outro imóvel", "filtrarFaturamentoSeletivo.do?menu=sim");
@@ -40,24 +37,28 @@ public class FaturamentoSeletivoAction extends GcomAction {
 		
 		Collection<ImovelFaturamentoSeletivo> imoveisParaFaturar = new ArrayList<ImovelFaturamentoSeletivo>();
 		
-		if (form.getColecaoImoveisFaturamentoSeletivo().size() == form.getIdImoveisSelecionados().length) {
-			imoveisParaFaturar = form.getColecaoImoveisFaturamentoSeletivo();
-		} else {
-			
-			for (ImovelFaturamentoSeletivo imovelFaturamentoSeletivo : form.getColecaoImoveisFaturamentoSeletivo()) {
-				for (String imovelSelecionado : form.getIdImoveisSelecionados()) {
-					
-					if(imovelFaturamentoSeletivo.getDadoMovimentacao().getMatriculaImovel().toString().equals(imovelSelecionado)) {
-						imoveisParaFaturar.add(imovelFaturamentoSeletivo);
+		if (form.getIdImoveisSelecionados() != null) {
+			if (form.getColecaoImoveisFaturamentoSeletivo().size() == form.getIdImoveisSelecionados().length) {
+				imoveisParaFaturar = form.getColecaoImoveisFaturamentoSeletivo();
+			} else {
+				
+				for (ImovelFaturamentoSeletivo imovelFaturamentoSeletivo : form.getColecaoImoveisFaturamentoSeletivo()) {
+					for (String imovelSelecionado : form.getIdImoveisSelecionados()) {
 						
-						logger.info("Imóvel: " + imovelFaturamentoSeletivo.getIdImovel() 
-								+ " [" + imovelFaturamentoSeletivo.getLeitura() +      "]"
-								+ " [" + imovelFaturamentoSeletivo.getAnormalidade() + "]"
-								+ " [" + imovelFaturamentoSeletivo.getDataLeitura() +  "]");
+						if(imovelFaturamentoSeletivo.getDadoMovimentacao().getMatriculaImovel().toString().equals(imovelSelecionado)) {
+							imoveisParaFaturar.add(imovelFaturamentoSeletivo);
+							
+							logger.info("Imóvel: " + imovelFaturamentoSeletivo.getIdImovel() 
+									+ " [" + imovelFaturamentoSeletivo.getLeitura() +      "]"
+									+ " [" + imovelFaturamentoSeletivo.getAnormalidade() + "]"
+									+ " [" + imovelFaturamentoSeletivo.getDataLeitura() +  "]");
+						}
 					}
 				}
 			}
+		} else {
 		}
+		
 		return imoveisParaFaturar;
 	}
 	
@@ -69,11 +70,7 @@ public class FaturamentoSeletivoAction extends GcomAction {
 		
 		for (ImovelFaturamentoSeletivo imovel : colecaoImoveis) {
 			try {
-
 				fachada.processarMovimentoContaPreFaturadaFaturamentoSeletivo(imovel);
-//				fachada.incluirMedicaoHistoricoFaturamentoSeletivo(imovel);
-//				fachada.faturarImovelSeletivo(imovel);
-			
 			} catch (Exception e) {
 				throw new ActionServletException("Erro ao faturar seletivamente imóvel " + imovel.getIdImovel(), e);
 			}

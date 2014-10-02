@@ -23813,7 +23813,6 @@ public class RepositorioMicromedicaoHBM implements IRepositorioMicromedicao {
 		try {
 			StringBuilder consulta = new StringBuilder();
 			consulta.append("SELECT new gcom.micromedicao.bean.ImovelPorRotaHelper(imovel, movimento) ");
-			//consulta.append("SELECT imovel ");
 			consulta.append("FROM MovimentoRoteiroEmpresa movimento ");
 			consulta.append("   LEFT JOIN FETCH movimento.localidade localidade ");
 			consulta.append("   LEFT JOIN FETCH movimento.imovel imovel ");
@@ -23841,6 +23840,8 @@ public class RepositorioMicromedicaoHBM implements IRepositorioMicromedicao {
 			consulta.append("   LEFT JOIN FETCH imovel.setorComercial setorComercial ");
 			consulta.append("   LEFT JOIN FETCH imovel.quadra quadra ");
 			consulta.append("WHERE rota.id = :idRota AND movimento.anoMesMovimento = :anoMesFaturamento ");
+			consulta.append(" and imovel.indicadorImovelCondominio = :indicadorImovelCondominio ");
+			consulta.append(" and imovel.imovelCondominio is null ");
 			consulta.append(" and (movimento.numeroHidrometro is not null and movimento.numeroHidrometro <> '') ");
 			consulta.append(" and imovel.id in (select c.imovel.id from Conta c where c.rota.id = :idRota and c.referencia = :anoMesFaturamento and c.debitoCreditoSituacaoAtual.id = :preFaturada ) ");
 			
@@ -23851,7 +23852,8 @@ public class RepositorioMicromedicaoHBM implements IRepositorioMicromedicao {
 
 			retorno = session.createQuery(consulta.toString())
 					.setInteger("idRota", idRota)
-					.setInteger("anoMesFaturamento", anoMesFaturamento)//.list();
+					.setInteger("anoMesFaturamento", anoMesFaturamento)
+					.setShort("indicadorImovelCondominio", ConstantesSistema.NAO)
 					.setInteger("preFaturada", DebitoCreditoSituacao.PRE_FATURADA).list();
 
 		} catch (HibernateException e) {

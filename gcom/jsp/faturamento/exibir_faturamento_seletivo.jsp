@@ -150,15 +150,17 @@ function restart() {
 }
 
 function validarForm(tipo){
+	alert(total);
 	   var total = document.getElementById("qnt").value;
 	   var form = document.forms[0];
-	 //  var obData = document.forms['FaturamentoSeletivoActionForm'].elements['datas'];
-	   var obLeitura = document.forms['FaturamentoSeletivoActionForm'].elements['leituras'];
-	  // var obAnormalidade = document.forms['FaturamentoSeletivoActionForm'].elements['anormalidades'];
-	  // var dados = document.forms['FaturamentoSeletivoActionForm'].elements['dados'];
+	   var obData = document.forms['FaturamentoSeletivoActionForm'].elements['datas'];
+	   alert(obData);
+		   var obLeitura = document.forms['FaturamentoSeletivoActionForm'].elements['leituras'];
+	   var obAnormalidade = document.forms['FaturamentoSeletivoActionForm'].elements['anormalidades'];
+	   var dados = document.forms['FaturamentoSeletivoActionForm'].elements['dados'];
 	   var ok = 1;
 	   var temPreenchido = 0;
-	   /*
+	   
 	   for(var i =0; i <total && total != 1; i++){
 			if ( obData[i] != undefined ) {
 		   		if(obData[i].value != null && obData[i].value != ""){
@@ -177,7 +179,7 @@ function validarForm(tipo){
 		   		}
 		   	}	
 	   }
-	   /*
+	   
 	   if(total== 1){
 	   		if(obData.value != null && obData.value != ""){
 	   			temPreenchido = 1;
@@ -194,7 +196,7 @@ function validarForm(tipo){
 	   		}
 
 	    }
-	  */
+	  
 	   if(ok ==1 || temPreenchido == 0){
 		   if(tipo == 1){
 		   		form.action = 'faturamentoSeletivo.do?action=avancar&temPreenchido='+temPreenchido;
@@ -284,7 +286,7 @@ function passarComEnter(tecla, nomeCampoForm, posicao) {
 </script>
 </head>
 
-<body leftmargin="5" topmargin="5" onload="setarFoco('${requestScope.nomeCampo}');">
+<body leftmargin="5" topmargin="5" >
 <html:form action="/faturamentoSeletivo" name="FaturamentoSeletivoActionForm" type="gcom.gui.faturamento.FaturamentoSeletivoActionForm" method="post">
 	
 	<input type="hidden" id="anormalidadesBanco" value="${requestScope.anormalidadesBanco}"/>
@@ -351,6 +353,7 @@ function passarComEnter(tecla, nomeCampoForm, posicao) {
 					<table width="100%" align="center" bgcolor="#90c7fc" border="0" cellpadding="0" cellspacing="0"> 
 						<tr bgcolor="#cbe5fe">
 							<td width="100%" align="center">
+							<div id="divColecao" style="height:300px;overflow:auto;">
 								<table width="100%" bgcolor="#99CCFF">
 									<tr bordercolor="#000000" bgcolor="#90c7fc">
 										<td width="20%" bgcolor="#90c7fc">
@@ -460,64 +463,19 @@ function passarComEnter(tecla, nomeCampoForm, posicao) {
 																<div align="center">
 																<%if (cont == 1) {%>
 																
-																	<c:choose >		
-																			<c:when test='${imovel.dadoMovimentacao.naoPermitirAlterar == true}'>
-																				<input type="text" maxlength="10" tabindex="2"
-																				name="datas" size="10" 
-																				readonly="readonly" style="background-color:#EFEFEF; border:0; text-align:left; color: #000000;" 
-																				property="${imovel.dataLeitura}" value="<fmt:formatDate pattern="dd/MM/yyyy" value="${imovel.dadoMovimentacao.dataLeituraCampo}"/>"/>
-																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
-																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />							
-																			</c:when>
-																			<c:otherwise>
-																				<html:text name="imovel" property="dataLeitura" indexed="true" maxlength="10" tabindex="4" size="10"></html:text>
+																	<html:text name="imovel" property="dataLeitura" indexed="true" maxlength="10" tabindex="4" size="10"></html:text>
 																				
-																				<a href="javascript:abrirCalendarioReplicando('FaturamentoSeletivoActionForm','datas','<%=cont-1%>',1)">
-																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
-																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
-																				</a>
-																				<!--  
-																				<input type="text" maxlength="10" tabindex="2" name="datas" size="10" onkeyup="mascaraData(this,event);replicarData(this);" 
-																				onkeypress="passarComEnter(event, 'leituras', '<%=cont%>');return isCampoNumerico(event);"
-																				 property="${imovel.dataLeitura}" value="<fmt:formatDate pattern="dd/MM/yyyy" value="${imovel.dadoMovimentacao.dataLeituraCampo}"/>"
-																				onblur="javascript:verificaDataMensagemPersonalizada(this,'Data Inválida.')"/>
-																				<a href="javascript:abrirCalendarioReplicando('FaturamentoSeletivoActionForm','datas','<%=cont-1%>',1)">
-																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
-																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
-																				</a>
-																				-->
-																			</c:otherwise>
-																	</c:choose>							
-																	<%} else {%>
-																	<c:choose >	
-																			<c:when test='${imovel.dadoMovimentacao.naoPermitirAlterar == true}'>
-																				<input type="text" maxlength="10" tabindex="2"
-																				name="datas" size="10" 
-																				readonly="readonly" style="background-color:#EFEFEF; border:0; text-align:left; color: #000000;" 
-																				property="${imovel.dataLeitura}" value="<fmt:formatDate pattern="dd/MM/yyyy" value="${imovel.dadoMovimentacao.dataLeituraCampo}"/>"/>
-																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
-																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
-																			</c:when>
-																			<c:otherwise>
-																				<html:text name="imovel" property="dataLeitura" indexed="true" maxlength="10" tabindex="4" size="10"></html:text>
+																	<a href="javascript:abrirCalendarioReplicando('FaturamentoSeletivoActionForm','datas','<%=cont-1%>',1)">
+																	<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
+																		width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
+																	</a>
+																<%} else {%>
+																	<html:text name="imovel" property="dataLeitura" indexed="true" maxlength="10" tabindex="4" size="10"></html:text>
 																				
-																				<a href="javascript:abrirCalendarioReplicando('FaturamentoSeletivoActionForm','datas','<%=cont-1%>',1)">
-																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
-																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
-																				</a>
-																			<!--  
-																				<input type="text" maxlength="10" tabindex="2"
-																				name="datas" size="10" onkeyup="mascaraData(this,event)" 
-																				onkeypress="passarComEnter(event, 'leituras', '<%=cont%>');return isCampoNumerico(event);"
-																				property="${imovel.dataLeitura}" value="<fmt:formatDate pattern="dd/MM/yyyy" value="${imovel.dadoMovimentacao.dataLeituraCampo}"/>"
-																				onblur="javascript:verificaDataMensagemPersonalizada(this,'Data Inválida.')"/>
-																				<a href="javascript:abrirCalendario('FaturamentoSeletivoActionForm','datas','<%=cont-1%>')">
-																				<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
-																					width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
-																				</a>
-																				-->
-																			</c:otherwise>
-																	</c:choose>
+																	<a href="javascript:abrirCalendarioReplicando('FaturamentoSeletivoActionForm','datas','<%=cont-1%>',1)">
+																	<img border="0" src="<bean:message key="caminho.imagens"/>calendario.gif"
+																		width="20" border="0" align="absmiddle" alt="Exibir Calendário" />
+																		</a>
 																<%}%>
 																</div>
 															</td>
@@ -528,76 +486,20 @@ function passarComEnter(tecla, nomeCampoForm, posicao) {
 										</logic:iterate>
 									</logic:present>
 								</table>
+							</div>
 							</td>
 						</tr>
 						
 						
 						
 						<logic:present name="colecaoLeituras">
-							<table align="center">				
-								<tr class="centercoltext">
-									<td align="center">
-										<strong>Posição: ${FaturamentoSeletivoActionForm.indice}/${FaturamentoSeletivoActionForm.total}</strong>
-									</td>
-								</tr>
-							</table>	
-							
-							<!--  BOTÕES DA PAGINAÇÃO -->				
 							<table>				
-								<tr class="centercoltext">
-									<!-- IMAGEM BOTÃO VOLTAR  -->
-									<td align="right"  width="10%">
-										<c:choose>
-											<c:when test='${FaturamentoSeletivoActionForm.indice != 1}'>
-												<a href="javascript:validarForm(2);">
-													<img src="imagens/voltar.gif" border="0"></a>
-											</c:when>
-										</c:choose>
-									</td>
-									
-									<!-- BOTÃO VOLTAR  -->
-									<td align="left" width="10%">
-										<c:choose>
-											<c:when test='${FaturamentoSeletivoActionForm.indice != 1}'>
-												<gsan:controleAcessoBotao name="Button" url="faturamentoSeletivo.do" value="  Voltar  " tabindex="6" onclick="javascript:validarForm(2);"/>
-											</c:when>
-										</c:choose>
-									</td>
-									
-									<!-- BOTÃO AVANÇAR  -->				   			
-									<td align="right" width="10%">
-										<c:choose>
-											<c:when test='${FaturamentoSeletivoActionForm.indice != FaturamentoSeletivoActionForm.total}'>
-												<gsan:controleAcessoBotao name="Button" url="faturamentoSeletivo.do" value="Avançar" tabindex="7" onclick="javascript:validarForm(1);"/>
-											</c:when>
-										</c:choose>
-									</td>
-									
-									<!-- IMAGEM BOTÃO AVANÇAR  -->
-									<td align="left" width="10%">
-										<c:choose>
-											<c:when test='${FaturamentoSeletivoActionForm.indice != FaturamentoSeletivoActionForm.total}'>
-												<a href="javascript:validarForm(1);">
-													<img src="imagens/avancar.gif" border="0" /></a>
-											</c:when>
-										</c:choose>
-									</td>
-									
-								</tr>
-								
-								
-								<!--  LINHA PRETA-->
-								<tr>
-									<td colspan="9" width="100%" height="1px" bgcolor="#000000"></td>
-								</tr>
-								
 								<!--  BOTÕES FINAIS -->
 								<tr class="rigthcoltext">
 									<td width="100%">
 										<table width="100%">
 											<tr>
 												<td align="left" colspan="2">
-													<input type="button" name="Button" class="bottonRightCol" value="Desfazer" onClick="window.location.href='/gsan/exibirFaturamentoSeletivo.do?menu=sim'" />
 													<input type="button" name="Button" class="bottonRightCol" value="Cancelar" onClick="window.location.href='/gsan/telaPrincipal.do'" />
 												</td>
 												<td align="right">

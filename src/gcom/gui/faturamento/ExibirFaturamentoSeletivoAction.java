@@ -32,7 +32,7 @@ import org.apache.struts.action.ActionMapping;
 
 public class ExibirFaturamentoSeletivoAction extends GcomAction {
 
-	private int qtdRgistrosExibidos = 12;
+	//private int qtdRgistrosExibidos = 12;
 	
 	@Override
     public ActionForward execute(ActionMapping actionMapping, ActionForm actionForm, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -76,7 +76,7 @@ public class ExibirFaturamentoSeletivoAction extends GcomAction {
                 
                 form.setDados(v);
                 form.setIndice(new Integer(1));
-                form.setTotal(obterQtdTotalPaginas(dados));
+                form.setTotal(dados.size());
                 
                 Collection<DadosMovimentacao> dadosExibicao = new ArrayList<DadosMovimentacao>();
                 Iterator<DadosMovimentacao> it = dados.iterator();
@@ -84,7 +84,7 @@ public class ExibirFaturamentoSeletivoAction extends GcomAction {
                 char delimitador2 = ';';
 
                 List<ImovelFaturamentoSeletivo> imoveisFaturamentoSeletivo = new ArrayList<ImovelFaturamentoSeletivo>();
-                for (int i = 0; i < this.qtdRgistrosExibidos && it.hasNext(); i++) {
+                while (it.hasNext()) {
                 	
                 	ImovelFaturamentoSeletivo imovel = new ImovelFaturamentoSeletivo();
                     DadosMovimentacao dado = it.next();
@@ -92,7 +92,7 @@ public class ExibirFaturamentoSeletivoAction extends GcomAction {
                     faixas.append(dado.getFaixaLeituraEsperadaInferior());
                     faixas.append(delimitador2);
                     faixas.append(dado.getFaixaLeituraEsperadaSuperior());
-                    if (i + 1 < this.qtdRgistrosExibidos && it.hasNext()) {
+                    if (it.hasNext()) {
                         faixas.append(delimitador);
                     }
                     dadosExibicao.add(dado);
@@ -165,18 +165,6 @@ public class ExibirFaturamentoSeletivoAction extends GcomAction {
 		}
 
 		httpServletRequest.setAttribute("anormalidadesBanco", anormalidades.toString());
-	}
-
-	private Integer obterQtdTotalPaginas(Collection<DadosMovimentacao> dados) {
-		Integer total = 0;
-		
-		if (dados.size() % this.qtdRgistrosExibidos == 0) {
-		    total = new Integer(dados.size() / this.qtdRgistrosExibidos);
-		} else {
-		    total = new Integer((dados.size() / this.qtdRgistrosExibidos) + 1);
-		}
-		
-		return total;
 	}
 
 	private String getDescricaoRota(Rota rota) {
