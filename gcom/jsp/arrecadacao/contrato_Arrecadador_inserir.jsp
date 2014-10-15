@@ -65,6 +65,12 @@
 	    	form.agTarifaConta.value = "";
 	    	form.numeroTarifaConta.value = "";
 		}
+		if(contaBancaria == 'arrecadacao2'){
+			form.idContaBancariaArrecadador2.value = "";
+	    	form.bcoArrecadadorConta2.value = "";
+	    	form.agArrecadadorConta2.value = "";
+	    	form.numeroArrecadadorConta2.value = "";
+		}
 	}
 
     function recuperarDadosCincoParametros(codigoRegistro, descricaoRegistro1, descricaoRegistro2, descricaoRegistro3, tipoConsulta) {
@@ -81,6 +87,12 @@
 		        form.agTarifaConta.value = descricaoRegistro2;
 		        form.numeroTarifaConta.value = descricaoRegistro3;
 	         }abrirPopup('contaBancariaPesquisarAction.do?tipo=contaBancaria');
+	      }
+	    if (tipoContaBancaria == 'arrecadacao2') {
+	    	form.idContaBancariaArrecadador2.value = codigoRegistro;
+	        form.bcoArrecadadorConta2.value = descricaoRegistro1;
+	        form.agArrecadadorConta2.value = descricaoRegistro2;
+	        form.numeroArrecadadorConta2.value = descricaoRegistro3;
 	      }
     }
 	
@@ -551,6 +563,26 @@
 					  			
 					  	/></span></b></strong>
 					</td>
+				</tr>
+				<tr>
+					<td width="32%">
+						<strong>Conta Depósito Arrecadação:<font color="#FF0000">*</font></strong>
+					</td>
+					<html:hidden property="idContaBancariaArrecadador2"/>
+					<td width="68%">
+						<html:text maxlength="4" property="bcoArrecadadorConta2" size="4" readonly="true" 
+						style="background-color:#EFEFEF; border:0; font-color: #000000" />
+						<html:text maxlength="9" property="agArrecadadorConta2" size="9" readonly="true"
+						style="background-color:#EFEFEF; border:0; font-color: #000000" />
+						<html:text maxlength="20" property="numeroArrecadadorConta2" size="20" readonly="true"
+						style="background-color:#EFEFEF; border:0; font-color: #000000" />
+						<a href="javascript:pesquisaTipoConta('arrecadacao2');">
+							<img width="23" height="21"	src="<bean:message key='caminho.imagens'/>pesquisa.gif" border="0" title="Pesquisar Conta Bancária" />
+						</a>
+						<a href="javascript:limparContaBancaria(document.forms[0],'arrecadacao2');">
+							<img src="<bean:message key="caminho.imagens"/>limparcampo.gif"	border="0" title="Limpar Conta Bancária"/>
+						</a>
+				  	</td>
 				</tr>
 				<tr>
 					<td>
