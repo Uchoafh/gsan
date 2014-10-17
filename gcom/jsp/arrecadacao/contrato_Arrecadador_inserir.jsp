@@ -172,6 +172,8 @@
 		var objNmDiasFloat = form.numeroDiaFloat;
 		var objValorTarifa = form.valorTarifa;
 		var objValorTarifaPercentual = form.valorTarifaPercentual;
+		var objAgArrecadadorConta2 = form.agArrecadadorConta2;
+		var objNumeroArrecadadorConta2 = form.numeroArrecadadorConta2;
 		
 		if( objFormaArrecadacao.value != '-1' ) {
 
@@ -610,18 +612,24 @@
 							<td>
 							<table width="100%" bgcolor="#99CCFF">
 								<tr bgcolor="#99CCFF">
-									<td align="center" width="10%">&nbsp;</td>
-									<td width="35%">
+									<td align="center" width="5%">&nbsp;</td>
+									<td width="30%">
 										<div align="left"><strong>Forma</strong></div>
 									</td>
 									<td width="20%">
 										<div align="left"><strong>Valor da Tarifa</strong></div>
 									</td>
-									<td width="20%">
+									<td width="10%">
 										<div align="left"><strong>Perc. da Tarifa</strong></div>
 									</td>
-									<td width="15%">
+									<td width="10%">
 										<div align="left"><strong>N. de dias FLOAT</strong></div>
+									</td>
+									<td width="10%">
+										<div align="left"><strong>Ag</strong></div>
+									</td>
+									<td width="15%">
+										<div align="left"><strong>Conta</strong></div>
 									</td>
 								</tr>
 							</table>
@@ -655,14 +663,14 @@
 													</c:otherwise>
 												</c:choose>
 		
-													<td align="center" width="10%">
+													<td align="center" width="5%">
 														<img
 														src="<bean:message key='caminho.imagens'/>Error.gif"
 														onclick="remover('${count}')"
 														title="Remover" style="cursor: hand;">
 														
 															
-													<td width="35%">
+													<td width="30%">
 														<div align="left">
 															<logic:present name="arrecadadorContratoTarifa" property="arrecadacaoForma">
 																<bean:write name="arrecadadorContratoTarifa" property="arrecadacaoForma.descricao" />
@@ -681,7 +689,7 @@
 														</div>
 													</td>
 													
-													<td width="20%">
+													<td width="10%">
 														<div align="left">
 															<logic:present name="arrecadadorContratoTarifa" property="valorTarifaPercentual">
 																<%= Util.formatarMoedaReal(arrecadadorContratoTarifa.getValorTarifaPercentual())%>
@@ -690,13 +698,33 @@
 														</div>
 													</td>
 													
-													<td width="15%">
+													<td width="10%">
 														<div align="left">
 															<logic:present name="arrecadadorContratoTarifa" property="numeroDiaFloat">
 																<bean:write name="arrecadadorContratoTarifa" property="numeroDiaFloat" />
 															</logic:present> 
 		
 															<logic:notPresent name="arrecadadorContratoTarifa" property="numeroDiaFloat">&nbsp;</logic:notPresent>
+														</div>
+													</td>
+													
+													<td width="10%">
+														<div align="left">
+															<logic:present name="arrecadadorContratoTarifa" property="agArrecadadorConta2">
+																<bean:write name="arrecadadorContratoTarifa" property="agArrecadadorConta2" />
+															</logic:present> 
+		
+															<logic:notPresent name="arrecadadorContratoTarifa" property="agArrecadadorConta2">&nbsp;</logic:notPresent>
+														</div>
+													</td>
+													
+													<td width="15%">
+														<div align="left">
+															<logic:present name="arrecadadorContratoTarifa" property="numeroArrecadadorConta2">
+																<bean:write name="arrecadadorContratoTarifa" property="numeroArrecadadorConta2" />
+															</logic:present> 
+		
+															<logic:notPresent name="arrecadadorContratoTarifa" property="numeroArrecadadorConta2">&nbsp;</logic:notPresent>
 														</div>
 													</td>
 												

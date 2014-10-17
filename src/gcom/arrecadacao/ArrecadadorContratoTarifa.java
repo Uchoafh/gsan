@@ -38,6 +38,10 @@ public class ArrecadadorContratoTarifa implements Serializable {
     private BigDecimal valorTarifaPercentual;
 
 	private ContaBancaria contaBancariaDepositoArrecadacao;
+	
+	private String agArrecadadorConta2;
+	
+	private String numeroArrecadadorConta2;
 
     /** full constructor */
     public ArrecadadorContratoTarifa(gcom.arrecadacao.ArrecadadorContratoTarifaPK comp_id, BigDecimal valorTarifa, Short numeroDiaFloat, Date ultimaAlteracao, gcom.arrecadacao.ArrecadacaoForma arrecadacaoForma, gcom.arrecadacao.ArrecadadorContrato arrecadadorContrato) {
@@ -141,5 +145,21 @@ public class ArrecadadorContratoTarifa implements Serializable {
 
 	public void setContaBancariaDepositoArrecadacao(ContaBancaria contaBancariaDepositoArrecadacao) {
 		this.contaBancariaDepositoArrecadacao = contaBancariaDepositoArrecadacao;
+	}
+
+	public String getAgArrecadadorConta2() {
+		return agArrecadadorConta2;
+	}
+
+	public void setAgArrecadadorConta2(String agArrecadadorConta2) {
+		this.agArrecadadorConta2 = agArrecadadorConta2;
+	}
+
+	public String getNumeroArrecadadorConta2() {
+		return numeroArrecadadorConta2;
+	}
+
+	public void setNumeroArrecadadorConta2(String numeroArrecadadorConta2) {
+		this.numeroArrecadadorConta2 = numeroArrecadadorConta2;
 	}
 }

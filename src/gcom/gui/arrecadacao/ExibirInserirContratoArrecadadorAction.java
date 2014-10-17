@@ -254,6 +254,22 @@ public class ExibirInserirContratoArrecadadorAction extends GcomAction {
 			arrecadadorContratoTarifa.setNumeroDiaFloat(nmDiasFloat);
 		}
 		
+		//Agencia
+		String agArrecadadorConta2;
+		if(inserirContratoArrecadadorActionForm.getAgArrecadadorConta2() != null
+				&& !inserirContratoArrecadadorActionForm.getAgArrecadadorConta2().equals("")) {
+			agArrecadadorConta2 = inserirContratoArrecadadorActionForm.getAgArrecadadorConta2();
+			arrecadadorContratoTarifa.setAgArrecadadorConta2(agArrecadadorConta2);
+		}
+		
+		//Numero da Conta
+		String numeroArrecadadorConta2;
+		if(inserirContratoArrecadadorActionForm.getNumeroArrecadadorConta2() != null
+				&& !inserirContratoArrecadadorActionForm.getNumeroArrecadadorConta2().equals("")) {
+			numeroArrecadadorConta2 = inserirContratoArrecadadorActionForm.getNumeroArrecadadorConta2();
+			arrecadadorContratoTarifa.setNumeroArrecadadorConta2(numeroArrecadadorConta2);
+		}
+		
 		//Adiciona o Arrecadador Contrato Tarifa a Colecao
         if (sessao.getAttribute("colecaoArrecadadorContratoTarifaSelecionados") != null){
         	
@@ -331,6 +347,9 @@ public class ExibirInserirContratoArrecadadorAction extends GcomAction {
 	    		inserirContratoArrecadadorActionForm.setNumeroDiaFloat("");
 	    		inserirContratoArrecadadorActionForm.setValorTarifa("");
 	    		inserirContratoArrecadadorActionForm.setValorTarifaPercentual("");
+	    		inserirContratoArrecadadorActionForm.setBcoArrecadadorConta2("");
+	    		inserirContratoArrecadadorActionForm.setAgArrecadadorConta2("");
+	    		inserirContratoArrecadadorActionForm.setNumeroArrecadadorConta2("");
 	    		inserirContratoArrecadadorActionForm.setFormaDeArrecadacao("-1");
         }
         
