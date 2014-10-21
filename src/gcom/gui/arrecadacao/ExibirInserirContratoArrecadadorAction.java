@@ -5,6 +5,8 @@ import gcom.arrecadacao.Arrecadador;
 import gcom.arrecadacao.ArrecadadorContratoTarifa;
 import gcom.arrecadacao.FiltroArrecadacaoForma;
 import gcom.arrecadacao.FiltroArrecadador;
+import gcom.arrecadacao.banco.ContaBancaria;
+import gcom.arrecadacao.banco.FiltroContaBancaria;
 import gcom.cadastro.cliente.Cliente;
 import gcom.cadastro.cliente.FiltroCliente;
 import gcom.fachada.Fachada;
@@ -254,7 +256,14 @@ public class ExibirInserirContratoArrecadadorAction extends GcomAction {
 			arrecadadorContratoTarifa.setNumeroDiaFloat(nmDiasFloat);
 		}
 		
-		//Agencia
+		if(  (inserirContratoArrecadadorActionForm.getIdContaBancariaArrecadador2() != null
+					&& !inserirContratoArrecadadorActionForm.getIdContaBancariaArrecadador2().equals(""))	) { 
+				ContaBancaria contaBancaria = new ContaBancaria();
+				contaBancaria.setId(Integer.parseInt(inserirContratoArrecadadorActionForm.getIdContaBancariaArrecadador2()));
+				arrecadadorContratoTarifa.setContaBancariaDepositoArrecadacao(contaBancaria);
+			 
+		}
+		/*//Agencia
 		String agArrecadadorConta2;
 		if(inserirContratoArrecadadorActionForm.getAgArrecadadorConta2() != null
 				&& !inserirContratoArrecadadorActionForm.getAgArrecadadorConta2().equals("")) {
@@ -268,7 +277,7 @@ public class ExibirInserirContratoArrecadadorAction extends GcomAction {
 				&& !inserirContratoArrecadadorActionForm.getNumeroArrecadadorConta2().equals("")) {
 			numeroArrecadadorConta2 = inserirContratoArrecadadorActionForm.getNumeroArrecadadorConta2();
 			arrecadadorContratoTarifa.setNumeroArrecadadorConta2(numeroArrecadadorConta2);
-		}
+		}*/
 		
 		//Adiciona o Arrecadador Contrato Tarifa a Colecao
         if (sessao.getAttribute("colecaoArrecadadorContratoTarifaSelecionados") != null){
