@@ -93,7 +93,7 @@
 	        form.bcoArrecadadorConta2.value = descricaoRegistro1;
 	        form.agArrecadadorConta2.value = descricaoRegistro2;
 	        form.numeroArrecadadorConta2.value = descricaoRegistro3;
-	      }
+	     }
     }
 	
     function pesquisaTipoConta(tipo) {

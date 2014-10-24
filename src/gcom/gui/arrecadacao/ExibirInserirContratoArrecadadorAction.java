@@ -263,7 +263,8 @@ public class ExibirInserirContratoArrecadadorAction extends GcomAction {
 				arrecadadorContratoTarifa.setContaBancariaDepositoArrecadacao(contaBancaria);
 			 
 		}
-		/*//Agencia
+		
+		//Agencia
 		String agArrecadadorConta2;
 		if(inserirContratoArrecadadorActionForm.getAgArrecadadorConta2() != null
 				&& !inserirContratoArrecadadorActionForm.getAgArrecadadorConta2().equals("")) {
@@ -277,7 +278,7 @@ public class ExibirInserirContratoArrecadadorAction extends GcomAction {
 				&& !inserirContratoArrecadadorActionForm.getNumeroArrecadadorConta2().equals("")) {
 			numeroArrecadadorConta2 = inserirContratoArrecadadorActionForm.getNumeroArrecadadorConta2();
 			arrecadadorContratoTarifa.setNumeroArrecadadorConta2(numeroArrecadadorConta2);
-		}*/
+		}
 		
 		//Adiciona o Arrecadador Contrato Tarifa a Colecao
         if (sessao.getAttribute("colecaoArrecadadorContratoTarifaSelecionados") != null){
